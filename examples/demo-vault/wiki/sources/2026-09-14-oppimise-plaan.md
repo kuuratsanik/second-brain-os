@@ -1,5 +1,5 @@
 ---
-title: Õppimise plaan: loe vähem, mäleta rohkem
+title: "Õppimise plaan: loe vähem, mäleta rohkem"
 type: source
 kind: article
 domain: [learning]
@@ -7,12 +7,12 @@ lang: et
 sensitivity: normal
 maintained_by: agent
 created: 2026-09-15
-updated: 2026-09-30
+updated: 2026-10-04
 raw: raw/clippings/2026-09-14-oppimise-plaan.md
 url: https://example.com/ope-blogi/oppimise-plaan
 author: Reet Palumäe
 published: 2026-09-14
-aliases: [Õppimise plaan: loe vähem, mäleta rohkem, Learning plan: read less, remember more]
+aliases: ["Õppimise plaan: loe vähem, mäleta rohkem", "Learning plan: read less, remember more"]
 tags: [learning, memory]
 ---
 

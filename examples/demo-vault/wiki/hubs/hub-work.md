@@ -25,6 +25,7 @@ Meetings, colleagues, the company and the concepts used at work.
 
 - Warehouse migration timeline: [[mihkel-sepp|Mihkel Sepp]] to confirm (due 2026-09-30, no answer recorded).
 - Q4 priorities page: not written yet.
+- A vendor estimate of six weeks for the migration sits in a raw file the agent could not ingest; see [[needs-owner]].
 
 ## Pages
 

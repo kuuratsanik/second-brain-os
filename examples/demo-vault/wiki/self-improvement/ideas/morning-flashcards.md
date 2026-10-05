@@ -4,10 +4,10 @@ type: idea
 status: dropped
 domain: [self-improvement, learning]
 lang: en
-sensitivity: normal
+sensitivity: private
 maintained_by: agent
 created: 2026-09-16
-updated: 2026-09-30
+updated: 2026-10-04
 origin: wiki/sources/2026-09-14-oppimise-plaan.md
 aliases: [Morning flashcards idea, Hommikused kaardid]
 tags: [memory, habit]

@@ -3,7 +3,7 @@ title: Self-improvement
 type: hub
 domain: [self-improvement]
 lang: en
-sensitivity: normal
+sensitivity: private
 maintained_by: agent
 created: 2026-08-13
 updated: 2026-10-04
@@ -15,7 +15,7 @@ tags: [hub]
 
 > Fictional. This page belongs to the demo vault; the people, organisations and articles in it are invented.
 
-Hub for ideas, experiments, reviews and the systems that come out of them. The stages are described in `wiki/systems/self-improvement-lifecycle.md` in the vault template.
+Hub for ideas, experiments, reviews and the systems that come out of them. The stages are described in [[self-improvement-lifecycle]].
 
 ## What belongs here
 

@@ -15,6 +15,8 @@ pages are not listed.
 
 - [[hub-work|Work]]
 - [[hub-learning|Learning]]
+- [[hub-personal|Personal]]
+- [[hub-creative|Creative]]
 - [[hub-self-improvement|Self-improvement]]
 - [[hub-systems|Systems]]
 
@@ -56,6 +58,10 @@ Ideas, experiments and reviews.
 ## Systems
 
 - [[friday-review|Friday review]]
+- [[routing|Routing]]
+- [[self-improvement-lifecycle|Self-improvement lifecycle]]
+- [[vault-operating-notes|Vault operating notes]]
+- [[needs-owner|Needs owner]]
 
 ## Gaps
 

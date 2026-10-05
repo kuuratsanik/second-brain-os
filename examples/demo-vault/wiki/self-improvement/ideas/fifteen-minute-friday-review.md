@@ -2,12 +2,12 @@
 title: Fifteen-minute Friday review
 type: idea
 status: promoted
-domain: [self-improvement]
+domain: [self-improvement, personal]
 lang: en
-sensitivity: normal
+sensitivity: private
 maintained_by: agent
 created: 2026-09-06
-updated: 2026-09-11
+updated: 2026-10-04
 origin: journal/2026-09-06.md
 aliases: [Friday review idea]
 tags: [review, habit]

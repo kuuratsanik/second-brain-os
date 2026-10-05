@@ -1,5 +1,5 @@
 ---
-title: Õppimise plaan: loe vähem, mäleta rohkem
+title: "Õppimise plaan: loe vähem, mäleta rohkem"
 source: https://example.com/ope-blogi/oppimise-plaan
 author: Reet Palumäe
 published: 2026-09-14

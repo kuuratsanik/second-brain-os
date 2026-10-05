@@ -4,7 +4,7 @@ type: review
 scope: experiment
 domain: [self-improvement]
 lang: en
-sensitivity: normal
+sensitivity: private
 maintained_by: agent
 created: 2026-10-03
 updated: 2026-10-04
