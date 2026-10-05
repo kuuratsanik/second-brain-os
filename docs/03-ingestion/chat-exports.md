@@ -9,8 +9,13 @@ Read the privacy section below before running anything here.
 
 ## Exporting
 
-Both Claude and ChatGPT export the full history as JSON from account settings.
-The export arrives by email as a download link, usually within minutes.
+Both Claude and ChatGPT can export your history from account settings, and the
+export arrives as a download link by email. For Claude it is **Settings →
+Privacy → Export data**; the link expires 24 hours after delivery, and Team and
+Enterprise members must ask their organization's Primary Owner
+([Anthropic help](https://support.claude.com/en/articles/9450526-how-can-i-export-my-claude-data)).
+The script below expects JSON, so open the export and check the file you got
+before running it.
 
 ## Converting to markdown
 

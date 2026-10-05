@@ -66,8 +66,18 @@ Old bookmark exports are full of pages that no longer exist. Check before
 ingesting rather than discovering it halfway:
 
 ```bash
-python3 -c "import sys,urllib.request as u;[print(l.strip()) for l in sys.stdin]"
+# one URL per line in urls.txt; prints the ones that do not answer
+python3 -c "
+import sys, urllib.request as u
+for l in sys.stdin:
+    url = l.strip()
+    try: u.urlopen(u.Request(url, method='HEAD'), timeout=10)
+    except Exception as e: print(url, e)
+" < urls.txt
 ```
+
+Some servers refuse HEAD requests, so treat the output as a list to check by
+hand, not a verdict.
 
 For anything valuable that is gone, the Internet Archive usually has a copy.
 Clip from there and note in the frontmatter that the original is dead, because a

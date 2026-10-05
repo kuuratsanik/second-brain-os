@@ -13,12 +13,13 @@ vault takes more than one action, you will stop.
 Simplest reliable setup: record in the phone's default app, share to a cloud
 folder, and have a scheduled task transcribe anything new into `raw/`.
 
-Obsidian's mobile app can record directly into the vault, which removes the
-transfer entirely if you already sync mobile.
+Obsidian's [Audio recorder](https://help.obsidian.md/plugins/audio-recorder)
+core plugin records audio into a note, and its help page marks it as available on
+mobile. That removes the transfer entirely if you already sync mobile.
 
 ## Transcription
 
-Whisper runs locally and is good enough for a voice note recorded at arm's
+[Whisper](https://github.com/openai/whisper) is open source and runs locally and is good enough for a voice note recorded at arm's
 length. Local matters more here than for other sources, because voice notes
 carry half-formed thoughts and meeting audio carries other people's words.
 
