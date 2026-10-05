@@ -9,15 +9,20 @@ made is a diff you can read and revert in one command.
 ```bash
 cd ~/brain
 git init
-git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw
+git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw \
+  .claude/skills .claude/commands .claude/agents scripts
 git commit -m "Initial vault"
 ```
 
 The vault must be its own repository, not a folder inside another one. The
 [vault template](../../vault-template/README.md) uses the explicit-path first
 commit above instead of `git add .`, so nothing you have not looked at is
-committed, and its `.gitignore` already covers the list below plus
-`raw/workspace/`, where email, chat, docs and calendar pulls land. Its agent will
+committed. It includes `.claude/` (skills, commands, agents) and `scripts/`, the
+vault's agent setup, which is worth versioning so a revert covers it too. `raw`
+is included so the empty subfolders are tracked.
+
+The template's `.gitignore` already covers the list below plus `raw/workspace/`,
+where email, chat, docs and calendar pulls land. Its agent will
 not run `git init` for you; if the vault is nested in another repository it
 queues the problem for you instead.
 
