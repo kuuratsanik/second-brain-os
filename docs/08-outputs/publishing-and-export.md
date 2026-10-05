@@ -16,10 +16,15 @@ is already indexed.
 
 ## Static site options
 
-Obsidian Publish is the official route and the least work. Quartz and Obsidian
-Digital Garden are the common open-source ones, both build a static site from a
-vault and both understand wikilinks and backlinks, which matters because a
-published wiki with broken links is worse than a blog.
+[Obsidian Publish](https://help.obsidian.md/publish) is the official route and
+the least work: a hosted service where you select notes and press Publish.
+[Quartz](https://github.com/jackyzha0/quartz) (MIT-licensed) and [Obsidian
+Digital Garden](https://github.com/oleeskild/obsidian-digital-garden) are
+open-source routes that build a static site from a vault, and both document
+wikilink and backlink support. That matters because a published wiki with broken
+links is worse than a blog. Digital Garden has its own opt-in, `dg-publish: true`
+in frontmatter; it does not read the template's `publish: true`, so map one to
+the other in your build step.
 
 Whatever you use, check what happens to a link pointing at an unpublished page.
 It should degrade to plain text rather than to a 404.
