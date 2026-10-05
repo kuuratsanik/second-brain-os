@@ -37,6 +37,17 @@ class AliasParsing(unittest.TestCase):
         self.check(fm("aliases: []"), [])
         self.check(fm("type: x"), [])
 
+    def test_unclosed_flow_list_stops_at_next_key(self):
+        self.check(fm("aliases: [a, b\ntype: concept"), ["a", "b"])
+
+    def test_multiline_flow_list(self):
+        self.check(fm("aliases: [a,\n  b]\ntype: x"), ["a", "b"])
+
+    def test_anchor_and_tag_are_stripped(self):
+        self.check(fm("aliases: &x [a, b]"), ["a", "b"])
+        self.check(fm("aliases: !!seq [a, 'b, c']"), ["a", "b, c"])
+        self.check(fm("aliases: &x\n  - &y one\n  - two"), ["one", "two"])
+
     def test_block_list(self):
         self.check(fm("aliases:\n  - One: two\n  - 'Th, ree'\n  - \"Fo, ur\"\n  - plain # c\ntype: x"),
                    ["One: two", "Th, ree", "Fo, ur", "plain"])

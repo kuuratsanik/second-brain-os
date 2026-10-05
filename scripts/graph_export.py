@@ -47,10 +47,13 @@ def load(vault):
     return pages
 
 
+_PROP = re.compile(r"^(?:[&!]\S*(?:\s+|$))+")  # YAML anchor or tag
+
+
 def _scalar(s):
     """One YAML scalar: quotes stripped, `\\"` and `\\\\` unescaped in double
     quotes, `''` in single quotes, a trailing ` # comment` dropped when plain."""
-    s = s.strip()
+    s = _PROP.sub("", s.strip())
     if s[:1] == '"':
         out, i = [], 1
         while i < len(s) and s[i] != '"':
@@ -73,7 +76,8 @@ def _scalar(s):
 
 
 def _flow_items(s):
-    """Split the inside of a flow list on commas outside quotes, up to `]`."""
+    """Split the inside of a flow list on commas outside quotes, up to `]`. An
+    unclosed list stops at the next line that looks like a `key:`."""
     items, cur, quote, i = [], [], None, 0
     while i < len(s):
         c = s[i]
@@ -88,6 +92,9 @@ def _flow_items(s):
                     cur.append("'")
                 else:
                     quote = None
+        elif c == "\n" and re.match(r"[A-Za-z_][\w-]*:", s[i + 1:]):
+            items.append("".join(cur))
+            return items
         elif c in "\"'" and not "".join(cur).strip():
             quote = c
             cur.append(c)
@@ -104,14 +111,15 @@ def _flow_items(s):
 
 def aliases_of(text):
     """Names from `aliases:` in the frontmatter: a flow list `[a, "b, c"]`, a
-    block list of `- item` lines, or a single scalar. Quotes are stripped."""
+    block list of `- item` lines, or a single scalar. Quotes are stripped.
+    Expects normalized text (read with utf-8-sig, text mode), not raw bytes."""
     m = re.search(r"^---\n(.*?)\n---", text, re.S)
     m2 = m and re.search(r"^aliases:[ \t]*(.*)$", m.group(1), re.M)
     if not m2:
         return []
-    rest = m2.group(1).strip()
+    rest = _PROP.sub("", m2.group(1).strip())
     if rest.startswith("["):
-        raw = _flow_items(m.group(1)[m2.start(1) + 1:])
+        raw = _flow_items(m.group(1)[m2.start(1) + m2.group(1).index("[") + 1:])
     elif rest and not rest.startswith("#"):
         raw = [rest]
     else:
