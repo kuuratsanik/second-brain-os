@@ -8,7 +8,7 @@ Claude Code is the most instructive harness to study because Anthropic ships the
 
 ## Hooks
 
-[Hooks](https://code.claude.com/docs/en/hooks) are shell commands bound to lifecycle events — `PreToolUse`, `PostToolUse`, `SessionStart`, `PreCompact` and many more: the hooks reference lists 35 events as of October 2026. They are deterministic enforcement, not suggestions: a `PreToolUse` hook can block a dangerous command every single time, where a prompt instruction merely lowers the odds. Rule of thumb: prompts for judgement, hooks for policy.
+[Hooks](https://code.claude.com/docs/en/hooks) are shell commands bound to lifecycle events — `PreToolUse`, `PostToolUse`, `SessionStart`, `PreCompact` and many more: the hooks reference lists 33 events as of October 2026. They are deterministic enforcement, not suggestions: a `PreToolUse` hook can block a dangerous command every single time, where a prompt instruction merely lowers the odds. Rule of thumb: prompts for judgement, hooks for policy.
 
 ## Subagents
 
