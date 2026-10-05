@@ -132,6 +132,8 @@ NO_MATCHER_EVENTS = {"UserPromptSubmit", "PostToolBatch", "Stop", "CwdChanged", 
                      "TeammateIdle"}
 # Source: https://code.claude.com/docs/en/hooks (handler fields by type).
 HOOK_COMMON = {"type", "if", "timeout", "statusMessage", "once"}
+HOOK_REQUIRED = {"command": ("command",), "http": ("url",), "mcp_tool": ("server", "tool"),
+                 "prompt": ("prompt",), "agent": ("prompt",)}
 HOOK_TYPE_KEYS = {
     "command": HOOK_COMMON | {"command", "args", "async", "asyncRewake", "shell"},
     "http": HOOK_COMMON | {"url", "headers", "allowedEnvVars"},
@@ -452,6 +454,10 @@ class Checker:
         for key in perms:
             if key not in PERMISSION_KEYS:
                 self.err(path, line_of(json.dumps(key)), f"unknown permissions key '{key}'")
+        dirs = perms.get("additionalDirectories", [])
+        if not isinstance(dirs, list) or not all(isinstance(x, str) and x for x in dirs):
+            self.err(path, line_of('"additionalDirectories"'),
+                     "permissions.additionalDirectories must be a list of non-empty strings")
         for kind in ("allow", "ask", "deny"):
             val = perms.get(kind, [])
             if not isinstance(val, list) or not all(isinstance(x, str) for x in val):
@@ -503,8 +509,11 @@ class Checker:
         for k in h:
             if k not in HOOK_TYPE_KEYS[typ]:
                 self.err(path, line_of(json.dumps(k)), f"unknown key '{k}' for a {typ} hook")
-        if typ == "command" and not isinstance(h.get("command"), str):
-            self.err(path, line_of('"command"'), "a command hook needs a string 'command'")
+        for k in HOOK_REQUIRED[typ]:
+            if not isinstance(h.get(k), str) or not h[k]:
+                self.err(path, line_of('"type"'), f"a {typ} hook needs a string '{k}'")
+        if "once" in h:
+            self.err(path, line_of('"once"'), "'once' is ignored in settings files (skill frontmatter only)")
         args = h.get("args")
         if "args" in h and not (isinstance(args, list) and all(isinstance(a, str) for a in args)):
             self.err(path, line_of('"args"'), "'args' must be a list of strings")
@@ -674,6 +683,15 @@ def selftest():
     case("duplicate rule in a list", {ST: '{"permissions": {"deny": ["Bash(rm *)", "Bash(rm *)"]}}'}, "repeated in deny")
     case("quoted project dir ref", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "command", "command": "python3 \\"$CLAUDE_PROJECT_DIR\\"/.claude/hooks/nope.py"}]}]}}'}, "hooks/nope.py does not exist")
     case("backslash path line", {ST: '{\n"hooks": {"Stop": [{"hooks": [{"type": "command",\n"command": "x", "args": ["${CLAUDE_PROJECT_DIR}\\\\.claude\\\\hooks\\\\nope.py"]}]}]}}'}, "settings.json:3: hook path")
+    case("http hook without url", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "http"}]}]}}'}, "a http hook needs a string 'url'")
+    case("mcp_tool hook without tool", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "mcp_tool", "server": "s"}]}]}}'}, "a mcp_tool hook needs a string 'tool'")
+    case("mcp_tool hook without server", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "mcp_tool", "tool": "t"}]}]}}'}, "a mcp_tool hook needs a string 'server'")
+    case("prompt hook without prompt", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "prompt"}]}]}}'}, "a prompt hook needs a string 'prompt'")
+    case("agent hook without prompt", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "agent"}]}]}}'}, "a agent hook needs a string 'prompt'")
+    case("complete prompt hook ok", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "prompt", "prompt": "p"}]}]}}'}, None)
+    case("additionalDirectories not a list", {ST: '{"permissions": {"additionalDirectories": "/x"}}'}, "additionalDirectories must be a list of non-empty strings")
+    case("additionalDirectories empty string", {ST: '{"permissions": {"additionalDirectories": [""]}}'}, "additionalDirectories must be a list of non-empty strings")
+    case("once in settings", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "command", "command": "x", "once": true}]}]}}'}, "'once' is ignored in settings files")
     for f in failures:
         print("FAIL", f)
     print("selftest:", "FAILED" if failures else "ok")
