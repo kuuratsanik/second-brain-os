@@ -52,7 +52,7 @@ A guide the model might skim becomes a rule the harness enforces. In Claude Code
 }
 ```
 
-Exit code 2 blocks the call and shows the hook's stderr to the model as the reason, so the agent corrects course instead of failing silently. The Claude Code docs treat this as the way to enforce a rule, since CLAUDE.md instructions are context, not enforced configuration.
+Exit code 2 blocks the call and shows the hook's stderr to the model as the reason, so the agent corrects course instead of failing silently. The hooks guide positions hooks as the way to enforce project rules rather than relying on the model to follow them.
 
 ## The bets expire
 

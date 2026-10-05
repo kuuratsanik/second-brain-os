@@ -12,11 +12,11 @@ In February 2026 Anthropic reran Terminal-Bench 2.0 on a Google Kubernetes Engin
 
 ## Thirteen points from the harness alone
 
-In February 2026 LangChain froze the model entirely — GPT-5.2-Codex throughout — and iterated only on the harness of their deepagents-cli: system prompt structure, tool design, and middleware such as loop detection and a pre-completion checklist. The agent went from 52.8 to 66.5 on Terminal-Bench 2.0, a 13.7-point gain with the model fixed. The post is [Improving Deep Agents with harness engineering](https://www.langchain.com/blog/improving-deep-agents-with-harness-engineering).
+In February 2026 LangChain froze the model entirely — GPT-5.2-Codex throughout — and iterated only on the harness of their deepagents-cli: system prompt structure, tool design, and middleware such as loop detection and a pre-completion checklist. The agent went from 52.8 to 66.5 on Terminal-Bench 2.0, a 13.7-point gain with the model fixed. The post is [Improving Deep Agents with harness engineering](https://www.langchain.com/blog/improving-deep-agents-with-harness-engineering). *Not re-checked on 5 October 2026: the page could not be fetched, and the figures here were confirmed only from search-result summaries of it.*
 
 ## A cheaper model in a better office
 
-The July 2026 sequel, [Tuning the harness, not the model](https://www.langchain.com/blog/tuning-the-harness-not-the-model-a-nemotron-3-ultra-playbook), applied the same playbook to NVIDIA's open-weights Nemotron 3 Ultra. Harness tuning alone took it to a best run of 0.86 on LangChain's Deep Agents suite against Claude Opus 4.8's best of 0.87 — at about $4.48 per run versus $43.48, roughly a tenth of the cost. One suite, scored by the harness's own authors, so hold it loosely; but the direction matches everything else measured this year. A strong office lets a cheaper hire do the job.
+The July 2026 sequel, [Tuning the harness, not the model](https://www.langchain.com/blog/tuning-the-harness-not-the-model-a-nemotron-3-ultra-playbook), applied the same playbook to NVIDIA's open-weights Nemotron 3 Ultra. Harness tuning alone took it to a best run of 0.86 on LangChain's Deep Agents suite against Claude Opus 4.8's best of 0.87 — at about $4.48 per run versus $43.48, roughly a tenth of the cost. One suite, scored by the harness's own authors, so hold it loosely; but the direction matches everything else measured this year. A strong office lets a cheaper hire do the job. *Not re-checked on 5 October 2026: the page could not be fetched, and the figures here were confirmed only from search-result summaries of it.*
 
 ## When you need one
 
