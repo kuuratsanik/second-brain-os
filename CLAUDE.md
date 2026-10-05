@@ -11,9 +11,9 @@ template that readers copy into their own vault.
 | `docs/` | Guide sections (`01`–`10`), course (`course-*`), handbooks (`track-*`) | Read on GitHub and the site |
 | `resources/` | Vetted link tables, parsed into `resources.html` | Read |
 | `skills/`, `commands/`, `agents/`, `vault-template/` | Copied into `~/brain` by the Quickstart | Yes |
-| `scripts/` | Vault scripts (copied by the Quickstart) and two site builders | Yes, except `build_*.py` |
+| `scripts/` | Vault scripts (copied by the Quickstart) and the site builders (`build_*.py`) | Yes, except `build_*.py` |
 | `plugins/`, `.claude-plugin/` | The agents-course Claude Code plugin and marketplace | Yes |
-| `tools/` | Site generators | No |
+| `tools/` | Site generators, shared helpers, doc link checker | No |
 | `index.html`, `resources.html`, `tree.html` | Generated site, committed for GitHub Pages | Published |
 | `.claude/agents/` | Agents for working on this repo | No |
 
@@ -25,7 +25,7 @@ repo go in `.claude/agents/`, never in `agents/`.
 The HTML files are generated. Never edit them by hand.
 
 ```bash
-pip install -r requirements.txt   # pins markdown
+pip install -r requirements.txt   # pins markdown; needs Python 3.11+
 python3 scripts/build_all.py      # the whole pipeline, in order
 ```
 
@@ -38,6 +38,10 @@ pages, with empty marker blocks for the course and handbooks),
 the previous step's output. The build is deterministic, and CI
 (`.github/workflows/site.yml`) fails if the committed HTML differs from a
 fresh build.
+
+The pinned `markdown==3.11` needs Python 3.11 or newer. The vault scripts have
+no such floor. `python3 tools/doc_links.py` checks relative links and anchors in
+`docs/` and `README.md`; CI runs it too.
 
 Rebuild after any change to `docs/`, `resources/`, `skills/`, `commands/`,
 `agents/`, `scripts/` or `plugins/`, and commit the result in the same change.

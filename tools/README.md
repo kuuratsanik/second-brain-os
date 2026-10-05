@@ -1,10 +1,10 @@
 # tools
 
-The site at [undefined-ui.github.io/second-brain-os](https://undefined-ui.github.io/second-brain-os/)
+The site at [kuuratsanik.github.io/second-brain-os](https://kuuratsanik.github.io/second-brain-os/)
 is generated from this repository, so it cannot drift from the guide.
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.txt   # Python 3.11+ (markdown 3.11)
 python3 scripts/build_all.py
 ```
 
@@ -30,7 +30,20 @@ table row in `resources/` that carries a link.
 framework, no external requests at runtime: the content is embedded, so the pages
 work offline and from `file://`.
 
-One dependency, `markdown`, pinned in `requirements.txt`. The scripts assume the
+One dependency, `markdown`, pinned in `requirements.txt` and needing Python 3.11 or
+newer. The scripts assume the
 repo root as the working directory; `build_all.py` sets it for you. The guide
 itself holds only the ten numbered sections: `extract_site.py` skips `course-*` and
 `track-*` so step 3 owns them.
+
+`site_common.py` holds what every generator shares: the fork and upstream URLs,
+the favicon, the page head, header and footer, the CSS minifier and the compact
+JSON writer. Change the repository owner or the credit line there.
+
+`doc_links.py` is a stdlib-only check for relative markdown links and `#anchors`
+in `docs/` and `README.md`. CI runs it; run it locally before committing docs.
+
+Size: the embedded JSON carries only `id`, `title` and `html` per page. Search
+text, section, source path and heading lists are derived in the browser, and the
+CSS and JS are minified. `index.html` is about 510 KB (168 KB gzipped), down from
+937 KB (208 KB).
