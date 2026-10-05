@@ -77,7 +77,7 @@ Run `python overnight.py` before bed; read `MORNING-REPORT.md` with coffee.
 
 ## The rails, spelled out
 
-**Branch, commit, never push.** Every improvement is committed on `overnight/<stamp>`, so the morning decision is a normal code review of a normal branch. The script contains no push and the agent has no git permissions at all — its `--allowedTools` covers reading, editing and pytest, nothing else. `--permission-prompts none` tells the harness nobody is available: anything that would prompt is denied rather than left hanging until dawn.
+**Branch, commit, never push.** Every improvement is committed on `overnight/<stamp>`, so the morning decision is a normal code review of a normal branch. The script contains no push and the agent has no git permissions at all — its `--allowedTools` covers reading, editing and pytest, nothing else. `--permission-prompts none` tells the harness nobody is available: anything that would prompt is denied rather than left hanging until dawn. The flag needs Claude Code v2.1.259 or later; earlier versions reject it ([headless docs](https://code.claude.com/docs/en/headless)).
 
 **Reset on regression.** When the score fails to improve, `git reset --hard` discards the attempt before stopping. Combined with the ratchet, the invariant is strong: the branch only ever contains states measurably better than the last, which is what lets you trust the report without rereading every diff.
 
