@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Builds site/index.html (the guide) and site/resources.html (the catalog)."""
-import json, os, html
+"""Builds index.html (the guide) and resources.html (the catalog) from site_data.json."""
+import io, json, os, html
 
-D = json.load(open("site_data.json"))
+D = json.load(io.open("site_data.json", encoding="utf-8"))
 OUT = "."
 os.makedirs(OUT, exist_ok=True)
 REPO = "https://github.com/undefined-ui/second-brain-os"
@@ -170,6 +170,22 @@ footer{border-top:1px solid var(--rule);padding:22px;text-align:center;
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 """
 
+# styles for the course and handbook sections injected by scripts/build_tracks.py
+GUIDE_CSS = """
+.sdiv{margin:16px 12px 4px;padding-top:12px;border-top:1px solid var(--rule);
+  color:var(--faint);font:600 10px/1 ui-monospace,Menlo,monospace;
+  letter-spacing:.14em;text-transform:uppercase}
+.trkhead{margin-top:36px}
+.trkhead h2{font-size:21px}
+.trkhead p{color:var(--soft);margin:6px 0 14px;max-width:56ch}
+.tracklist article{border-top:2px solid var(--accent)}
+.courselist article{border-top:2px solid var(--num)}
+article.page img{max-width:100%;height:auto;display:block;margin:20px auto}
+.entr{max-width:var(--w);display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:34px 0 8px}@media(max-width:760px){.entr{grid-template-columns:1fr}}.ent{display:block;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px 20px 16px;text-decoration:none;transition:border-color .15s}.ent:hover{border-color:var(--accent)}.ent .ek{font:11px/1 ui-monospace,Menlo,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}.ent h3{font:600 20px/1.2 Charter,Georgia,serif;color:var(--ink);margin:9px 0 7px}.ent p{font-size:14px;line-height:1.5;color:var(--soft);margin:0 0 12px}.ent .em{font:12px ui-monospace,Menlo,monospace;color:var(--accent)}.ent.e2{border-top:3px solid var(--num)}.ent.e1{border-top:3px solid var(--accent)}.ent.e3{border-top:3px solid var(--rule)}"""
+
+FAVICON = '''<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23F7F9F6'/%3E%3Crect x='.5' y='.5' width='31' height='31' rx='6.5' fill='none' stroke='%23D2DACF'/%3E%3Cpath d='M10 21 L16 11 L22 19 M16 11 L23 9' stroke='%231F6B52' stroke-width='1.6' fill='none'/%3E%3Ccircle cx='10' cy='21' r='3' fill='%23F7F9F6' stroke='%231F6B52' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='11' r='3' fill='%23F7F9F6' stroke='%231F6B52' stroke-width='1.6'/%3E%3Ccircle cx='22' cy='19' r='3' fill='%23F7F9F6' stroke='%231F6B52' stroke-width='1.6'/%3E%3Ccircle cx='24' cy='8' r='2' fill='%231F6B52'/%3E%3C/svg%3E">'''
+ANALYTICS = '''<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "03592e9f97c244c1b5c1fd2512e49f0d"}'></script><!-- End Cloudflare Web Analytics -->'''
+
 SEARCHBOX = ('<div class="search"><input id="q" type="search" '
              'placeholder="search the guide" autocomplete="off">'
              '<div class="hits" id="hits"></div></div>')
@@ -180,6 +196,7 @@ def header(active):
   <nav>
     <a href="index.html" class="{'on' if active=='guide' else ''}">Guide</a>
     <a href="resources.html" class="{'on' if active=='res' else ''}">Resources</a>
+    <a href="tree.html">Tree</a>
     <a href="{REPO}">Repo</a>
   </nav>
   {'<button class="toc-btn" id="toc">Index</button>' if active=='guide' else ''}
@@ -251,19 +268,20 @@ for sec, meta in D["sections"].items():
 
 GUIDE = f"""<!DOCTYPE html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Second Brain OS - the guide</title>
+{FAVICON}<title>Second Brain OS - the guide</title>
 <meta name="description" content="A {s['pages']}-page guide to building a knowledge base your AI agent maintains, in plain markdown you own.">
-<style>{CSS}</style></head><body>
+<style>{CSS}{GUIDE_CSS}</style>{ANALYTICS}
+</head><body>
 {header('guide')}
 <template id="hero"><div class="hero"><h1>A knowledge base your agent maintains</h1>
 <p>Everything you read, watched and wrote, turned into linked pages and kept current by an agent. Plain markdown on your own machine.</p>
-{GRAPH}{STATS}</div><div class="seclist">{seclist}</div></template>
+{GRAPH}{STATS}</div><!--ENTRIES--><!--/ENTRIES--><div class="trkhead"><h2>the second-brain guide</h2><p>A path you follow once, in order: from the concept to a vault that maintains itself, one evening to set up.</p></div><div class="seclist">{seclist}</div><!--COURSE--><!--/COURSE--><!--TRACKS--><!--/TRACKS--></template>
 <div class="wrap">
   <aside id="side"></aside>
   <main id="main"></main>
   <div class="rail" id="rail"></div>
 </div>
-<footer>Generated from the repository. <a href="{REPO}">github.com/undefined-ui/second-brain-os</a></footer>
+<footer>Generated from the repository. <a href="{REPO}">github.com/undefined-ui/second-brain-os</a> · by <a href="https://x.com/undefinedKi" rel="noopener">@undefinedKi</a></footer>
 <script id="data" type="application/json">{json.dumps({k:D[k] for k in ['pages','sections','order']})}</script>
 <script>
 const D=JSON.parse(document.getElementById('data').textContent);
@@ -273,10 +291,15 @@ const HERO=document.getElementById('hero').innerHTML;
 
 function side(cur){{
   const s=document.getElementById('side'); let h='';
-  Object.keys(D.order).forEach((sec,i)=>{{
+  let mi=0, ti=0, ci=0, divT=false, divC=false;
+  Object.keys(D.order).forEach((sec)=>{{
+    const isT = sec.startsWith('track-'), isC = sec.startsWith('course-');
+    if(isC && !divC){{ h+='<div class="sdiv">the agents course</div>'; divC=true; }}
+    if(isT && !divT){{ h+='<div class="sdiv">handbooks</div>'; divT=true; }}
+    const badge = isC ? 'C'+(ci++) : isT ? 'T'+(++ti) : String(++mi).padStart(2,'0');
     const open = cur && cur.startsWith(sec);
     h+=`<div class="sec ${{open?'open':''}}" data-sec="${{sec}}">
-      <button aria-expanded="${{!!open}}"><span class="k">${{String(i+1).padStart(2,'0')}}</span>
+      <button aria-expanded="${{!!open}}"><span class="k">${{badge}}</span>
       ${{D.sections[sec].title}}<span class="n">${{D.order[sec].length}}</span></button><ol>`;
     D.order[sec].forEach(id=>{{
       h+=`<li><a href="#${{id}}" class="${{id===cur?'cur':''}}">${{P[id].title}}</a></li>`;
@@ -371,7 +394,7 @@ document.getElementById('side').addEventListener('click',e=>{{
 addEventListener('hashchange',render); render();
 </script></body></html>"""
 
-open(f"{OUT}/index.html","w").write(GUIDE)
+io.open(f"{OUT}/index.html", "w", encoding="utf-8", newline="\n").write(GUIDE)
 
 # ---------------- resources page
 R = D["resources"]
@@ -381,9 +404,10 @@ for r in R:
 
 RES = f"""<!DOCTYPE html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Second Brain OS - resources</title>
+{FAVICON}<title>Second Brain OS - resources</title>
 <meta name="description" content="{len(R)} checked links: Obsidian plugins by installs, repositories by stars, papers, tools and reading.">
-<style>{CSS}</style></head><body>
+<style>{CSS}</style>{ANALYTICS}
+</head><body>
 {header('res')}
 <div class="rwrap">
   <h1>Everything worth opening</h1>
@@ -396,7 +420,7 @@ RES = f"""<!DOCTYPE html><html lang="en"><head>
   <div class="count" id="count"></div>
   <div id="rows"></div>
 </div>
-<footer>Generated from the repository. <a href="{REPO}">github.com/undefined-ui/second-brain-os</a></footer>
+<footer>Generated from the repository. <a href="{REPO}">github.com/undefined-ui/second-brain-os</a> · by <a href="https://x.com/undefinedKi" rel="noopener">@undefinedKi</a></footer>
 <script id="rdata" type="application/json">{json.dumps(R)}</script>
 <script>
 const R=JSON.parse(document.getElementById('rdata').textContent);
@@ -425,6 +449,6 @@ document.getElementById('rq').addEventListener('input',e=>{{term=e.target.value.
 draw();
 </script></body></html>"""
 
-open(f"{OUT}/resources.html","w").write(RES)
+io.open(f"{OUT}/resources.html", "w", encoding="utf-8", newline="\n").write(RES)
 print("index.html", os.path.getsize(f"{OUT}/index.html")//1024, "KB |",
       "resources.html", os.path.getsize(f"{OUT}/resources.html")//1024, "KB")

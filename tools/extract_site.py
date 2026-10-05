@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Extracts guide pages, the doc link graph, and the resource catalog into JSON."""
-import os, re, json, glob
+import os, re, json, glob, io
 import markdown
 
 ROOT = "."
@@ -11,7 +11,9 @@ pages = []          # {id, section, section_title, title, html, headings, links}
 
 for secdir in sorted(glob.glob(f"{ROOT}/docs/*/")):
     sec = os.path.basename(secdir.rstrip("/"))
-    idx = open(secdir + "README.md").read()
+    # the course and the handbooks are injected by scripts/build_tracks.py
+    if sec.startswith(("course-", "track-")): continue
+    idx = io.open(secdir + "README.md", encoding="utf-8").read()
     stitle = re.search(r"^# (.+)$", idx, re.M).group(1)
     sblurb = ""
     m = re.search(r"^#[^\n]+\n\n([^\n].*?)\n\n", idx, re.S)
@@ -24,7 +26,7 @@ for secdir in sorted(glob.glob(f"{ROOT}/docs/*/")):
     for name in files:
         p = secdir + name
         if not os.path.exists(p): continue
-        raw = open(p).read()
+        raw = io.open(p, encoding="utf-8").read()
         title = re.search(r"^# (.+)$", raw, re.M).group(1)
         body = re.sub(r"^# .+\n", "", raw, count=1)
         # collect internal links before converting
@@ -80,7 +82,7 @@ for f in sorted(glob.glob(f"{ROOT}/resources/*.md")):
     fn = os.path.basename(f)
     if fn == "README.md": continue
     group = ""
-    for line in open(f):
+    for line in io.open(f, encoding="utf-8"):
         h = re.match(r"^## (.+)$", line)
         if h: group = h.group(1).strip(); continue
         if not line.startswith("|"): continue
@@ -102,7 +104,7 @@ for f in sorted(glob.glob(f"{ROOT}/resources/*.md")):
 
 # extra links that live in prose, not tables
 for f in [f"{ROOT}/resources/reading.md", f"{ROOT}/resources/papers.md"]:
-    txt = open(f).read()
+    txt = io.open(f, encoding="utf-8").read()
     group = ""
     for block in txt.split("\n\n"):
         h = re.search(r"^## (.+)$", block, re.M)
@@ -120,6 +122,6 @@ data = {"pages": pages, "sections": SECTION_TITLES, "order": sec_index,
         "graph": {"nodes": nodes, "edges": edges}, "resources": res,
         "stats": {"pages": len(pages), "words": sum(p["words"] for p in pages),
                   "sections": len(SECTION_TITLES), "links": len(res)}}
-json.dump(data, open("site_data.json", "w"))
+json.dump(data, io.open("site_data.json", "w", encoding="utf-8", newline="\n"))
 print("pages:", len(pages), "| resources:", len(res), "| section edges:", len(edges),
       "| words:", data["stats"]["words"])
