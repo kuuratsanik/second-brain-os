@@ -1,6 +1,6 @@
 {
   "name": "agents-course",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Tools from the agents course: audit your context, write done as a script, bootstrap your eval suite, and a loop critic agent.",
   "author": {
     "name": "kuuratsanik",

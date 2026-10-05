@@ -14,6 +14,16 @@ without that file predates 1.0.0.
 
 ## [Unreleased]
 
+### Added
+
+- agents-course plugin 0.4.0: an eval suite for `claude plugin eval`, in
+  `plugins/agents-course/evals/`. Twelve cases: a trigger case and a
+  must-not-fire case for each of the five skills and the `loop-critic` agent,
+  with behaviour checks on top (the audit skills never call `Edit` or
+  `Write`; `goal-test` and `evals-bootstrap` create the files they promise).
+  Most graders are deterministic; one uses a judge model. See
+  [`plugins/README.md`](plugins/README.md#running-the-evals).
+
 ## [1.0.0] - 2026-10-05
 
 ### Added
