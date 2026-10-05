@@ -12,7 +12,7 @@ cp -r vault-template ~/brain
 cd ~/brain
 git init
 git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw \
-  .claude/settings.json .claude/hooks
+  .obsidian .claude/settings.json .claude/hooks
 git commit -m "Initial vault"
 claude
 ```
@@ -21,6 +21,16 @@ If you copied the Quickstart's setup, also add `.claude/skills .claude/commands
 .claude/agents scripts` to that first commit, because the agent setup is worth
 versioning. Always include `.claude/settings.json` and `.claude/hooks`: they
 hold the boundaries described below. `raw/workspace/` stays ignored by `.gitignore`.
+
+`.obsidian/` holds a small Obsidian preset, applied when you open the folder as
+a vault: attachments go to `raw/assets`, new notes to `raw/inbox`, links are
+wikilinks that update on rename, and `archive/`, `output/`, `scripts/` and
+`.claude/` are excluded from search and the graph. The Templates folder is
+`templates/`, and Daily notes writes `YYYY-MM-DD` files to `journal/`. The
+graph colours pages by `domain:` and highlights hubs; it hides `raw/` and
+`archive/`. Obsidian writes this folder, not the agent. `.gitignore` keeps
+`workspace*` and `cache` out of git, so the preset is versioned and your
+window layout is not. Change any of it under Settings in Obsidian.
 
 Do the git step once. The agent's safety rails (a checkpoint commit before any
 destructive step, one commit per run) need the vault folder to be its own git

@@ -1,0 +1,59 @@
+{
+  "search": "-path:\"archive/\" -path:\"raw/\"",
+  "showTags": false,
+  "showAttachments": false,
+  "hideUnresolved": false,
+  "showOrphans": true,
+  "showArrow": false,
+  "colorGroups": [
+    {
+      "query": "[type:hub]",
+      "color": {
+        "a": 1,
+        "rgb": 15911244
+      }
+    },
+    {
+      "query": "[domain:work]",
+      "color": {
+        "a": 1,
+        "rgb": 5017046
+      }
+    },
+    {
+      "query": "[domain:learning]",
+      "color": {
+        "a": 1,
+        "rgb": 7323507
+      }
+    },
+    {
+      "query": "[domain:personal]",
+      "color": {
+        "a": 1,
+        "rgb": 14711675
+      }
+    },
+    {
+      "query": "[domain:creative]",
+      "color": {
+        "a": 1,
+        "rgb": 11897561
+      }
+    },
+    {
+      "query": "[domain:self-improvement]",
+      "color": {
+        "a": 1,
+        "rgb": 15898954
+      }
+    },
+    {
+      "query": "[domain:systems]",
+      "color": {
+        "a": 1,
+        "rgb": 9214374
+      }
+    }
+  ]
+}
