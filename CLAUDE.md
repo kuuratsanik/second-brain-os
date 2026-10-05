@@ -13,7 +13,8 @@ template that readers copy into their own vault.
 | `skills/`, `commands/`, `agents/`, `vault-template/` | Copied into `~/brain` by the Quickstart | Yes |
 | `scripts/` | Vault scripts (copied by the Quickstart) and the site builders (`build_*.py`) | Yes, except `build_*.py` |
 | `plugins/`, `.claude-plugin/` | The agents-course Claude Code plugin and marketplace | Yes |
-| `tools/` | Site generators, shared helpers, doc link checker | No |
+| `tools/` | Site generators, shared helpers, doc link checker, kit checker | No |
+| `tests/` | `unittest` tests for the vault scripts | No |
 | `index.html`, `resources.html`, `tree.html` | Generated site, committed for GitHub Pages | Published |
 | `.claude/agents/` | Agents for working on this repo | No |
 
@@ -33,8 +34,9 @@ python3 scripts/build_all.py      # the whole pipeline, in order
 resources to `site_data.json`), `tools/build_site.py` (guide and resources
 pages, with empty marker blocks for the course and handbooks),
 `scripts/build_tracks.py` (fills the markers, rewrites the
-`docs/course-*/` and `docs/track-*/` READMEs) and `scripts/build_tree.py`
-(`tree.html`, which reads `index.html`). The order matters: each step reads
+`docs/course-*/` and `docs/track-*/` READMEs), `scripts/build_tree.py`
+(`tree.html`, which reads `index.html`) and `scripts/build_static.py`
+(`sitemap.xml`, `robots.txt`, `404.html`). The order matters: each step reads
 the previous step's output. The build is deterministic, and CI
 (`.github/workflows/site.yml`) fails if the committed HTML differs from a
 fresh build.

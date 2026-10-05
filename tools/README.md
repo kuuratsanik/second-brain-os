@@ -8,7 +8,7 @@ pip install -r requirements.txt   # Python 3.11+ (markdown 3.11)
 python3 scripts/build_all.py
 ```
 
-`scripts/build_all.py` is the single entry point. It runs four steps in order,
+`scripts/build_all.py` is the single entry point. It runs five steps in order,
 each reading the previous one's output, and produces `index.html`,
 `resources.html` and `tree.html`. Running it twice gives identical bytes, and CI
 rebuilds on every push and fails if the committed HTML is stale.
@@ -21,6 +21,7 @@ rebuilds on every push and fails if the committed HTML is stale.
    those markers and adds the pages to the embedded JSON. Fails if a marker is
    missing, so it must run after step 2. Also rewrites the folder READMEs.
 4. `scripts/build_tree.py` - `tree.html`, reading the repo and `index.html`.
+5. `scripts/build_static.py` - `sitemap.xml`, `robots.txt` and `404.html`.
 
 `extract_site.py` reads every page in `docs/`, keeps the reading order declared in
 each section's `README.md`, resolves internal links to page ids, and parses every
