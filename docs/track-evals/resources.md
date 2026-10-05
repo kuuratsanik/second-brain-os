@@ -1,6 +1,6 @@
 # Eval Resources
 
-A short list, deliberately. Everything here earns its place; everything it links to is optional. The concepts they teach map onto [why evals](why-evals.md) and the rest of this handbook.
+A short list, deliberately. Everything here earns its place; everything it links to is optional. Anthropic, GitHub and Claude Code docs entries were re-checked on 5 October 2026; the Hamel Husain, Maven, arXiv and OpenAI entries were last checked September 2026 and not re-checked on 5 October 2026 because the pages could not be fetched. The concepts they teach map onto [why evals](why-evals.md) and the rest of this handbook.
 
 ## The canon
 
@@ -13,7 +13,7 @@ A short list, deliberately. Everything here earns its place; everything it links
 
 ## Repos worth reading
 
-- [inspect_evals](https://github.com/UKGovernmentBEIS/inspect_evals) — about 130 evaluation directories (roughly 250 `@task` definitions) implemented under UK AISI's Inspect, with new evals registered externally since May 2026. Read a few scorers and solvers to see what production-grade eval code looks like.
+- [inspect_evals](https://github.com/UKGovernmentBEIS/inspect_evals) — about 130 evaluation directories (roughly 250 `@task` definitions) implemented under UK AISI's Inspect, with new evals to be registered externally (announced for 8 May 2026). Read a few scorers and solvers to see what production-grade eval code looks like.
 - [terminal-bench](https://github.com/laude-institute/terminal-bench) and [terminal-bench-2](https://github.com/laude-institute/terminal-bench-2) — containerised tasks with executable graders (the original repo's README now points new users to the harbor framework for 2.0). The cleanest reference for building environment-based evals of your own; more context in [agent evals](agent-evals.md).
 
 ## Start here: three steps
