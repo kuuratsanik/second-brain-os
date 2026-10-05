@@ -345,6 +345,27 @@ def main():
         (0, "iwr -Method Get abbreviated", {"tool_name": "PowerShell", "tool_input": {"command": "iwr https://example.com -Me Get"}}),
         (2, "commit --no-verify", bash("git commit --no-verify -m x -- wiki/x.md")),
         (2, "commit -n", bash("git commit -n -m x -- wiki/x.md")),
+        # round-3 nits
+        (0, "absolute path after unfollowable cd", bash("cd $X && echo x > %s/wiki/new.md" % root)),
+        (2, "absolute raw path after unfollowable cd", bash("cd $X && echo x > %s/raw/clippings/a.md" % root)),
+        (0, "git config user.name (read)", bash("git config user.name")),
+        (0, "git config get", bash("git config get user.name")),
+        (0, "git config list", bash("git config list")),
+        (2, "git config set", bash("git config set user.name x")),
+        (2, "git config unset", bash("git config unset user.name")),
+        (2, "git config two args", bash("git config user.name x")),
+        (2, "git config --add", bash("git config --add alias.p push")),
+        (2, "coproc rm", bash("coproc rm wiki/x.md")),
+        (2, "time -p rm", bash("time -p rm wiki/x.md")),
+        (2, "env -S rm", bash("env -S 'rm wiki/x.md'")),
+        (2, "env -S git push", bash("env -S 'git push origin'")),
+        (2, "env --split-string= rm", bash("env --split-string='rm wiki/x.md'")),
+        (0, "env -S harmless", bash("env -S 'echo hi'")),
+        (2, "HOME before git", bash("HOME=/tmp git status")),
+        (2, "XDG_CONFIG_HOME before git", bash("XDG_CONFIG_HOME=/tmp git log")),
+        (2, "PATH before git", bash("PATH=/tmp:$PATH git status")),
+        (0, "HOME before a non-git command", bash("HOME=/tmp ls wiki")),
+
     ]
     stop_case = {"hook_event_name": "Stop", "stop_hook_active": False}
     failed = 0

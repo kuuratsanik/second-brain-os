@@ -84,9 +84,12 @@ way to write a file. The shell parser is also conservative about things it canno
 resolve: a path with a glob, a brace list or a variable that could reach a
 protected folder is refused (so `git mv wiki/{a,b}.md archive/` is blocked: name
 each file), and after a `cd` it cannot follow (`cd -`, `cd $DIR`, `popd`),
-relative paths are refused until the command uses absolute or vault-root paths.
+relative paths are refused until the command uses absolute paths. After a
+`cd` it can follow, a relative path is checked against both the folder you
+started in and the one you moved to, and refused if either lands on a protected
+path, so use paths from the vault root or absolute paths.
 `git -c` only accepts a short allowlist of harmless settings, `git config` only
-reads, and `git -C` must stay inside the vault. `scripts/` is owner-maintained so the agent cannot write a
+reads (`get`, `list`, `--get`, `--list`, or one setting name), and `git -C` must stay inside the vault. `scripts/` is owner-maintained so the agent cannot write a
 script and then run it under the `python3 scripts/*.py` allow rule.
 
 **Connector names.** The MCP deny rules match tool names by pattern

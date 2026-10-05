@@ -68,6 +68,12 @@ class Block(Exception):
 
 # --------------------------------------------------------------- paths
 
+def jp(cwd, p):
+    """Join for a path that rel_to_root has already accepted: when the working
+    directory is unknown (None) the path is absolute, so the join is the path."""
+    return os.path.join(cwd or "", p)
+
+
 def norm(p):
     return os.path.normcase(os.path.realpath(p))
 
@@ -159,7 +165,7 @@ def check_path(tool, path, tool_input, cwd, root):
     if r is None:
         return
     first = r.split("/")[0].lower()
-    real = os.path.realpath(os.path.join(cwd, os.path.expanduser(path)))
+    real = os.path.realpath(jp(cwd, os.path.expanduser(path)))
     if r.lower() == ".gitignore":
         raise Block(".gitignore is owner-maintained (it decides what is versioned).")
     if first in {".claude", "scripts"}:
@@ -245,7 +251,7 @@ def inner_strings(cmd):
     return found
 
 
-SHELL_KEYWORDS = {"do", "then", "else", "elif", "if", "while", "until", "!", "time"}
+SHELL_KEYWORDS = {"do", "then", "else", "elif", "if", "while", "until", "!", "coproc"}
 WRAPPER_VALUE_FLAGS = {
     "nice": {"-n", "--adjustment"}, "sudo": {"-u", "-g", "-h", "-p", "-C", "-r", "-t", "-U"},
     "doas": {"-u", "-C"}, "env": {"-u", "-C", "-S"},
@@ -364,7 +370,7 @@ def flag_letters(flags):
 
 
 SAFE_GIT_C = re.compile(r"^(user\.|core\.quotepath$|color\.|log\.|diff\.renames$|commit\.gpgsign$)")
-GIT_ENV_BLOCKED = re.compile(r"^(GIT_CONFIG|GIT_DIR=|GIT_WORK_TREE=|GIT_SSH|GIT_EXEC_PATH=|"
+GIT_ENV_BLOCKED = re.compile(r"^(HOME=|XDG_CONFIG_HOME=|PATH=|GIT_CONFIG|GIT_DIR=|GIT_WORK_TREE=|GIT_SSH|GIT_EXEC_PATH=|"
                              r"GIT_INDEX_FILE=|GIT_COMMON_DIR=|GIT_PAGER=|GIT_EDITOR=)", re.I)
 GIT_READ_CONFIG = {"--get", "--get-all", "--get-regexp", "--get-urlmatch", "--list", "-l",
                    "--show-origin", "--show-scope", "--get-color", "--get-colorbool"}
@@ -387,7 +393,7 @@ def check_git(args, cwd, root):
                 raise Block("git -C with a glob or variable cannot be checked.")
             if rel_to_root(value, cwd, root) is None:
                 raise Block(f"git -C '{value}' points outside the vault.")
-            cwd = os.path.join(cwd, os.path.expanduser(value))
+            cwd = jp(cwd, os.path.expanduser(value))
         elif opt.startswith(("--git-dir", "--work-tree")) and value is not None:
             if rel_to_root(value, cwd, root) is None:
                 raise Block(f"git {opt.split('=')[0]} points outside the vault.")
@@ -407,10 +413,15 @@ def check_git(args, cwd, root):
             sub == "svn" and "dcommit" in rest):
         raise Block(f"git {sub} sends the vault out (hard stop a). The agent never "
                     "pushes or sends.")
-    if sub == "config" and not (set(x.lower() for x in rest) & GIT_READ_CONFIG
-                                or any(x.lower().startswith("--get") for x in rest)):
-        raise Block("git config may only read (--get, --list, --show-origin); writing "
-                    "settings can define aliases or hooks (hard stop c).")
+    if sub == "config" and not (
+            set(x.lower() for x in rest) & GIT_READ_CONFIG
+            or any(x.lower().startswith("--get") for x in rest)
+            or (pos and pos[0].lower() in {"get", "list"})
+            or (len(pos) == 1 and set(flags) <= {"--global", "--local", "--system",
+                                                  "--worktree"})):
+        raise Block("git config may only read (get, list, --get, --list, --show-origin, "
+                    "or one setting name); set, unset and edit can define aliases or "
+                    "hooks (hard stop c).")
     if sub == "remote" and pos and pos[0].lower() in {"add", "set-url"}:
         raise Block("adding or repointing a git remote (hard stop a).")
     if sub == "reset" and ("--hard" in flags or "--merge" in flags):
@@ -597,7 +608,7 @@ def check_move(name, pos, args, cwd, root, is_move):
             raise Block(f"destination '{dest}' cannot be checked and may overwrite "
                         "a protected path; name it exactly.")
         return
-    dest_abs = os.path.realpath(os.path.join(cwd, os.path.expanduser(dest)))
+    dest_abs = os.path.realpath(jp(cwd, os.path.expanduser(dest)))
     is_dir = os.path.isdir(dest_abs) or dest.endswith(("/", "\\")) or topt is not None
     targets = []
     if is_dir:
@@ -608,7 +619,7 @@ def check_move(name, pos, args, cwd, root, is_move):
     for t in targets:
         check_path("Bash", t, {}, cwd, root)
         tfull, _ = lit_rel(t, cwd, root)
-        treal = os.path.realpath(os.path.join(cwd, os.path.expanduser(t)))
+        treal = os.path.realpath(jp(cwd, os.path.expanduser(t)))
         if tfull is not None and os.path.exists(treal) and any(
                 overlaps(tfull, k) for k in KEEP_PAGES):
             raise Block(f"'{t}' is a system, hub, index or log page; it is never "
@@ -649,6 +660,20 @@ def nested_script(name, args):
 def check_segment(tokens, cwd, root, depth):
     for target in redirect_targets(tokens):
         check_path("Bash", target, {}, cwd, root)
+    for i, tok in enumerate(tokens):  # env -S "cmd args" runs a command line
+        if os.path.basename(tok).lower().removesuffix(".exe") == "env":
+            for j in range(i + 1, len(tokens)):
+                f = tokens[j]
+                script = None
+                if f in {"-S", "--split-string"} and j + 1 < len(tokens):
+                    script = tokens[j + 1]
+                elif f.startswith("--split-string="):
+                    script = f.split("=", 1)[1]
+                elif f.startswith("-S") and len(f) > 2:
+                    script = f[2:]
+                if script and depth < 3:
+                    check_shell(script, cwd, root, depth + 1)
+            break
     t, assigns = strip_prefix_ex(tokens)
     if not t:
         return
