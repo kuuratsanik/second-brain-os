@@ -13,8 +13,6 @@ sys.path.insert(0, os.path.join(ROOT, "tools"))
 from site_common import SITE_URL, FOOTER, NAV_PAGES, head, header, min_css
 
 CSS = """
-:root{--paper:#EAEEE9;--card:#F7F9F6;--ink:#15201B;--soft:#4B5A52;--faint:#5C6A62;
-  --rule:#D2DACF;--accent:#1F6B52}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--paper);color:var(--ink);font:17px/1.62 Charter,Georgia,serif;
   min-height:100vh;display:flex;flex-direction:column}
@@ -31,8 +29,8 @@ main{flex:1;max-width:68ch;width:100%;margin:0 auto;padding:64px 22px 90px}
 h1{font:600 clamp(32px,4.6vw,48px)/1.08 Charter,Georgia,serif;letter-spacing:-.025em;margin:12px 0 14px}
 p{color:var(--soft);margin-bottom:14px}
 .go{display:inline-block;margin-top:10px;font:600 14px/1 ui-monospace,Menlo,monospace;
-  background:var(--accent);color:#F7F9F6;border-radius:3px;padding:11px 16px}
-.go:hover{text-decoration:none;background:#17503D}
+  background:var(--accent);color:var(--on-accent);border-radius:3px;padding:11px 16px}
+.go:hover{text-decoration:none;background:var(--accent-hover)}
 footer{border-top:1px solid var(--rule);padding:22px;text-align:center;
   font:12px ui-monospace,Menlo,monospace;color:var(--faint)}
 """

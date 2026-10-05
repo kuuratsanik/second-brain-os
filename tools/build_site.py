@@ -12,8 +12,6 @@ os.makedirs(OUT, exist_ok=True)
 
 CSS = """
 :root{
-  --paper:#EAEEE9; --card:#F7F9F6; --ink:#15201B; --soft:#4B5A52; --faint:#5C6A62;
-  --rule:#D2DACF; --accent:#1F6B52; --accent-bg:#E1EDE5; --num:#7A5E1C;
   --w:68ch;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -25,7 +23,7 @@ body{background:var(--paper);color:var(--ink);
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline;text-underline-offset:3px}
 
-header{position:sticky;top:0;z-index:40;background:rgba(234,238,233,.94);
+header{position:sticky;top:0;z-index:40;background:var(--hdr);
   backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
 .bar{max-width:1500px;margin:0 auto;padding:13px 22px;display:flex;gap:20px;align-items:center}
 .brand{font:600 15px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink);letter-spacing:-.01em}
@@ -157,7 +155,7 @@ article.page a.wiki::after{content:"]]";color:var(--faint)}
   padding-bottom:18px;border-bottom:1px solid var(--rule)}
 .chip{font:13px/1 ui-monospace,Menlo,monospace;background:var(--card);color:var(--soft);
   border:1px solid var(--rule);border-radius:20px;padding:7px 13px;cursor:pointer}
-.chip.on{background:var(--accent);border-color:var(--accent);color:#F7F9F6}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .controls input{margin-left:auto;font:14px ui-monospace,Menlo,monospace;
   background:var(--card);border:1px solid var(--rule);border-radius:3px;padding:8px 11px;width:230px}
 .count{font:12px ui-monospace,Menlo,monospace;color:var(--faint);padding:14px 0 4px}

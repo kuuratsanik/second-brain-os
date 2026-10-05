@@ -297,8 +297,6 @@ def main():
 
 
 CSS = """
-:root{--paper:#EAEEE9;--card:#F7F9F6;--ink:#15201B;--soft:#4B5A52;--faint:#5C6A62;
-  --rule:#D2DACF;--accent:#1F6B52;--accent-bg:#E1EDE5}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--paper);color:var(--ink);
   font:13px/1.7 ui-monospace,Menlo,Consolas,monospace}
