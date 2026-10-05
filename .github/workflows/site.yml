@@ -44,6 +44,8 @@ jobs:
           test -z "$(git status --porcelain)"
       - name: Check vault-template links
         run: python3 scripts/link_check.py vault-template
+      - name: Run the vault guard tests
+        run: python3 vault-template/.claude/hooks/test_guard.py
 
   # The vault scripts ship to users on plain Python 3, Windows included, with
   # no installs. Run their tests on the oldest and newest Python we claim.
@@ -65,3 +67,13 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Run the unit tests
         run: python -m unittest discover -s tests -t . -v
+      - name: Run the vault guard tests
+        run: python vault-template/.claude/hooks/test_guard.py
+      # link_check exits 0 even with findings; tests/test_guard_and_demo.py
+      # asserts the demo vault has 0 broken links and 0 orphans.
+      - name: Smoke-test the vault scripts on the demo vault
+        run: |
+          python scripts/link_check.py examples/demo-vault
+          python scripts/vault_stats.py examples/demo-vault
+          python scripts/graph_export.py examples/demo-vault "${{ runner.temp }}/graph.csv"
+          python scripts/graph_export.py examples/demo-vault "${{ runner.temp }}/graph.graphml" --format graphml

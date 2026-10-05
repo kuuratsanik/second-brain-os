@@ -16,7 +16,11 @@ Checks, as `path:line: message`, exit status 1 on any problem:
 * `.claude-plugin/marketplace.json` and each `plugin.json` are valid and the
   plugin sources resolve;
 * the schedulable-command list in `commands/README.md` is exactly the set of
-  commands without `disable-model-invocation: true`.
+  commands without `disable-model-invocation: true`;
+* `vault-template/.claude/settings.json` is valid JSON with only known
+  top-level keys, string-list permissions, no rule in two of allow/ask/deny,
+  valid hook event names, and every `${CLAUDE_PROJECT_DIR}/...` hook path
+  present in `vault-template/`.
 """
 import argparse
 import json
@@ -61,6 +65,63 @@ SKILL_PATH_PREFIX = re.compile(r"(?<!\w)(?:~/brain/)?(?:\.claude/)?skills/(?=sec
 SKILL_DIR = re.compile(r"(?<!\w)(?:~/brain/)?(?:\.claude/)?skills/(second-brain-[a-z0-9]+(?:-[a-z0-9]+)*)/")
 SKILL_NAME = re.compile(r"[a-z0-9-]+")
 TRUE = {"true", "yes", "on", "1"}
+
+# Top-level settings.json keys. Source: the published JSON schema for Claude
+# Code settings, https://www.schemastore.org/claude-code-settings.json (linked
+# from https://code.claude.com/docs/en/settings), as of 2026-10. The schema
+# grows with each release: add a key here when a new one is documented.
+SETTINGS_KEYS = set("""
+    $schema advisorModel agent agentPushNotifEnabled allowAllClaudeAiMcps
+    allowManagedHooksOnly allowManagedMcpServersOnly allowManagedPermissionRulesOnly
+    allowedChannelPlugins allowedHttpHookUrls allowedMcpServers alwaysThinkingEnabled
+    apiKeyHelper askUserQuestionTimeout attribution autoCompactEnabled autoConnectIde
+    autoInstallIdeExtension autoMemoryDirectory autoMemoryEnabled autoMode
+    autoScrollEnabled autoUpdatesChannel availableModels awaySummaryEnabled
+    awsAuthRefresh awsCredentialExport axScreenReader blockedMarketplaces
+    browserExternalPageTools channelsEnabled claudeMd claudeMdExcludes
+    cleanupPeriodDays companyAnnouncements defaultShell deniedMcpServers diffTool
+    disableAgentView disableAllHooks disableArtifact disableAutoMode
+    disableBrowserExternalNavigation disableBundledSkills disableClaudeAiConnectors
+    disableDeepLinkRegistration disableMobileSimulatorTools disableRemoteControl
+    disableSideloadFlags disableSkillShellExecution disableWorkflows
+    disabledMcpjsonServers editorMode effortLevel emojiCompletionEnabled
+    enableAllProjectMcpServers enableArtifact enabledMcpjsonServers enabledPlugins
+    enforceAvailableModels env externalEditorContext extraKnownMarketplaces
+    fallbackModel fastMode fastModePerSessionOptIn feedbackSurveyRate
+    fileCheckpointingEnabled fileSuggestion footerLinksRegexes forceLoginGatewayUrl
+    forceLoginMethod forceLoginOrgUUID forceRemoteSettingsRefresh gcpAuthRefresh
+    hooks httpHookAllowedEnvVars includeCoAuthoredBy includeGitInstructions
+    inputNeededNotifEnabled language managedMcpServers minimumVersion model
+    modelOverrides otelHeadersHelper outputStyle parentSettingsBehavior
+    permissionExplainerEnabled permissions plansDirectory pluginConfigs
+    pluginSuggestionMarketplaces pluginTrustMessage policyHelper prUrlTemplate
+    preferredNotifChannel prefersReducedMotion processWrapper remoteControlAtStartup
+    requireCoworkFullVmSandbox requiredMaximumVersion requiredMinimumVersion
+    respectGitignore respondToBashCommands sandbox showClearContextOnPlanAccept
+    showThinkingSummaries showTurnDuration skillListingBudgetFraction
+    skillListingMaxDescChars skillOverrides skipDangerousModePermissionPrompt
+    skipWebFetchPreflight skippedMarketplaces skippedPlugins spinnerTipsEnabled
+    spinnerTipsOverride spinnerVerbs sshConfigs sshHostAllowlist statusLine
+    strictKnownMarketplaces strictPluginOnlyCustomization subagentStatusLine
+    syntaxHighlightingDisabled teammateDefaultModel teammateMode
+    terminalProgressBarEnabled theme tui useAutoModeDuringPlan verbose viewMode
+    vimInsertModeRemaps voice voiceEnabled wheelScrollAccelerationEnabled
+    workflowKeywordTriggerEnabled workflowSizeGuideline worktree
+    wslInheritsWindowsSettings
+""".split())
+
+# Hook event names. Source: https://code.claude.com/docs/en/hooks ("Hook
+# events"), checked 2026-10.
+HOOK_EVENTS = set("""
+    SessionStart Setup UserPromptSubmit UserPromptExpansion PreToolUse
+    PermissionRequest PermissionDenied PostToolUse PostToolUseFailure
+    PostToolBatch Notification MessageDisplay SubagentStart SubagentStop
+    TaskCreated TaskCompleted Stop StopFailure TeammateIdle InstructionsLoaded
+    ConfigChange CwdChanged DirectoryAdded FileChanged WorktreeCreate
+    WorktreeRemove PreCompact PostCompact PreModelSwitch PostModelSwitch
+    Elicitation ElicitationResult SessionEnd
+""".split())
+PROJECT_DIR_REF = re.compile(r"\$\{?CLAUDE_PROJECT_DIR\}?[/\\]([^\s\"']+)")
 
 
 def _closing_quote(val):
@@ -346,6 +407,62 @@ class Checker:
         for n in sorted(actual - listed):
             self.err(readme, line, f"/{n} has no disable-model-invocation: true but is not in the list")
 
+    def check_settings(self):
+        path = self.root / "vault-template" / ".claude" / "settings.json"
+        if not path.is_file():
+            if (self.root / "vault-template").is_dir():
+                self.err(path, 1, "missing from vault-template")
+            return
+        data = self.load_json(path)
+        if data is None:
+            return
+        text = self.read(path) or ""
+
+        def line_of(needle):
+            for i, l in enumerate(text.splitlines(), 1):
+                if needle in l:
+                    return i
+            return 1
+
+        for key in data:
+            if key not in SETTINGS_KEYS:
+                self.err(path, line_of(json.dumps(key)), f"unknown top-level key '{key}'")
+        perms = data.get("permissions", {})
+        rules = {}
+        if not isinstance(perms, dict):
+            self.err(path, line_of('"permissions"'), "'permissions' must be an object")
+            perms = {}
+        for kind in ("allow", "ask", "deny"):
+            val = perms.get(kind, [])
+            if not isinstance(val, list) or not all(isinstance(x, str) for x in val):
+                self.err(path, line_of(f'"{kind}"'), f"permissions.{kind} must be a list of strings")
+            else:
+                rules[kind] = val
+        for a, b in (("allow", "deny"), ("ask", "deny"), ("allow", "ask")):
+            for rule in sorted(set(rules.get(a, [])) & set(rules.get(b, []))):
+                self.err(path, line_of(json.dumps(rule)), f"rule {rule!r} is in both {a} and {b}")
+        hooks = data.get("hooks", {})
+        if not isinstance(hooks, dict):
+            self.err(path, line_of('"hooks"'), "'hooks' must be an object")
+            return
+        for event, groups in hooks.items():
+            if event not in HOOK_EVENTS:
+                self.err(path, line_of(json.dumps(event)), f"unknown hook event '{event}'")
+            if not isinstance(groups, list):
+                self.err(path, line_of(json.dumps(event)), f"hooks.{event} must be a list")
+                continue
+            for g in groups:
+                for h in (g.get("hooks", []) if isinstance(g, dict) else []):
+                    if not isinstance(h, dict):
+                        continue
+                    strings = [h.get("command")] + (h.get("args") if isinstance(h.get("args"), list) else [])
+                    for sv in strings:
+                        for m in PROJECT_DIR_REF.finditer(sv if isinstance(sv, str) else ""):
+                            rel = m.group(1)
+                            if not (self.root / "vault-template" / rel).is_file():
+                                self.err(path, line_of(rel), f"hook path ${{CLAUDE_PROJECT_DIR}}/{rel} "
+                                         "does not exist in vault-template")
+
     # ---- driver -----------------------------------------------------------
 
     def run(self):
@@ -374,6 +491,7 @@ class Checker:
         self.check_marketplace()
         self.check_plugin_manifests()
         self.check_schedulable(commands)
+        self.check_settings()
         return self.problems
 
 
@@ -395,6 +513,12 @@ GOOD = {
     "plugins/p/.claude-plugin/plugin.json": '{"name": "p", "version": "1.0.0"}',
     ".claude-plugin/marketplace.json": '{"name": "m", "owner": {"name": "o"}, "plugins": [{"name": "p", "source": "./plugins/p"}]}',
     "scripts/tool.py": "",
+    "vault-template/.claude/settings.json": json.dumps({
+        "permissions": {"allow": ["Bash(ls)"], "ask": ["WebFetch"], "deny": ["Bash(rm *)"]},
+        "hooks": {"PreToolUse": [{"matcher": "Bash", "hooks": [
+            {"type": "command", "command": "python3", "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/guard.py"]}]}]},
+    }, indent=2),
+    "vault-template/.claude/hooks/guard.py": "",
 }
 
 
@@ -466,6 +590,19 @@ def selftest():
     case("plugin.json missing name", {"plugins/p/.claude-plugin/plugin.json": "{}"}, "'name' is required")
     case("schedulable list extra", {"commands/README.md": "can be scheduled `/two`, `/one`. A scheduled task can fire only"}, "/one is listed as schedulable but sets")
     case("schedulable list missing", {"commands/README.md": "can be scheduled none. A scheduled task can fire only"}, "/two has no disable")
+    ST = "vault-template/.claude/settings.json"
+    case("settings bad JSON", {ST: "{"}, "invalid JSON")
+    case("settings unknown key", {ST: '{"permisions": {}}'}, "unknown top-level key 'permisions'")
+    case("settings known keys pass", {ST: '{"env": {}, "permissions": {}}'}, None)
+    case("allow not a list", {ST: '{"permissions": {"allow": "x"}}'}, "permissions.allow must be a list of strings")
+    case("deny has a non-string", {ST: '{"permissions": {"deny": ["a", 1]}}'}, "permissions.deny must be a list of strings")
+    case("rule in allow and deny", {ST: '{"permissions": {"allow": ["Bash(ls)"], "deny": ["Bash(ls)"]}}'}, "in both allow and deny")
+    case("rule in ask and deny", {ST: '{"permissions": {"ask": ["WebFetch"], "deny": ["WebFetch"]}}'}, "in both ask and deny")
+    case("bad hook event", {ST: '{"hooks": {"PreToolUs": []}}'}, "unknown hook event 'PreToolUs'")
+    case("hook script missing", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "command", "command": "python3", "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/nope.py"]}]}]}}'}, "hooks/nope.py does not exist")
+    case("hook path in command string", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "command", "command": "python3 \\"$CLAUDE_PROJECT_DIR/.claude/hooks/nope.py\\""}]}]}}'}, "hooks/nope.py does not exist")
+    case("hook path in command that exists", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "command", "command": "python3 ${CLAUDE_PROJECT_DIR}/.claude/hooks/guard.py"}]}]}}'}, None)
+    case("settings missing from vault-template", {ST: None, "vault-template/README.md": "x"}, "missing from vault-template")
     for f in failures:
         print("FAIL", f)
     print("selftest:", "FAILED" if failures else "ok")
