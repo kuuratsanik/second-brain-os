@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """Builds index.html (the guide) and resources.html (the catalog) from site_data.json."""
-import io, json, os, html
+import io, json, os, html, sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from site_common import (REPO, FOOTER, head, header, min_css, min_js, dumps,
+                         slim_page, word)
 
 D = json.load(io.open("site_data.json", encoding="utf-8"))
 OUT = "."
 os.makedirs(OUT, exist_ok=True)
-REPO = "https://github.com/undefined-ui/second-brain-os"
 
 CSS = """
 :root{
@@ -183,25 +186,15 @@ GUIDE_CSS = """
 article.page img{max-width:100%;height:auto;display:block;margin:20px auto}
 .entr{max-width:var(--w);display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:34px 0 8px}@media(max-width:760px){.entr{grid-template-columns:1fr}}.ent{display:block;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px 20px 16px;text-decoration:none;transition:border-color .15s}.ent:hover{border-color:var(--accent)}.ent .ek{font:11px/1 ui-monospace,Menlo,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}.ent h3{font:600 20px/1.2 Charter,Georgia,serif;color:var(--ink);margin:9px 0 7px}.ent p{font-size:14px;line-height:1.5;color:var(--soft);margin:0 0 12px}.ent .em{font:12px ui-monospace,Menlo,monospace;color:var(--accent)}.ent.e2{border-top:3px solid var(--num)}.ent.e1{border-top:3px solid var(--accent)}.ent.e3{border-top:3px solid var(--rule)}"""
 
-FAVICON = '''<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23F7F9F6'/%3E%3Crect x='.5' y='.5' width='31' height='31' rx='6.5' fill='none' stroke='%23D2DACF'/%3E%3Cpath d='M10 21 L16 11 L22 19 M16 11 L23 9' stroke='%231F6B52' stroke-width='1.6' fill='none'/%3E%3Ccircle cx='10' cy='21' r='3' fill='%23F7F9F6' stroke='%231F6B52' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='11' r='3' fill='%23F7F9F6' stroke='%231F6B52' stroke-width='1.6'/%3E%3Ccircle cx='22' cy='19' r='3' fill='%23F7F9F6' stroke='%231F6B52' stroke-width='1.6'/%3E%3Ccircle cx='24' cy='8' r='2' fill='%231F6B52'/%3E%3C/svg%3E">'''
-ANALYTICS = '''<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "03592e9f97c244c1b5c1fd2512e49f0d"}'></script><!-- End Cloudflare Web Analytics -->'''
-
 SEARCHBOX = ('<div class="search"><input id="q" type="search" '
              'placeholder="search the guide" autocomplete="off">'
              '<div class="hits" id="hits"></div></div>')
 
-def header(active):
-    return f"""<header><div class="bar">
-  <a class="brand" href="index.html">[[ second<span>brain</span>os ]]</a>
-  <nav>
-    <a href="index.html" class="{'on' if active=='guide' else ''}">Guide</a>
-    <a href="resources.html" class="{'on' if active=='res' else ''}">Resources</a>
-    <a href="tree.html">Tree</a>
-    <a href="{REPO}">Repo</a>
-  </nav>
-  {'<button class="toc-btn" id="toc">Index</button>' if active=='guide' else ''}
-  {SEARCHBOX if active=='guide' else ''}
-</div></header>"""
+def page_header(active):
+    extra = ""
+    if active == "guide":
+        extra = '<button class="toc-btn" id="toc">Index</button>\n  ' + SEARCHBOX + "\n"
+    return header(active, extra)
 
 # ---------------- graph: sections on a ring in reading order, links as chords
 import math
@@ -239,9 +232,9 @@ for i, sec in enumerate(order):
                   f'</g>')
 
 GRAPH = (f'<figure class="figure"><svg viewBox="0 0 800 470" role="img" '
-         f'aria-label="The ten sections of the guide and the links between them">'
+         f'aria-label="The {word(len(order))} sections of the guide and the links between them">'
          f'{edges_svg}{nodes_svg}</svg>'
-         f'<figcaption>The ten sections, in reading order, with the '
+         f'<figcaption>The {word(len(order))} sections, in reading order, with the '
          f'{len(g["edges"])} places they reference each other. Thicker where they lean on '
          f'each other hardest. Click one to start there.</figcaption></figure>')
 
@@ -266,13 +259,8 @@ for sec, meta in D["sections"].items():
                 f'<p>{inline(meta["blurb"])}</p>'
                 f'<div class="pg">{len(D["order"][sec])} pages</div></article>')
 
-GUIDE = f"""<!DOCTYPE html><html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-{FAVICON}<title>Second Brain OS - the guide</title>
-<meta name="description" content="A {s['pages']}-page guide to building a knowledge base your AI agent maintains, in plain markdown you own.">
-<style>{CSS}{GUIDE_CSS}</style>{ANALYTICS}
-</head><body>
-{header('guide')}
+GUIDE = f"""{head("Second Brain OS - the guide", f"A {s['pages']}-page guide to building a knowledge base your AI agent maintains, in plain markdown you own.", "index.html", min_css(CSS + GUIDE_CSS))}
+{page_header('guide')}
 <template id="hero"><div class="hero"><h1>A knowledge base your agent maintains</h1>
 <p>Everything you read, watched and wrote, turned into linked pages and kept current by an agent. Plain markdown on your own machine.</p>
 {GRAPH}{STATS}</div><!--ENTRIES--><!--/ENTRIES--><div class="trkhead"><h2>the second-brain guide</h2><p>A path you follow once, in order: from the concept to a vault that maintains itself, one evening to set up.</p></div><div class="seclist">{seclist}</div><!--COURSE--><!--/COURSE--><!--TRACKS--><!--/TRACKS--></template>
@@ -281,11 +269,13 @@ GUIDE = f"""<!DOCTYPE html><html lang="en"><head>
   <main id="main"></main>
   <div class="rail" id="rail"></div>
 </div>
-<footer>Generated from the repository. <a href="{REPO}">github.com/undefined-ui/second-brain-os</a> · by <a href="https://x.com/undefinedKi" rel="noopener">@undefinedKi</a></footer>
-<script id="data" type="application/json">{json.dumps({k:D[k] for k in ['pages','sections','order']})}</script>
+{FOOTER}
+<script id="data" type="application/json">{dumps({'pages': [slim_page(p) for p in D['pages']], 'sections': D['sections'], 'order': D['order']})}</script>
 <script>
 const D=JSON.parse(document.getElementById('data').textContent);
-const P={{}}; D.pages.forEach(p=>P[p.id]=p);
+const P={{}}; D.pages.forEach(p=>{{P[p.id]=p; p.section=p.id.split('/')[0]; p.section_title=D.sections[p.section].title; p.path='docs/'+p.id+'.md';}});
+const T={{}};
+function plain(p){{return T[p.id]||(T[p.id]=p.html.replace(/<[^>]+>/g,' ').toLowerCase());}}
 const FLAT=[]; Object.keys(D.order).forEach(s=>D.order[s].forEach(id=>FLAT.push(id)));
 const HERO=document.getElementById('hero').innerHTML;
 
@@ -369,7 +359,7 @@ q.addEventListener('input',()=>{{
   const r=D.pages.map(p=>{{
     let sc=0; const t=p.title.toLowerCase();
     if(t.includes(v)) sc+=10; if(t.startsWith(v)) sc+=6;
-    const n=(p.text.toLowerCase().split(v).length-1); sc+=Math.min(n,6);
+    const n=(plain(p).split(v).length-1); sc+=Math.min(n,6);
     return {{p,sc}};
   }}).filter(x=>x.sc>0).sort((a,b)=>b.sc-a.sc).slice(0,9);
   hits.innerHTML=r.length?r.map(x=>`<a class="hit" href="#${{x.p.id}}"><b>${{x.p.title}}</b><i>${{x.p.section_title}}</i></a>`).join('')
@@ -394,6 +384,11 @@ document.getElementById('side').addEventListener('click',e=>{{
 addEventListener('hashchange',render); render();
 </script></body></html>"""
 
+import re as _re2
+def _minjs(doc):
+    return _re2.sub(r"(<script>\n)(.*?)(</script>)",
+                    lambda m: m.group(1) + min_js(m.group(2)) + m.group(3), doc, flags=_re2.S)
+GUIDE = _minjs(GUIDE)
 io.open(f"{OUT}/index.html", "w", encoding="utf-8", newline="\n").write(GUIDE)
 
 # ---------------- resources page
@@ -402,13 +397,8 @@ kinds = []
 for r in R:
     if r["kind"] not in kinds: kinds.append(r["kind"])
 
-RES = f"""<!DOCTYPE html><html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-{FAVICON}<title>Second Brain OS - resources</title>
-<meta name="description" content="{len(R)} checked links: Obsidian plugins by installs, repositories by stars, papers, tools and reading.">
-<style>{CSS}</style>{ANALYTICS}
-</head><body>
-{header('res')}
+RES = f"""{head("Second Brain OS - resources", f"{len(R)} checked links: Obsidian plugins by installs, repositories by stars, papers, tools and reading.", "resources.html", min_css(CSS))}
+{page_header('res')}
 <div class="rwrap">
   <h1>Everything worth opening</h1>
   <p class="lede">{len(R)} links, each one checked. Plugins are ranked by installs from Obsidian's own community stats rather than by stars, because in this ecosystem the two disagree by an order of magnitude. Figures are from September 2026 and will drift.</p>
@@ -420,8 +410,8 @@ RES = f"""<!DOCTYPE html><html lang="en"><head>
   <div class="count" id="count"></div>
   <div id="rows"></div>
 </div>
-<footer>Generated from the repository. <a href="{REPO}">github.com/undefined-ui/second-brain-os</a> · by <a href="https://x.com/undefinedKi" rel="noopener">@undefinedKi</a></footer>
-<script id="rdata" type="application/json">{json.dumps(R)}</script>
+{FOOTER}
+<script id="rdata" type="application/json">{dumps(R)}</script>
 <script>
 const R=JSON.parse(document.getElementById('rdata').textContent);
 let kind='all', term='';
@@ -449,6 +439,7 @@ document.getElementById('rq').addEventListener('input',e=>{{term=e.target.value.
 draw();
 </script></body></html>"""
 
+RES = _minjs(RES)
 io.open(f"{OUT}/resources.html", "w", encoding="utf-8", newline="\n").write(RES)
 print("index.html", os.path.getsize(f"{OUT}/index.html")//1024, "KB |",
       "resources.html", os.path.getsize(f"{OUT}/resources.html")//1024, "KB")

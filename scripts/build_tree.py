@@ -7,12 +7,12 @@ themselves (frontmatter, docstrings, page titles), so a rerun stays true.
 
     python3 scripts/build_tree.py
 """
-import io, json, os, re
+import io, json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-GH = "https://github.com/undefined-ui/second-brain-os/blob/main/"
-GHT = "https://github.com/undefined-ui/second-brain-os/tree/main/"
+sys.path.insert(0, os.path.join(ROOT, "tools"))
+from site_common import GH, GHT, FOOTER, head, header, min_css, word
 
 COMMAND_GROUPS = {
     "ingestion": ["ingest", "ingest-url", "ingest-youtube", "ingest-pdf",
@@ -217,9 +217,10 @@ def main():
             f"{meta['title']} · {len(ids)} pages",
             [row(i.split("/")[1] + ".md", "index.html#" + i, title[i])
              for i in ids], open_=False))
+    n_secs = len(guide_secs)
     out.append('<div class="sec"><details open><summary>'
                f'<a href="index.html">docs/</a><span class="c"># The guide. '
-               f'10 sections, {n_guide} pages</span></summary>'
+               f'{n_secs} sections, {n_guide} pages</span></summary>'
                '<div class="kids">' + "".join(guide_secs) + "</div></details></div>")
 
     # the course
@@ -236,7 +237,7 @@ def main():
              for i in ids], open_=False))
     out.append('<div class="sec"><details open><summary>'
                f'<a href="index.html">docs/course-*/</a><span class="c"># '
-               f'The agents course. 7 modules, {n_course} pages'
+               f'The agents course. {len(course_secs)} modules, {n_course} pages'
                '</span></summary><div class="kids">'
                + "".join(course_secs) + "</div></details></div>")
 
@@ -254,7 +255,7 @@ def main():
              for i in ids], open_=False))
     out.append('<div class="sec"><details open><summary>'
                f'<a href="index.html">docs/track-*/</a><span class="c"># '
-               f'Five handbooks, {n_track} pages, each ends in a build'
+               f'{word(len(track_secs), True)} handbooks, {n_track} pages, each ends in a build'
                '</span></summary><div class="kids">'
                + "".join(track_secs) + "</div></details></div>")
 
@@ -276,19 +277,20 @@ def main():
               f"{n_track} handbook pages · "
               f"{nlinks} vetted links")
 
-    page = TEMPLATE.replace("{{TREE}}", "".join(out)) \
+    page = TEMPLATE.replace("{{HEAD}}", head(
+        "The full component tree - Second Brain OS",
+        DESC.format(handbooks=word(len(track_secs))), "tree.html",
+        min_css(CSS))) \
+                   .replace("{{HEADER}}", header("tree")) \
+                   .replace("{{FOOTER}}", FOOTER) \
+                   .replace("{{TREE}}", "".join(out)) \
                    .replace("{{COUNTS}}", counts)
     io.open(os.path.join(ROOT, "tree.html"), "w", encoding="utf-8",
             newline="\n").write(page)
     print("tree.html written ·", counts)
 
 
-TEMPLATE = """<!DOCTYPE html><html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The full component tree - Second Brain OS</title>
-<meta name="description" content="Every component in second-brain-os on one page: the guide, five handbooks, skills, commands, agents, scripts and resources, each line a link.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23F7F9F6'/%3E%3Crect x='.5' y='.5' width='31' height='31' rx='6.5' fill='none' stroke='%23D2DACF'/%3E%3Cpath d='M10 21 L16 11 L22 19 M16 11 L23 9' stroke='%231F6B52' stroke-width='1.6' fill='none'/%3E%3Ccircle cx='10' cy='21' r='3' fill='%23F7F9F6' stroke='%231F6B52' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='11' r='3' fill='%23F7F9F6' stroke='%231F6B52' stroke-width='1.6'/%3E%3Ccircle cx='22' cy='19' r='3' fill='%23F7F9F6' stroke='%231F6B52' stroke-width='1.6'/%3E%3Ccircle cx='24' cy='8' r='2' fill='%231F6B52'/%3E%3C/svg%3E">
-<style>
+CSS = """
 :root{--paper:#EAEEE9;--card:#F7F9F6;--ink:#15201B;--soft:#4B5A52;--faint:#7C8A82;
   --rule:#D2DACF;--accent:#1F6B52;--accent-bg:#E1EDE5}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -328,17 +330,13 @@ summary a{font-weight:700}
   color:var(--soft);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .counts b{color:var(--ink);font-weight:600}
 footer{border-top:1px solid var(--rule);padding:22px;text-align:center;color:var(--faint)}
-</style><!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "03592e9f97c244c1b5c1fd2512e49f0d"}'></script><!-- End Cloudflare Web Analytics -->
-</head><body>
-<header><div class="bar">
-  <a class="brand" href="index.html">[[ second<span>brain</span>os ]]</a>
-  <nav>
-    <a href="index.html">Guide</a>
-    <a href="resources.html">Resources</a>
-    <a href="tree.html" class="on">Tree</a>
-    <a href="https://github.com/undefined-ui/second-brain-os">Repo</a>
-  </nav>
-</div></header>
+"""
+
+DESC = ("Every component in second-brain-os on one page: the guide, {handbooks} handbooks, "
+        "skills, commands, agents, scripts and resources, each line a link.")
+
+TEMPLATE = """{{HEAD}}
+{{HEADER}}
 <div class="wrap">
   <h1>The full component tree</h1>
   <p class="lede">Everything in the repository on one page, annotated. Every line is a link: pages open on this site, code opens on GitHub. Click a branch to fold it.</p>
@@ -349,7 +347,7 @@ footer{border-top:1px solid var(--rule);padding:22px;text-align:center;color:var
   <div class="cols">{{TREE}}</div>
   <div class="counts"><b>{{COUNTS}}</b><span>generated from the repo</span></div>
 </div>
-<footer>Generated from the repository. <a href="https://github.com/undefined-ui/second-brain-os">github.com/undefined-ui/second-brain-os</a> · by <a href="https://x.com/undefinedKi" rel="noopener">@undefinedKi</a></footer>
+{{FOOTER}}
 </body></html>"""
 
 
