@@ -8,6 +8,7 @@ Reports page counts by type, link density, orphan rate and the most connected
 pages. Track these over time: a rising orphan rate means ingestion is running
 without linking, which is the usual way a vault stops being useful.
 """
+import argparse
 import os
 import re
 import sys
@@ -31,13 +32,13 @@ def prune(dirnames):
 
 
 def main():
-    argv = sys.argv[1:]
-    if len(argv) == 3 and argv[1] == "--include":
-        SKIP_DIRS.difference_update(x.strip() for x in argv[2].split(","))
-        argv = argv[:1]
-    if len(argv) != 1:
-        sys.exit("usage: vault_stats.py /path/to/vault [--include archive,journal]")
-    vault = argv[0]
+    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    ap.add_argument("vault")
+    ap.add_argument("--include", default="", metavar="DIRS",
+                    help="comma-separated folders to count anyway, e.g. archive,journal")
+    args = ap.parse_args()
+    SKIP_DIRS.difference_update(x.strip() for x in args.include.split(","))
+    vault = args.vault
 
     pages, types = {}, Counter()
     for dirpath, dirnames, filenames in os.walk(vault):
