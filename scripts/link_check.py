@@ -39,7 +39,7 @@ def collect(vault):
             if not is_page(name):
                 continue
             path = os.path.join(dirpath, name)
-            with open(path, encoding="utf-8", errors="replace") as fh:
+            with open(path, encoding="utf-8-sig", errors="replace") as fh:
                 text = fh.read()
             pages[path] = text
     return pages
@@ -51,13 +51,20 @@ def title_of(path, text):
 
 
 def aliases_of(text):
+    """Names from a flow-style `aliases: [a, b]` line in the frontmatter."""
     m = re.search(r"^---\n(.*?)\n---", text, re.S)
-    if not m:
-        return []
-    m2 = re.search(r"^aliases:\s*\[(.*?)\]", m.group(1), re.M)
+    m2 = m and re.search(r"^aliases:[ \t]*\[(.*?)\]", m.group(1), re.M)
     if not m2:
         return []
     return [a.strip().strip("\"'") for a in m2.group(1).split(",") if a.strip()]
+
+
+def link_key(target):
+    """Normalise a wikilink target: folder/Page.md and Page both mean `page`."""
+    t = target.strip().replace("\\", "/").rsplit("/", 1)[-1]
+    if t.lower().endswith(".md"):
+        t = t[:-3]
+    return t.lower()
 
 
 def main():
@@ -85,7 +92,7 @@ def main():
 
     for path, text in pages.items():
         for target in LINK.findall(text):
-            key = target.strip().lower()
+            key = link_key(target)
             if key in names:
                 dest = names[key]
                 if dest != path:

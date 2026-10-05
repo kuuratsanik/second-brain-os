@@ -38,9 +38,26 @@ def load(vault):
         for name in filenames:
             if is_page(name):
                 path = os.path.join(dirpath, name)
-                with open(path, encoding="utf-8", errors="replace") as fh:
+                with open(path, encoding="utf-8-sig", errors="replace") as fh:
                     pages[path] = fh.read()
     return pages
+
+
+def aliases_of(text):
+    """Names from a flow-style `aliases: [a, b]` line in the frontmatter."""
+    m = re.search(r"^---\n(.*?)\n---", text, re.S)
+    m2 = m and re.search(r"^aliases:[ \t]*\[(.*?)\]", m.group(1), re.M)
+    if not m2:
+        return []
+    return [a.strip().strip("\"'") for a in m2.group(1).split(",") if a.strip()]
+
+
+def link_key(target):
+    """Normalise a wikilink target: folder/Page.md and Page both mean `page`."""
+    t = target.strip().replace("\\", "/").rsplit("/", 1)[-1]
+    if t.lower().endswith(".md"):
+        t = t[:-3]
+    return t.lower()
 
 
 def main():
@@ -55,7 +72,11 @@ def main():
 
     pages = load(args.vault)
     stems = {os.path.splitext(os.path.basename(p))[0]: p for p in pages}
-    lower = {k.lower(): k for k in stems}
+    lower = {}
+    for stem, path in stems.items():
+        for a in aliases_of(pages[path]):
+            lower.setdefault(a.lower(), stem)
+    lower.update({k.lower(): k for k in stems})
 
     nodes = {}
     for stem, path in stems.items():
@@ -65,7 +86,7 @@ def main():
     edges = []
     for stem, path in stems.items():
         for target in LINK.findall(pages[path]):
-            key = lower.get(target.strip().lower())
+            key = lower.get(link_key(target))
             if key and key != stem:
                 edges.append((stem, key))
 

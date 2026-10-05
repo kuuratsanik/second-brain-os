@@ -31,6 +31,23 @@ def prune(dirnames):
     dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS and not d.startswith(".")]
 
 
+def aliases_of(text):
+    """Names from a flow-style `aliases: [a, b]` line in the frontmatter."""
+    m = re.search(r"^---\n(.*?)\n---", text, re.S)
+    m2 = m and re.search(r"^aliases:[ \t]*\[(.*?)\]", m.group(1), re.M)
+    if not m2:
+        return []
+    return [a.strip().strip("\"'") for a in m2.group(1).split(",") if a.strip()]
+
+
+def link_key(target):
+    """Normalise a wikilink target: folder/Page.md and Page both mean `page`."""
+    t = target.strip().replace("\\", "/").rsplit("/", 1)[-1]
+    if t.lower().endswith(".md"):
+        t = t[:-3]
+    return t.lower()
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("vault")
@@ -46,7 +63,7 @@ def main():
         for name in filenames:
             if is_page(name):
                 path = os.path.join(dirpath, name)
-                with open(path, encoding="utf-8", errors="replace") as fh:
+                with open(path, encoding="utf-8-sig", errors="replace") as fh:
                     text = fh.read()
                 pages[path] = text
                 m = TYPE.search(text)
@@ -55,12 +72,16 @@ def main():
     if not pages:
         sys.exit("no markdown files found")
 
-    stems = {os.path.splitext(os.path.basename(p))[0].lower(): p for p in pages}
+    stems = {}
+    for p, t in pages.items():
+        for a in aliases_of(t):
+            stems.setdefault(a.lower(), p)
+    stems.update({os.path.splitext(os.path.basename(p))[0].lower(): p for p in pages})
     indeg = defaultdict(int)
     total = 0
     for path, text in pages.items():
         for target in LINK.findall(text):
-            dest = stems.get(target.strip().lower())
+            dest = stems.get(link_key(target))
             if dest and dest != path:
                 indeg[dest] += 1
                 total += 1
