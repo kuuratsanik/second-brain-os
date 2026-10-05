@@ -28,10 +28,13 @@ docs](https://code.claude.com/docs/en/setup).
 
 ## Option C: inside Obsidian
 
-Community plugins now embed the agent in the editor, and they are heavily used:
-[Claudian](https://github.com/yishentu/claudian) sits above two million installs
-and [Copilot](https://github.com/logancyang/obsidian-copilot) is close behind.
-Both run Claude Code, Codex or a local agent in a pane next to your notes.
+Community plugins now embed the agent in the editor, and they are heavily used.
+[Claudian](https://github.com/yishentu/claudian) and
+[Copilot](https://github.com/logancyang/obsidian-copilot) each have more than two
+million installs in Obsidian's
+[community-plugin-stats.json](https://github.com/obsidianmd/obsidian-releases/blob/master/community-plugin-stats.json)
+(about 2.3 million each in October 2026). Both can run Claude Code and Codex in a
+pane next to your notes. The README of each lists the other agents it supports.
 
 Worth knowing about because it removes the window switching entirely. Worth
 being careful with for the same reason this guide keeps ingestion on a

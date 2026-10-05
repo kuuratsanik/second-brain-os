@@ -1,6 +1,6 @@
 # Obsidian and your first vault
 
-Obsidian is the storage half of the system. It is free, it keeps everything as
+Obsidian is the storage half of the system. It is [free to use](https://help.obsidian.md/credit), it keeps everything as
 plain text files on your own machine, and it renders the links between notes as
 a graph. Nothing here is stored in a company's cloud, and the files stay
 readable in any text editor if you ever walk away from the app.
@@ -53,12 +53,13 @@ Avoid spaces in the folder name. You will be pasting this path into commands.
 
 ## Settings worth changing now
 
-- **Files and links → New link format:** relative path or shortest path,
-  consistently. Mixed link formats are the most common cause of broken links
+- **Files and links → New link format:** Relative path to file or Shortest path
+  when possible, consistently (Obsidian's
+  [settings reference](https://help.obsidian.md/settings) lists the options). Mixed link formats are a common cause of broken links
   after a rename.
 - **Files and links → Automatically update internal links:** on.
-- **Editor → Show frontmatter:** on. You want to see the metadata the agent
-  writes, at least for the first weeks.
+- **Editor → Properties in document:** Visible (the default) or Source. You want
+  to see the metadata the agent writes, at least for the first weeks.
 
 ## Next
 

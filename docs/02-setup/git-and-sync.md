@@ -60,7 +60,8 @@ edits alone.
 
 - **Git remote:** free, versioned, works everywhere, needs a pull and push
   habit.
-- **Obsidian Sync:** paid, end-to-end encrypted, handles mobile properly.
+- **[Obsidian Sync](https://help.obsidian.md/sync):** a paid add-on, end-to-end encrypted by default
+  ([security and privacy](https://help.obsidian.md/sync/security)), with mobile support.
 - **Generic cloud drives:** work, with a caveat. A sync client rewriting files
   while an agent writes them produces conflict copies. If you go this route,
   keep long-running agent work to one machine.

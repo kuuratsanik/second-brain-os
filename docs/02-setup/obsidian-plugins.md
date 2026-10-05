@@ -35,17 +35,21 @@ directly.
 
 ## Worth adding later
 
-- **[Git](https://github.com/Vinzent03/obsidian-git)**, the third most installed
-  plugin in the catalog. Commits from inside Obsidian, which pairs with
+- **[Git](https://github.com/Vinzent03/obsidian-git)**, one of the most
+  installed plugins in the catalog (about 3.2 million installs in Obsidian's
+  [community-plugin-stats.json](https://github.com/obsidianmd/obsidian-releases/blob/master/community-plugin-stats.json),
+  October 2026). Commits from inside Obsidian, which pairs with
   [versioning](../09-maintenance/versioning-with-git.md).
 - **[Importer](https://github.com/obsidianmd/obsidian-importer)**, official,
-  pulls in Notion, Evernote, Roam, Bear and Apple Notes. The first step if you
-  are migrating an existing pile.
+  pulls in Notion, Evernote, Roam, Bear, Apple Notes and others (see its README
+  for the full list). The first step if you are migrating an existing pile.
 - **[Find orphaned files and broken links](https://github.com/Vinzent03/find-unlinked-files)**,
   the same checks as [lint](../09-maintenance/lint-and-health.md) without leaving
   the app.
 - **[Omnisearch](https://github.com/scambier/obsidian-omnisearch)** for better
-  full-text search, including inside PDFs.
+  full-text search. Indexing PDFs and images needs the separate
+  [Text Extractor](https://github.com/scambier/obsidian-text-extractor) plugin,
+  per the Omnisearch README.
 
 Full ranked list with install counts:
 [resources/plugins.md](../../resources/plugins.md).
