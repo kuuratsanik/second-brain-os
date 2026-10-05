@@ -4,15 +4,15 @@ Hire the most brilliant engineer alive and put them in a bad office — no keys 
 
 ## You buy a model and a harness
 
-Nobody runs a bare model. The moment you adopt Claude Code, LangChain's deepagents or your own seventy-line loop, you have bought a second product with its own quality curve. Vendors price the model per token and give the harness away, which tricks teams into treating it as free and therefore unimportant. The 2026 measurements say the opposite: changing nothing but the office moves benchmark scores by more than the gap between frontier models.
+Nobody runs a bare model. The moment you adopt Claude Code, LangChain's deepagents or your own seventy-line loop, you have bought a second product with its own quality curve. Vendors price the model per token and give the harness away, which tricks teams into treating it as free and therefore unimportant. The 2026 measurements say the opposite: Anthropic's infrastructure study notes that setup differences can exceed the margins that separate top models on a leaderboard, and LangChain moved a score by 13.7 points without touching the model.
 
 ## Six points from container resources
 
-In March 2026 Anthropic reran Terminal-Bench 2.0 on a Kubernetes cluster under six resource configurations, from strict enforcement of each task's CPU and memory spec up to fully uncapped — same model, same harness, same tasks. The gap between the most- and least-resourced setups was 6 percentage points (p < 0.01), and under strict enforcement 5.8% of tasks failed on infrastructure errors — containers killed by transient memory spikes, not the model getting the answer wrong. The write-up is [Quantifying infrastructure noise in agentic coding evals](https://www.anthropic.com/engineering/infrastructure-noise). If the RAM ceiling alone is worth six points, the environment is not a detail. It is part of the score.
+In February 2026 Anthropic reran Terminal-Bench 2.0 on a Google Kubernetes Engine cluster under six resource configurations, from strict enforcement of each task's CPU and memory spec up to fully uncapped — same model, same harness, same tasks. Uncapped resources lifted the score by 6 percentage points over strict enforcement (p < 0.01), and under strict enforcement 5.8% of tasks failed on infrastructure errors — containers killed by transient memory spikes, not the model getting the answer wrong. The write-up is [Quantifying infrastructure noise in agentic coding evals](https://www.anthropic.com/engineering/infrastructure-noise). If the RAM ceiling alone is worth six points, the environment is not a detail. It is part of the score.
 
 ## Thirteen points from the harness alone
 
-In February 2026 LangChain froze the model entirely — GPT-5.2-Codex throughout — and iterated only on the harness of their deepagents-cli: system prompt structure, tool design, and middleware such as loop detection and a pre-completion checklist. The agent went from 52.8 to 66.5 on Terminal-Bench 2.0, a 13.7-point gain with zero training. The post is [Improving Deep Agents with harness engineering](https://www.langchain.com/blog/improving-deep-agents-with-harness-engineering). Thirteen points is more than most model generations deliver on the same benchmark.
+In February 2026 LangChain froze the model entirely — GPT-5.2-Codex throughout — and iterated only on the harness of their deepagents-cli: system prompt structure, tool design, and middleware such as loop detection and a pre-completion checklist. The agent went from 52.8 to 66.5 on Terminal-Bench 2.0, a 13.7-point gain with the model fixed. The post is [Improving Deep Agents with harness engineering](https://www.langchain.com/blog/improving-deep-agents-with-harness-engineering).
 
 ## A cheaper model in a better office
 
