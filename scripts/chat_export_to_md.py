@@ -60,22 +60,25 @@ def mapping_messages(mapping, current=None):
     order = []
     if current in mapping:
         node = current
-        while node in mapping and node not in order:
+        while isinstance(node, str) and node in mapping and node not in order:
             order.append(node)
-            node = (mapping[node] or {}).get("parent")
+            n = mapping[node]
+            node = n.get("parent") if isinstance(n, dict) else None
         order.reverse()
     else:
         seen = set()
         stack = [k for k, n in reversed(list(mapping.items()))
-                 if isinstance(n, dict) and n.get("parent") not in mapping]
+                 if isinstance(n, dict) and not (isinstance(n.get("parent"), str)
+                                                 and n.get("parent") in mapping)]
         while stack:
             k = stack.pop()
-            if k in seen or k not in mapping:
+            if not isinstance(k, str) or k in seen or k not in mapping:
                 continue
             seen.add(k)
             order.append(k)
-            kids = (mapping[k] or {}).get("children") or []
-            stack.extend(reversed(kids))
+            n = mapping[k]
+            kids = (n.get("children") if isinstance(n, dict) else None) or []
+            stack.extend(reversed(kids if isinstance(kids, list) else []))
         order += [k for k in mapping if k not in seen]  # detached nodes, file order
     out = []
     for k in order:

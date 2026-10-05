@@ -131,6 +131,19 @@ class ChatExport(VaultCase):
         self.assertIn("NEWBRANCH", text)
         self.assertNotIn("OLDBRANCH", text)
 
+    def test_mapping_tolerates_non_dict_nodes(self):
+        def good(parent):
+            return {"parent": parent, "children": [],
+                    "message": {"author": {"role": "user"}, "content": {"parts": ["GOOD " + LONG]}}}
+        walked = {"title": "Walked", "mapping": {
+            "root": {"parent": None, "children": ["bad", "good", 7, ["x"]], "message": None},
+            "bad": "not a node", "good": good("root")}}
+        branch = {"title": "Branch", "current_node": "good", "mapping": {
+            "root": "not a node", "bad": None, "good": good("bad")}}
+        out, _ = self.convert([walked, branch])
+        for name in ("walked.md", "branch.md"):
+            self.assertIn("GOOD", self.read(out, name))
+
 
 if __name__ == "__main__":
     unittest.main()

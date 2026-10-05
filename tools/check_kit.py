@@ -56,6 +56,9 @@ SCRIPT_REF = re.compile(r"(?<![\w./${}-])scripts/([\w.-]+\.py)")
 # `./scripts/x.py` and `~/brain/scripts/x.py` mean the same file as `scripts/x.py`.
 SCRIPT_PREFIX = re.compile(r"(?<![\w.])\./(?=scripts/)|~/brain/(?=scripts/)")
 ARG_USE = re.compile(r"\$(?:ARGUMENTS|\d+)\b")
+# `skills/second-brain-x/SKILL.md` and `.claude/skills/...` paths name the skill too.
+SKILL_PATH_PREFIX = re.compile(r"(?<!\w)(?:~/brain/)?(?:\.claude/)?skills/(?=second-brain-)")
+SKILL_DIR = re.compile(r"(?<!\w)(?:~/brain/)?(?:\.claude/)?skills/(second-brain-[a-z0-9]+(?:-[a-z0-9]+)*)/")
 SKILL_NAME = re.compile(r"[a-z0-9-]+")
 TRUE = {"true", "yes", "on", "1"}
 
@@ -105,6 +108,8 @@ def parse_frontmatter(text):
         if cur in fields:
             errors.append((i, f"duplicate key '{cur}'"))
         val = (m.group(2) or "").strip()
+        if val.startswith("#"):
+            val = ""  # YAML reads `key: # text` as a null value
         if val in (">", ">-", ">+", "|", "|-", "|+"):
             val = ""
         if val and val[0] in "\"'":
@@ -215,7 +220,7 @@ class Checker:
             return
         for lineno, line in enumerate(body.split("\n"), start=1):
             line = SCRIPT_PREFIX.sub("", line)
-            for ref in SKILL_REF.findall(line):
+            for ref in SKILL_REF.findall(SKILL_PATH_PREFIX.sub("", line)) + SKILL_DIR.findall(line):
                 if ref not in skills and ref not in NOT_SKILLS:
                     self.err(path, lineno, f"references skill '{ref}', which does not exist")
             for ref in SCRIPT_REF.findall(line):
@@ -448,6 +453,9 @@ def selftest():
     case("text after closing quote", {"commands/two.md": "---\ndescription: \"x\" y\n---\n"}, "text after the closing quote")
     case("skill folder without SKILL.md", {"skills/empty/notes.md": "x"}, "skills/empty/SKILL.md:1: skill folder has no SKILL.md")
     case("skill name charset", {"skills/Bad_Name/SKILL.md": "---\nname: Bad_Name\ndescription: d\n---\n"}, "must match [a-z0-9-]+")
+    case("skills/ path ref checked", {"commands/two.md": "---\ndescription: x\n---\nRead skills/second-brain-zzz/SKILL.md\n"}, "skill 'second-brain-zzz'")
+    case("skills/ path ref that exists", {"commands/two.md": "---\ndescription: x\n---\nRead skills/second-brain-a/SKILL.md\n"}, None)
+    case("description that is only a comment", {"commands/two.md": "---\ndescription: # todo\n---\n"}, "missing required field 'description'")
     case("missing script ref", {"commands/two.md": "---\ndescription: x\n---\nRun scripts/nope.py\n"}, "scripts/nope.py")
     case("$ARGUMENTS without hint", {"commands/two.md": "---\ndescription: x\n---\n$ARGUMENTS\n"}, "no argument-hint")
     case("hint without $ARGUMENTS", {"commands/two.md": "---\ndescription: x\nargument-hint: y\n---\nbody\n"}, "never uses $ARGUMENTS")

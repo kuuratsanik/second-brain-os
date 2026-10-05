@@ -9,7 +9,8 @@ CSV loads into NetworkX, Kuzu, Neo4j or a spreadsheet. GraphML opens in Gephi.
 No dependencies.
 
 Links: `[[Page]]` matches a file name or an alias; `[[folder/Page]]` matches the
-vault-relative path first and falls back to the file name.
+vault-relative path first and falls back to the file name. Nodes and edges are
+emitted in path order, so the output is the same on every run.
 """
 import argparse
 import csv
