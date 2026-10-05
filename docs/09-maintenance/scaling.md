@@ -51,8 +51,10 @@ brought back if it turns out to matter again.
 ## Pruning what never mattered
 
 Concept pages with one source and no inbound links after a year were never
-concepts, they were paragraphs. Deleting them improves everything else by
-reducing what queries have to read past.
+concepts, they were paragraphs. Archiving them improves everything else by
+reducing what queries have to read past, and they stay on disk if you were
+wrong. The vault template moves them to `archive/` and takes them out of the
+index; it never hard-deletes.
 
 Run this once a year, not continuously.
 

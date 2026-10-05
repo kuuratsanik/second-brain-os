@@ -6,7 +6,9 @@ mechanics of that split are worth setting up before you publish anything.
 ## Deciding what is public
 
 The simplest reliable approach is an explicit opt-in: a `publish: true` field in
-frontmatter, and nothing without it ever leaves.
+frontmatter, and nothing without it ever leaves. In the vault template only you set it, in a
+live session: publishing is one of its hard stops, so the agent never adds
+`publish: true` or publishes on its own, and a scheduled run skips it.
 
 Opt-out is the alternative and it is a mistake. Under opt-out, one forgotten flag
 publishes something private, and the failure is silent and permanent because it

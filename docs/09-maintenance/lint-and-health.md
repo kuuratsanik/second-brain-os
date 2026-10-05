@@ -39,7 +39,7 @@ links and schema errors are mechanical. Merges and deletions are not.
 Weekly, or after any import of more than about twenty sources. Not after every
 ingest, where it costs more than it catches.
 
-Run it on a clean git state, so a wrong repair is one `git checkout` away.
+Run it on a clean git state, so a wrong repair is one revert of its own commit away.
 
 Inside Obsidian, [Find orphaned files and broken
 links](https://github.com/Vinzent03/find-unlinked-files) covers the same two
