@@ -303,7 +303,7 @@ body{background:var(--paper);color:var(--ink);
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline}
 header{border-bottom:1px solid var(--rule);background:var(--card)}
-.bar{max-width:1240px;margin:0 auto;padding:14px 22px;display:flex;gap:22px;align-items:baseline}
+.bar{max-width:1240px;margin:0 auto;padding:14px 22px;display:flex;gap:14px 22px;align-items:center;flex-wrap:wrap}
 .brand{font-weight:700;color:var(--ink)}
 .brand span{color:var(--accent)}
 nav{display:flex;gap:14px}

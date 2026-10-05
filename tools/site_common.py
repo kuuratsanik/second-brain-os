@@ -60,6 +60,8 @@ body{background:var(--paper)}
 main:focus{outline:none}
 .theme{margin-left:auto;font:12.5px/1 ui-monospace,Menlo,monospace;color:var(--soft);
   background:var(--card);border:1px solid var(--rule);border-radius:3px;padding:7px 10px;cursor:pointer}
+.theme[hidden]{display:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .theme:hover{border-color:var(--accent);color:var(--ink)}
 .search~.theme{margin-left:0}
 img[src$=".svg"]{background:var(--fig);border-radius:4px}
@@ -69,19 +71,32 @@ img[src$=".svg"]{background:var(--fig);border-radius:4px}
 """
 
 # Runs in <head>, before first paint. Storage may be blocked: every access is guarded.
-THEME_INIT = ("<script>try{var t=localStorage.getItem('theme');"
+# The key is namespaced because GitHub Pages shares one origin across the owner's
+# project sites; the old bare "theme" key is still read once so choices survive.
+THEME_INIT = ("<script>try{var t=localStorage.getItem('sbo-theme')||localStorage.getItem('theme');"
               "if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>")
 
-# Sits right after the toggle button; cycles system, light, dark.
+# Sits right after the toggle button; cycles system, light, dark. The button ships
+# hidden so it is never an empty control without JavaScript. The visually hidden
+# role=status span announces each change, and the button name carries the state.
+# The script also points theme-color at the chosen theme.
 THEME_BUTTON = (
-    '<button class="theme" id="theme" type="button"></button>\n'
-    '<script>(function(){var b=document.getElementById("theme"),r=document.documentElement,'
-    'o=["system","light","dark"];function g(){var t=r.dataset.theme;return t==="light"||t==="dark"?t:"system"}'
+    '<button class="theme" id="theme" type="button" hidden></button>'
+    '<span class="sr" id="theme-say" role="status" aria-live="polite"></span>\n'
+    '<script>(function(){var b=document.getElementById("theme"),s=document.getElementById("theme-say"),'
+    'r=document.documentElement,o=["system","light","dark"],'
+    f'C={{light:"{LIGHT["paper"]}",dark:"{DARK["paper"]}"}},'
+    'M=document.querySelectorAll("meta[name=theme-color]");'
+    'function g(){var t=r.dataset.theme;return t==="light"||t==="dark"?t:"system"}'
     'function u(){var t=g(),n=o[(o.indexOf(t)+1)%3];b.textContent="Theme: "+t;'
-    'b.setAttribute("aria-label","Theme: "+t+". Switch to "+n)}'
+    'b.setAttribute("aria-label","Theme: "+t+". Switch to "+n);'
+    'for(var i=0;i<M.length;i++){var d=/dark/.test(M[i].media||"");M[i].content=C[t==="system"?(d?"dark":"light"):t]}}'
+    'b.hidden=false;'
     'b.onclick=function(){var n=o[(o.indexOf(g())+1)%3];'
     'if(n==="system")delete r.dataset.theme;else r.dataset.theme=n;'
-    'try{if(n==="system")localStorage.removeItem("theme");else localStorage.setItem("theme",n)}catch(e){}u()};u()})()</script>')
+    'try{localStorage.removeItem("theme");if(n==="system")localStorage.removeItem("sbo-theme");'
+    'else localStorage.setItem("sbo-theme",n)}catch(e){}u();s.textContent="Theme set to "+n}'
+    ';u()})()</script>')
 
 THEME_COLOR = LIGHT["paper"]
 THEME_COLOR_DARK = DARK["paper"]
