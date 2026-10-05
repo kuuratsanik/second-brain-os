@@ -47,4 +47,5 @@ The commit ids below are invented; this demo vault is not a git repository.
 2026-10-04 link wiki/hubs/hub-personal.md -> idea fifteen-minute-friday-review listed (journal-derived, domain personal added)
 2026-10-04 link wiki/systems/friday-review.md -> system created from the adopted experiment
 2026-10-04 lint wiki -> 0 broken links, 0 orphans, 0 stubs; Q4 priorities page listed under Gaps in index.md
-2026-10-04 skip wiki tag habit -> routine on seven pages; checkpoint failed (git index.lock exists); queued in wiki/systems/needs-owner.md
+2026-10-04 skip raw/inbox/2026-09-25-vendor-call-notes.md -> hard stop (d), token still present; entry in wiki/systems/needs-owner.md re-dated
+2026-10-04 skip tag rename habit to routine (seven pages) -> checkpoint failed (git index.lock exists); queued in wiki/systems/needs-owner.md

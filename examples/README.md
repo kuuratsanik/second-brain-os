@@ -137,9 +137,9 @@ pages          31
   review       1
   experiment   1
   synthesis    1
-words          6,941
-links          200
-avg degree     6.45
+words          6,920
+links          201
+avg degree     6.48
 orphan rate    0.0%
 
 most linked:
@@ -155,7 +155,7 @@ most linked:
      8  wiki/sources/2026-08-12-fifteen-minute-weekly-review.md
 
 $ python3 scripts/graph_export.py examples/demo-vault edges.csv
-31 nodes, 200 edges -> edges.csv
+31 nodes, 201 edges -> edges.csv
 ```
 
 Reading them:
@@ -166,7 +166,7 @@ Reading them:
   without linking.
 - **Link counts differ between the two scripts.** `link_check.py` counts each
   distinct pair of pages once (171). `vault_stats.py` counts every link
-  occurrence (200), and `graph_export.py` writes the same 200 as edges.
+  occurrence (201), and `graph_export.py` writes the same 201 as edges.
   Compare a script's numbers with its own earlier runs, not with the other
   script's.
 - **Average degree around six or seven** is what a vault with hubs and an index

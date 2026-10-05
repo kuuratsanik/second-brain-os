@@ -35,9 +35,9 @@ with the outcome. Nothing is removed from this page.
   ingested and not staged. Last seen 2026-09-26 and again 2026-10-04, so this is
   one entry with a new date. Needs: the owner removes the token from the
   file, or tells the agent to ingest the notes without the line. Raw files are
-  append-only for the agent, so it cannot edit the original. The six-week
-  migration estimate in the file is not on any page yet; it bears on the open
-  warehouse question in [[hub-work|Work]].
+  append-only for the agent, so it cannot edit the original. The file is
+  about the warehouse migration, which is an open question in
+  [[hub-work|Work]]; nothing from it is on any page.
 - **2026-10-04, checkpoint failed, tag rename not done.** The monthly tag check
   wants to rename the tag `habit` to `routine` on seven pages, which is a batch
   rewrite and needs a checkpoint first. The checkpoint commit failed with

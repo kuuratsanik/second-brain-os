@@ -7,7 +7,7 @@ lang: en
 sensitivity: normal
 maintained_by: human
 created: 2026-08-13
-updated: 2026-09-16
+updated: 2026-09-27
 aliases: [Where each source lands]
 tags: [vault]
 ---
@@ -29,7 +29,7 @@ agent proposes changes in its run report.
 | Email (Gmail) | `raw/workspace/email/` | Source page, `kind: email` | Pull only what the standing rules in [[vault-operating-notes]] allow or the owner asks for. Do not mirror the inbox. Summarise; do not copy other people's messages in full. |
 | Chat (Slack) | `raw/workspace/chat/` | Source page, `kind: chat` | Same rule as email. The owner does not use Slack yet. |
 | Docs (Notion, Google Drive) | `raw/workspace/docs/` | Source page, `kind: doc` | Record the doc's location so the page can be refreshed. |
-| Calendar (Google Calendar) | `raw/workspace/calendar/` | No pages of its own | The weekly review writes a dated snapshot of the week's events here. Context for meeting pages and reviews. Read only; never create or change events. |
+| Calendar (Google Calendar) | `raw/workspace/calendar/` | No pages of its own | Not used yet; see [[vault-operating-notes]]. |
 | AI chat exports | `raw/ai-chats/` | Source page, `kind: ai-chat`; ideas, decisions, concepts | Use `second-brain-chat-import`. Keep what the owner thought, decided or asked; drop the assistant's boilerplate. Self-improvement ideas become idea pages. |
 | The owner's notes on their own systems and routines | `wiki/systems/`, or `raw/inbox/` | System page, `maintained_by: human` | The owner's wording stands. |
 | Journal | `journal/` | Concept, idea or review pages, `private` | Extract patterns and decisions. Do not quote at length. |

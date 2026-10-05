@@ -31,7 +31,7 @@ monthly pass on the first Sunday.
 | Job | Cadence | Scheduled? |
 |---|---|---|
 | Ingest raw material (20 oldest pending per run); pull new Granola meetings | Daily, 07:30 | Yes |
-| Link, lint, weekly review draft | Weekly, Sunday 18:00 | Yes |
+| Link, lint | Weekly, Sunday 18:00 | Yes |
 | Metrics, archive pass, experiment review, tag check | Monthly, first Sunday 18:00 | Yes |
 
 The weekly review itself is the owner's [[friday-review]]; the Sunday job only
