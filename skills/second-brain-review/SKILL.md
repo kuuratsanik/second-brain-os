@@ -12,9 +12,7 @@ description: >-
 
 # Review the vault
 
-Capture systems fail at the point where nothing comes back out. A review is the
-loop that closes: it turns a week of ingestion into something the owner reads
-and acts on, and it is what makes the vault feel alive rather than archival.
+A review turns a week of ingestion into something the owner reads and acts on.
 
 ## Core rule
 

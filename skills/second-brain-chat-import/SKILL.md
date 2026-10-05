@@ -11,9 +11,7 @@ description: >-
 
 # Import chat history
 
-Chat history is the most underrated source a person owns and the most sensitive.
-It records their reasoning, not just facts, and it also records things they would
-not want in a file that gets synced, committed and backed up.
+Chat history records the owner's reasoning, and also things they would not want synced, committed and backed up.
 
 ## Core rule
 

@@ -4,16 +4,14 @@ description: >-
   Import a large archive into the vault in controlled batches: triage what is
   worth ingesting, process oldest first, checkpoint after every batch, and keep
   cost visible. Use this skill whenever the user wants to import years of
-  bookmarks, an export from another notes app, a downloads folder, a chat
-  history dump, or says "backfill", "bulk import", "process my archive". Do NOT
-  use for ingesting one or a few new sources, which is second-brain-ingest.
+  bookmarks, an export from another notes app, a downloads folder, or says "backfill", "bulk import", "process my archive". Do NOT
+  use for ingesting one or a few new sources, which is second-brain-ingest, or for an exported chat history, which is
+  second-brain-chat-import.
 ---
 
 # Backfill an archive
 
-A backfill is where cost and quality both go wrong quietly. Done in the wrong
-order it also inverts the vault's history, because later sources should update
-pages that earlier ones created.
+Cost and quality both go wrong quietly in a bulk import, and the wrong order inverts the vault's history: later sources should update pages earlier ones created.
 
 ## Core rule
 

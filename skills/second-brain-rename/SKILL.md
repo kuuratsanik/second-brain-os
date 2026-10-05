@@ -11,9 +11,7 @@ description: >-
 
 # Rename a page
 
-An agent renaming a file directly is the single most common source of broken
-links in an agent-maintained vault. Obsidian fixes links when you rename inside
-the app; writing the file directly does not.
+Writing a file directly does not fix links the way renaming inside Obsidian does, so direct renames are the most common source of broken links.
 
 ## Core rule
 

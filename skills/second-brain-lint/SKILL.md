@@ -13,9 +13,7 @@ description: >-
 
 # Lint the vault
 
-Structural rot is silent. Nothing errors, nothing crashes, the vault just
-slowly stops answering questions well because a third of its pages are
-unreachable. Linting is the only thing that catches it before the owner does.
+Structural rot is silent: the vault stops answering well because pages become unreachable.
 
 ## Core rule
 

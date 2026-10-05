@@ -10,8 +10,7 @@ description: >-
 
 # Prepare to publish
 
-Once something is crawled, it is out. Every check here is cheap; the failure it
-prevents is permanent.
+Once something is crawled, it is out.
 
 ## Core rule
 

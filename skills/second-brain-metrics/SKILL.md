@@ -10,8 +10,7 @@ description: >-
 
 # Record metrics
 
-A single reading tells you almost nothing. Direction over months is the
-information, and nobody remembers what last quarter's orphan rate was.
+One reading says little; direction over months is the information.
 
 ## Core rule
 

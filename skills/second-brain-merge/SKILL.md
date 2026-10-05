@@ -11,9 +11,7 @@ description: >-
 
 # Merge duplicate pages
 
-A merge is irreversible in the way that matters: afterwards you cannot tell
-which claim came from which page. Two ideas that look identical from their
-summaries are often a general case and a specific one.
+After a merge you cannot tell which claim came from which page, and two pages that look identical are often a general case and a specific one.
 
 ## Core rule
 

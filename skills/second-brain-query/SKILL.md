@@ -4,8 +4,7 @@ description: >-
   Answer a question from a second-brain vault by reading its own pages, citing
   the pages used, and saying plainly when the vault does not contain the
   answer. Use this skill whenever the user asks what they know about a topic,
-  what they have read on something, what connects two ideas, what they have
-  changed their mind about, or asks any question that should be answered from
+  what they have read on something, what connects two ideas, or asks any question that should be answered from
   their own notes rather than general knowledge. Do NOT use for ingesting new
   material, for general questions the vault has nothing to do with, or when the
   user explicitly wants an answer from the open web.
@@ -13,10 +12,7 @@ description: >-
 
 # Query the vault
 
-A query that quietly falls back on general knowledge is the most damaging thing
-this system can do. The owner built the vault so answers would be grounded in
-what they actually read, and an answer that blends the model's priors with
-their notes is worse than no answer, because it cannot be checked.
+An answer that blends model priors with the owner's notes cannot be checked, and is worse than no answer.
 
 ## Core rule
 

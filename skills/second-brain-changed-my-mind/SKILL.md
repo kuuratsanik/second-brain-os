@@ -12,9 +12,7 @@ description: >-
 
 # Trace changed positions
 
-This is the query a vault can answer that nothing else can, and the reason the
-supersession rules exist. It only works because contradictions are recorded
-rather than overwritten.
+This works only because contradictions are recorded, not overwritten.
 
 ## Core rule
 

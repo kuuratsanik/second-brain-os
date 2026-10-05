@@ -11,8 +11,7 @@ description: >-
 
 # Analyse the graph
 
-The graph is the search space every answer is drawn from. Its shape decides
-whether retrieval reaches the relevant material in a few hops or reaches nothing.
+The graph's shape decides whether retrieval reaches the relevant material in a few hops or not at all.
 
 ## Core rule
 

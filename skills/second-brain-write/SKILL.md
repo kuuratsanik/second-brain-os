@@ -11,8 +11,7 @@ description: >-
 
 # Write from the vault
 
-The research is already done, cited and connected. What is left is the argument,
-and that is the part the user should keep.
+The research is done, cited and connected. The argument is what the user keeps.
 
 ## Core rule
 

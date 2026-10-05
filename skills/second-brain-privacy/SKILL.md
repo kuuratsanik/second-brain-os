@@ -11,9 +11,7 @@ description: >-
 
 # Audit privacy
 
-A mature vault is one of the highest-signal documents about a person that
-exists, and it lives in a folder that gets synced, committed, backed up and
-occasionally shared. Every copy is another place the content exists.
+The vault is synced, committed, backed up and sometimes shared. Every copy is another place the content exists.
 
 ## Core rule
 
