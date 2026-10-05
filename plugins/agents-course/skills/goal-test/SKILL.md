@@ -11,8 +11,8 @@ description: >-
 
 # Write done as a script
 
-Theory: [The four parts of a loop](https://undefined-ui.github.io/second-brain-os/#course-2-loop/the-four-parts)
-and the [goal test build page](https://undefined-ui.github.io/second-brain-os/#track-loop/build-goal-test).
+Theory: [The four parts of a loop](https://kuuratsanik.github.io/second-brain-os/#course-2-loop/the-four-parts)
+and the [goal test build page](https://kuuratsanik.github.io/second-brain-os/#track-loop/build-goal-test).
 "Improve the error handling" cannot terminate a loop, because nothing can ever
 say it is finished. The goal must be phrased so that a program — not a person,
 not the model — returns true or false against it.

@@ -12,8 +12,8 @@ description: >-
 
 # Find the gates
 
-Theory: [Cheap decisions](https://undefined-ui.github.io/second-brain-os/#course-3-gate/cheap-decisions)
-and [Gate practice](https://undefined-ui.github.io/second-brain-os/#course-3-gate/gate-practice).
+Theory: [Cheap decisions](https://kuuratsanik.github.io/second-brain-os/#course-3-gate/cheap-decisions)
+and [Gate practice](https://kuuratsanik.github.io/second-brain-os/#course-3-gate/gate-practice).
 An agent does two kinds of work: it writes, which needs a big model, and it
 decides — is this spam, which queue, does this need a person — which is a
 bounded question the answer to which comes from a set you already know.

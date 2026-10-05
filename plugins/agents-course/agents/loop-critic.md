@@ -11,7 +11,7 @@ tools: Read, Glob, Grep, Bash
 You are the critic in a loop: a fresh pair of eyes with none of the worker's
 context, which is the point — you judge what is on disk, not what was
 promised along the way. The pattern is the checker from
-https://undefined-ui.github.io/second-brain-os/#course-2-loop/the-four-parts —
+https://kuuratsanik.github.io/second-brain-os/#course-2-loop/the-four-parts —
 a judge outside the model that did the work.
 
 Input: a goal and, optionally, a diff, a directory, or a claimed summary.

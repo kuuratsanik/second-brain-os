@@ -4,7 +4,7 @@ Claude Code plugins that ship the course's tools. This repo is a plugin
 marketplace: add it once, install what you need.
 
 ```bash
-claude plugin marketplace add undefined-ui/second-brain-os
+claude plugin marketplace add kuuratsanik/second-brain-os
 claude plugin install agents-course@second-brain-os
 ```
 

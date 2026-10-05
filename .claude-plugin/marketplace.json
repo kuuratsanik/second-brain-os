@@ -1,8 +1,8 @@
 {
   "name": "second-brain-os",
   "owner": {
-    "name": "undefinedKi",
-    "url": "https://x.com/undefinedKi"
+    "name": "kuuratsanik",
+    "url": "https://github.com/kuuratsanik"
   },
   "description": "Plugins from the Second Brain OS repo and its agents course.",
   "plugins": [

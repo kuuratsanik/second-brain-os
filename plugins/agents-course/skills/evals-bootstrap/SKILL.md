@@ -10,8 +10,8 @@ description: >-
 
 # Bootstrap the eval suite
 
-Theory: [Two kinds of checks](https://undefined-ui.github.io/second-brain-os/#course-5-evals/two-kinds-of-checks)
-and the full walkthrough in [Evals practice](https://undefined-ui.github.io/second-brain-os/#course-5-evals/evals-practice).
+Theory: [Two kinds of checks](https://kuuratsanik.github.io/second-brain-os/#course-5-evals/two-kinds-of-checks)
+and the full walkthrough in [Evals practice](https://kuuratsanik.github.io/second-brain-os/#course-5-evals/evals-practice).
 An eval suite is the same test after every change. Behavioural checks read
 the steps of a trace; end-to-end checks read only the result. Start
 behavioural: they are deterministic, run in seconds, and diagnose instead of

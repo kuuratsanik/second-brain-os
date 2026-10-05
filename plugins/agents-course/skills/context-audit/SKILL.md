@@ -11,8 +11,8 @@ description: >-
 
 # Audit the context window
 
-Theory: [How models read context](https://undefined-ui.github.io/second-brain-os/#course-1-context/how-models-read)
-and [The four places](https://undefined-ui.github.io/second-brain-os/#course-1-context/the-four-places).
+Theory: [How models read context](https://kuuratsanik.github.io/second-brain-os/#course-1-context/how-models-read)
+and [The four places](https://kuuratsanik.github.io/second-brain-os/#course-1-context/the-four-places).
 Every piece of context belongs in exactly one of four places — a byte-stable
 system prompt, a frozen tool set, a compacting history, and a short live tail —
 and most agent problems trace back to something sitting in the wrong one.
