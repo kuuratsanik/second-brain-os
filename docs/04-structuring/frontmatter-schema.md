@@ -59,8 +59,9 @@ The extra fields:
 - `maintained_by: human` marks pages whose wording the agent must not change. It
   may add links and fix structure only. The default is `agent`.
 - `status` appears on idea, experiment and system pages and tracks where they
-  are in their lifecycle (`new`, `planned`, `active`, `adopted`, `dropped`,
-  `retired`, depending on the type). `scope` on a review page names the period
+  are in their lifecycle. Ideas use `new`, `considering`, `promoted` or
+  `dropped`; experiments `planned`, `active`, `reviewing`, `adopted` or
+  `dropped`; systems `draft`, `active` or `retired`. `scope` on a review page names the period
   it covers (`experiment`, `week`, `month`, `quarter`, `year`).
 - `kind` on a source page is `article`, `video`, `meeting`, `email`, `chat`,
   `doc`, `ai-chat`, `paper` or `other`. On an entity, `kind: person`.
