@@ -8,9 +8,12 @@ mystery; with it, every change is a diff you can read and revert in one command.
 One commit per run, with the run named:
 
 ```
-ingest 2026-09-07: 4 sources, 9 pages
-lint 2026-09-07: 3 broken links, 1 merge
+run-2026-09-07-ingest: 4 sources, 9 pages
+run-2026-09-07-lint: 3 broken links, 1 merge
 ```
+
+The vault template starts the message with a run id in this form, as in
+[guardrails](../06-agents/safety-and-guardrails.md#git-is-the-real-safety-net).
 
 Not one commit per file, which buries the history, and not one commit per week,
 which makes reverting a single bad run impossible without losing the good ones.
