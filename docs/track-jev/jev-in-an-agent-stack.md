@@ -1,6 +1,6 @@
 # Jev in an Agent Stack
 
-The most credible early use of Jev is not replacing an LLM but sitting next to one. Agent loops are full of small bounded decisions — which model, which tool, is this safe, are we done — and today each one costs a full LLM call. The emerging pattern, visible in LangChain's [`langchain-typesafe` package](https://pypi.org/project/langchain-typesafe/) and its [harness writeup](https://www.langchain.com/blog/building-a-harness-with-jev) (the writeup could not be re-checked), is to hand those decisions to a System One model and keep the LLM for the parts that need language. Background in [system one models](system-one-models.md).
+The most credible early use of Jev is not replacing an LLM but sitting next to one. Agent loops are full of small bounded decisions — which model, which tool, is this safe, are we done — and today each one costs a full LLM call. The emerging pattern, visible in LangChain's [`langchain-typesafe` package](https://pypi.org/project/langchain-typesafe/) and its [harness writeup](https://www.langchain.com/blog/building-a-harness-with-jev), is to hand those decisions to a System One model and keep the LLM for the parts that need language. Background in [system one models](system-one-models.md).
 
 ## Jev in front of the loop
 

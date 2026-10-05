@@ -1,6 +1,6 @@
 # Jev Resources
 
-Jev launched on 15 September 2026 (per the launch post, which could not be re-checked). Links were checked on 21 September 2026; on 5 October 2026 the checking environment could not reach typesafe.ai, LangChain, Wikipedia, DataCamp, dev.to, MindStudio, KDnuggets, Substack, Pydantic, LiteLLM, Cloudflare, Netlify, Vercel or OpenRouter, so those entries and their descriptions are not re-verified. This page will age fast. Concepts in [system one models](system-one-models.md).
+Jev launched on 15 September 2026. Links were checked on 21 September 2026; vendor and third-party entries were not re-verified on 5 October 2026 because those sites could not be fetched. This page will age fast. Concepts in [system one models](system-one-models.md).
 
 ## Official
 
@@ -11,7 +11,7 @@ Jev launched on 15 September 2026 (per the launch post, which could not be re-ch
 - SDKs: [JavaScript](https://github.com/typesafe-ai/typesafe-sdk-js), [Python](https://github.com/typesafe-ai/typesafe-sdk-python)
 - [WorkflowEvals](https://github.com/typesafe-ai/WorkflowEvals) — code to reproduce the evals.typesafe.ai results
 - [TypeSafe agent skills](https://github.com/typesafe-ai/skills) — an official skill for designing System One workflows from Claude Code and other agents
-- [system-one-adapter-python](https://github.com/typesafe-ai/system-one-adapter-python) — a drop-in `TypeSafeClient` replacement backed by OpenAI, Anthropic or Gemini LLM APIs, for comparing cost and quality against Jev
+- [system-one-adapter-python](https://github.com/typesafe-ai/system-one-adapter-python) — a "drop-in `TypeSafeClient` replacement backed by LLM APIs", for comparing cost and quality against Jev
 
 ## Third-party explainers and writeups
 
@@ -30,6 +30,7 @@ Jev launched on 15 September 2026 (per the launch post, which could not be re-ch
 None of these are affiliated with TypeSafe, and each covers specific tasks and one point in time. Read their protocols before carrying a number across.
 
 - [Jevals](https://github.com/Jevals/jevals-data) — Jev against six LLMs on PubMedQA, Banking77 and HelpSteer2, with per-decision logs; release of 18 September 2026
+- [priorbench](https://github.com/priorbench/jev) — pre-registered evaluation of `jev-1.13` through OpenRouter, measured from Western Europe on 20 September 2026; confirms the $0.042 price and tests the documented failure modes
 - [JevBench](https://github.com/fstandhartinger/jevbench) — cross-model benchmark of typed-decision systems; its README states it is not affiliated with or endorsed by TypeSafe
 - [jev-calibration-audit](https://github.com/jujumilk3/jev-calibration-audit) — abstention, question-shape and language tests, with per-call logs
 - [jev-ood-calibration](https://github.com/scienthoon/jev-ood-calibration) — calibration on public benchmarks and on synthetic tickets with an unstated rule
