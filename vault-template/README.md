@@ -11,10 +11,14 @@ vault, and start Claude Code inside it.
 cp -r vault-template ~/brain
 cd ~/brain
 git init
-git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw/README.md
+git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw
 git commit -m "Initial vault"
 claude
 ```
+
+If you copied the Quickstart's setup, also add `.claude/skills .claude/commands
+.claude/agents scripts` to that first commit, because the agent setup is worth
+versioning. `raw/workspace/` stays ignored by `.gitignore`.
 
 Do the git step once. The agent's safety rails (a checkpoint commit before any
 destructive step, one commit per run) need the vault folder to be its own git
