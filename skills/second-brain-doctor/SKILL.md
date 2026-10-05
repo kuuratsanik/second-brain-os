@@ -41,7 +41,7 @@ Run every check, then report all of them, including the ones that pass.
    are the check.
 4. **Git.** `git rev-parse --show-toplevel` equals the vault folder (not no
    repository, not a parent repository). Then: current branch, whether commits
-   exist, `git config user.name` and `user.email` set, count of uncommitted
+   exist, `git config --get user.name` and `git config --get user.email` set, count of uncommitted
    paths, and any remotes with their URLs. A remote is information, not an
    error; say whether the vault holds `private` or `restricted` pages if
    `CLAUDE.md` says so, because that is the owner's call to make.
