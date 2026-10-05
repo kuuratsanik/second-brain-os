@@ -34,21 +34,27 @@ In Claude Desktop, Code tab, then Routines, New routine, Local (see the
 [desktop scheduled tasks documentation](https://code.claude.com/docs/en/desktop-scheduled-tasks)):
 
 ```
-Frequency:  Daily, 7:00am
-Folder:     your vault
-Prompt:     File the 20 oldest pending items in raw/ into the wiki
-            following CLAUDE.md. Before any merge, archive or batch
-            rewrite, commit a checkpoint of the paths you will change.
-            Link what you create to existing pages. Update index.md and
-            log.md. Do not delete anything; archive instead. If an item
-            hits a hard stop (a secret, a connected service, a person's
-            details leaving the vault, two pages you cannot tell apart),
-            skip it and record it in wiki/systems/needs-owner.md. Make
-            one commit for the run, staging only the paths you wrote,
-            by path, with the run id in the message. Then write me three
-            lines in counts and names: created, updated, archived, still
-            pending, waiting on you.
+Schedule:      Daily, 7:00am
+Folder:        your vault
+Instructions:  File the 20 oldest pending items in raw/ into the wiki
+               following CLAUDE.md. Before any merge, archive or batch
+               rewrite, commit a checkpoint of the paths you will change.
+               Link what you create to existing pages. Update index.md and
+               log.md. Do not delete anything; archive instead. If an item
+               hits a hard stop (a secret, a connected service, a person's
+               details leaving the vault, two pages you cannot tell apart),
+               skip it and record it in wiki/systems/needs-owner.md. Make
+               one commit for the run, staging only the paths you wrote,
+               by path, with the run id in the message. Then write me three
+               lines in counts and names: created, updated, archived, still
+               pending, waiting on you.
 ```
+
+A Desktop scheduled task runs on your machine, only while the app is open and
+the computer is awake. A run missed while the machine slept is skipped; on wake,
+Desktop starts one catch-up run for the most recent missed time and discards
+older ones ([documentation](https://code.claude.com/docs/en/desktop-scheduled-tasks)).
+"Overnight" therefore means a machine that is on overnight.
 
 A scheduled task can fire a slash command only from the 16-command maintenance
 set listed in [`commands/README.md`](../../commands/README.md) (`/ingest`,

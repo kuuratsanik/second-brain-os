@@ -1,6 +1,8 @@
 # Subagents and parallel work
 
-Subagents run with their own context. That is the whole point: a subagent
+Subagents run in their own context window
+([Claude Code docs](https://code.claude.com/docs/en/sub-agents)). That is the
+whole point: a subagent
 reading thirty pages to answer a question does not fill the main session's
 context with those thirty pages, only with the answer.
 
@@ -45,7 +47,9 @@ files at once.
 ## Cost
 
 Parallelism does not reduce total token use, it reduces wall-clock time and
-protects the main context. Four subagents cost roughly four times one.
+protects the main context. Each subagent sends its own requests, and those count
+toward the same usage limits as your main conversation, so four subagents cost
+roughly four times one.
 
 That trade is worth it for a large backfill and pointless for a daily ingest of
 five clipped articles.

@@ -74,10 +74,15 @@ What this enforces, per the template's own table:
 
 What stays at the prompt level: the checkpoint, the log entry, the report and
 the queue, secrets, and merging people. Neither layer reads a script's insides,
-so a Python file the agent writes and runs can still delete things. The ask rules
-are skipped in `bypassPermissions` mode, so don't run the vault in it; the deny
-rules and the hook still apply. For operating-system enforcement, turn on Claude
-Code's sandbox. Check the connector
+so a Python file the agent writes and runs can still delete things. Don't run the
+vault in `bypassPermissions` mode. It disables permission prompts and safety
+checks, and the permission modes documentation says it "offers no protection
+against prompt injection or unintended actions". Deny rules and explicit ask
+rules still apply in it, per
+[that page](https://code.claude.com/docs/en/permission-modes), and the hook
+still runs, but everything your rules leave unmatched is approved without a
+prompt. For operating-system enforcement, turn on Claude
+Code's [sandbox](https://code.claude.com/docs/en/sandboxing). Check the connector
 patterns against the tool names your own connectors expose, because they differ
 by server.
 
