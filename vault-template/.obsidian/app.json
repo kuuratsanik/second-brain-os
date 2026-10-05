@@ -7,7 +7,6 @@
   "alwaysUpdateLinks": true,
   "userIgnoreFilters": [
     "archive/",
-    "output/",
     "scripts/",
     ".claude/"
   ]

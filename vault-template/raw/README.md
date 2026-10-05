@@ -14,7 +14,7 @@ how to ingest each item; see `wiki/systems/routing.md`.
 | `workspace/calendar/` | A dated snapshot of the week's events, written by the weekly review |
 | `ai-chats/` | Exported AI chat history |
 | `inbox/` | Anything else: PDFs, voice notes, loose files |
-| `assets/` | Images and attachments referenced by raw files |
+| `assets/` | Every attachment added in Obsidian, such as pasted images. Append-only; the agent never moves them |
 
 Nothing in this folder is edited after it lands. The agent reads from here and
 writes to `wiki/`. It may add new files when it pulls something from a

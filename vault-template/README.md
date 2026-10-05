@@ -23,14 +23,19 @@ versioning. Always include `.claude/settings.json` and `.claude/hooks`: they
 hold the boundaries described below. `raw/workspace/` stays ignored by `.gitignore`.
 
 `.obsidian/` holds a small Obsidian preset, applied when you open the folder as
-a vault: attachments go to `raw/assets`, new notes to `raw/inbox`, links are
-wikilinks that update on rename, and `archive/`, `output/`, `scripts/` and
-`.claude/` are excluded from search and the graph. The Templates folder is
+a vault. Attachments go to `raw/assets`. New notes go to `raw/inbox`, so notes
+you create in Obsidian land there as source material the agent reads but never
+edits; for a page the agent maintains, link it with a folder path, such as
+`[[wiki/concepts/goals]]`. Links are wikilinks that update on rename.
+`archive/`, `scripts/` and `.claude/` are excluded from search and the graph;
+`output/` is not, so you can find the agent's drafts. The Templates folder is
 `templates/`, and Daily notes writes `YYYY-MM-DD` files to `journal/`. The
-graph colours pages by `domain:` and highlights hubs; it hides `raw/` and
-`archive/`. Obsidian writes this folder, not the agent. `.gitignore` keeps
-`workspace*` and `cache` out of git, so the preset is versioned and your
-window layout is not. Change any of it under Settings in Obsidian.
+graph colours pages by `domain:`, highlights hubs, and hides `raw/`, `archive/`
+and `templates/`. Obsidian writes this folder; the agent has no reason to write
+here, and nothing blocks it. `.gitignore` keeps `workspace*` and `cache` out of
+git, so the preset is versioned and your window layout is not. Obsidian also
+rewrites the view state in `graph.json` when you open the graph: commit that
+diff or ignore it, but keep the file tracked. Change any setting in Obsidian.
 
 Do the git step once. The agent's safety rails (a checkpoint commit before any
 destructive step, one commit per run) need the vault folder to be its own git
