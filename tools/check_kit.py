@@ -45,14 +45,37 @@ AGENT_KEYS = {
     "initialPrompt", "experimental",
 }
 # The sub-agents docs say plugin agents ignore these, so shipping them is a bug.
-PLUGIN_AGENT_IGNORED = {"hooks", "mcpServers", "permissionMode"}
+PLUGIN_AGENT_IGNORED = {"hooks", "mcpServers", "permissionMode", "initialPrompt"}
 DESC_LIMIT = 1536  # description + when_to_use, per the skills docs
 
 KEY_LINE = re.compile(r"^([A-Za-z][\w-]*)\s*:(?:\s+(.*)|\s*)$")
-SKILL_REF = re.compile(r"(?<![\w/.-])second-brain-[a-z0-9]+(?:-[a-z0-9]+)*(?![\w/.-])")
+# A name at the end of a sentence ("second-brain-x.") counts; "second-brain-x.md" or "/x/y" do not.
+SKILL_REF = re.compile(r"(?<![\w/.-])second-brain-[a-z0-9]+(?:-[a-z0-9]+)*(?![\w/-])(?!\.[\w/])")
 NOT_SKILLS = {"second-brain-os"}  # the repository name
 SCRIPT_REF = re.compile(r"(?<![\w./${}-])scripts/([\w.-]+\.py)")
+# `./scripts/x.py` and `~/brain/scripts/x.py` mean the same file as `scripts/x.py`.
+SCRIPT_PREFIX = re.compile(r"(?<![\w.])\./(?=scripts/)|~/brain/(?=scripts/)")
+ARG_USE = re.compile(r"\$(?:ARGUMENTS|\d+)\b")
+SKILL_NAME = re.compile(r"[a-z0-9-]+")
 TRUE = {"true", "yes", "on", "1"}
+
+
+def _closing_quote(val):
+    """Index of the quote closing val[0], or -1. Double quotes honour backslashes,
+    single quotes use '' for a literal quote."""
+    q, i = val[0], 1
+    while i < len(val):
+        c = val[i]
+        if q == '"' and c == "\\":
+            i += 2
+            continue
+        if c == q:
+            if q == "'" and val[i + 1:i + 2] == "'":
+                i += 2
+                continue
+            return i
+        i += 1
+    return -1
 
 
 def parse_frontmatter(text):
@@ -84,10 +107,18 @@ def parse_frontmatter(text):
         val = (m.group(2) or "").strip()
         if val in (">", ">-", ">+", "|", "|-", "|+"):
             val = ""
-        if val and val[0] in "\"'" and val[-1:] == val[0] and len(val) > 1:
-            val = val[1:-1]
-        elif val and val[0] in "\"'":
-            errors.append((i, f"unterminated quote in '{cur}'"))
+        if val and val[0] in "\"'":
+            end = _closing_quote(val)
+            rest = val[end + 1:].strip() if end > 0 else ""
+            if end < 1:
+                errors.append((i, f"unterminated quote in '{cur}'"))
+            elif rest and not rest.startswith("#"):
+                errors.append((i, f"text after the closing quote in '{cur}'"))
+            else:
+                val = val[1:end]
+        else:
+            val = re.sub(r"\s+#.*$", "", val)  # a plain scalar ends at ' #'
+
         fields[cur] = (val, i)
     errors.append((len(lines), "frontmatter is never closed with '---'"))
     return fields, len(lines), errors
@@ -129,7 +160,9 @@ class Checker:
         for key in required:
             if not fields.get(key, ("", 0))[0]:
                 self.err(path, 1, f"missing required field '{key}'")
-        body = "\n".join(text.replace("\r\n", "\n").split("\n")[body_start - 1:])
+        # Pad with newlines so line numbers in the body are file line numbers.
+        rest = "\n".join(text.replace("\r\n", "\n").split("\n")[body_start - 1:])
+        body = "\n" * (body_start - 1) + rest
         return fields, body
 
     # ---- file kinds -------------------------------------------------------
@@ -139,6 +172,8 @@ class Checker:
         if fields is None:
             return
         name = fields.get("name", ("", 0))[0]
+        if name and not SKILL_NAME.fullmatch(name):
+            self.err(path, fields["name"][1], f"skill name '{name}' must match [a-z0-9-]+")
         if name and name != path.parent.name:
             self.err(path, fields["name"][1],
                      f"name '{name}' does not match folder '{path.parent.name}'")
@@ -152,13 +187,13 @@ class Checker:
         fields, body = self.load(path, COMMAND_KEYS, ("description",))
         if fields is None:
             return None, None
-        uses = "$ARGUMENTS" in body
+        uses = bool(ARG_USE.search(body)) or "arguments" in fields
         has = "argument-hint" in fields
         if uses and not has:
-            self.err(path, 1, "body uses $ARGUMENTS but there is no argument-hint")
+            self.err(path, 1, "body uses arguments but there is no argument-hint")
         if has and not uses:
             self.err(path, fields["argument-hint"][1],
-                     "argument-hint is set but the body never uses $ARGUMENTS")
+                     "argument-hint is set but the body never uses $ARGUMENTS, $N or an `arguments:` list")
         return fields, body
 
     def check_agent(self, path, plugin):
@@ -169,8 +204,8 @@ class Checker:
             for key in PLUGIN_AGENT_IGNORED & set(fields):
                 self.err(path, fields[key][1], f"plugin agents ignore '{key}'")
         name = fields.get("name", ("", 0))[0]
-        if name and not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name):
-            self.err(path, fields["name"][1], f"agent name '{name}' is not lowercase-hyphenated")
+        if name and re.search(r"[\s:]", name):  # the docs forbid ':'; whitespace cannot be selected
+            self.err(path, fields["name"][1], f"agent name '{name}' must not contain ':' or whitespace")
         return body
 
     # ---- references -------------------------------------------------------
@@ -179,6 +214,7 @@ class Checker:
         if body is None:
             return
         for lineno, line in enumerate(body.split("\n"), start=1):
+            line = SCRIPT_PREFIX.sub("", line)
             for ref in SKILL_REF.findall(line):
                 if ref not in skills and ref not in NOT_SKILLS:
                     self.err(path, lineno, f"references skill '{ref}', which does not exist")
@@ -309,6 +345,9 @@ class Checker:
 
     def run(self):
         r = self.root
+        for d in sorted(r.glob("skills/*")) + sorted(r.glob("plugins/*/skills/*")):
+            if d.is_dir() and not (d / "SKILL.md").is_file():
+                self.err(d / "SKILL.md", 1, "skill folder has no SKILL.md")
         skill_files = sorted(r.glob("skills/*/SKILL.md")) + sorted(r.glob("plugins/*/skills/*/SKILL.md"))
         skills = {p.parent.name for p in r.glob("skills/*/SKILL.md")}
         for p in skill_files:
@@ -393,6 +432,22 @@ def selftest():
     case("agent unknown key", {"agents/ag.md": "---\nname: ag\ndescription: d\nallowed-tools: x\n---\n"}, "unknown frontmatter key")
     case("plugin agent ignored key", {"plugins/p/agents/pa.md": "---\nname: pa\ndescription: d\npermissionMode: plan\n---\n"}, "plugin agents ignore")
     case("missing skill ref", {"commands/two.md": "---\ndescription: x\n---\nFollow `second-brain-zzz`.\n"}, "skill 'second-brain-zzz'")
+    case("sentence-final skill ref", {"commands/two.md": "---\ndescription: x\n---\nFollow second-brain-zzz.\n"}, "skill 'second-brain-zzz'")
+    case("skill file name is not a ref", {"commands/two.md": "---\ndescription: x\n---\nSee second-brain-zzz.md and a/second-brain-yyy\n"}, None)
+    case("ref line is a file line", {"commands/two.md": "---\ndescription: x\n---\n\nFollow `second-brain-zzz`.\n"}, "commands/two.md:5: references skill")
+    case("./scripts ref checked", {"commands/two.md": "---\ndescription: x\n---\nRun ./scripts/nope.py\n"}, "scripts/nope.py")
+    case("~/brain/scripts ref checked", {"commands/two.md": "---\ndescription: x\n---\nRun ~/brain/scripts/nope.py\n"}, "scripts/nope.py")
+    case("./scripts ref that exists", {"commands/two.md": "---\ndescription: x\n---\nRun ./scripts/tool.py and ~/brain/scripts/tool.py\n"}, None)
+    case("plugin agent initialPrompt", {"plugins/p/agents/pa.md": "---\nname: pa\ndescription: d\ninitialPrompt: go\n---\n"}, "plugin agents ignore 'initialPrompt'")
+    case("agent name with underscore and capital is fine", {"agents/ag.md": "---\nname: Reviewer_v2\ndescription: d\n---\n"}, None)
+    case("agent name with colon", {"agents/ag.md": "---\nname: a:b\ndescription: d\n---\n"}, "must not contain ':'")
+    case("$1 counts as arguments", {"commands/two.md": "---\ndescription: x\nargument-hint: y\n---\nUse $1.\n"}, None)
+    case("arguments list counts", {"commands/two.md": "---\ndescription: x\nargument-hint: y\narguments: file\n---\nUse $file.\n"}, None)
+    case("$1 without hint", {"commands/two.md": "---\ndescription: x\n---\nUse $1.\n"}, "no argument-hint")
+    case("comment after closing quote", {"commands/two.md": "---\ndescription: \"x\" # note\nargument-hint: 'a''b' # c\n---\n$ARGUMENTS\n"}, None)
+    case("text after closing quote", {"commands/two.md": "---\ndescription: \"x\" y\n---\n"}, "text after the closing quote")
+    case("skill folder without SKILL.md", {"skills/empty/notes.md": "x"}, "skills/empty/SKILL.md:1: skill folder has no SKILL.md")
+    case("skill name charset", {"skills/Bad_Name/SKILL.md": "---\nname: Bad_Name\ndescription: d\n---\n"}, "must match [a-z0-9-]+")
     case("missing script ref", {"commands/two.md": "---\ndescription: x\n---\nRun scripts/nope.py\n"}, "scripts/nope.py")
     case("$ARGUMENTS without hint", {"commands/two.md": "---\ndescription: x\n---\n$ARGUMENTS\n"}, "no argument-hint")
     case("hint without $ARGUMENTS", {"commands/two.md": "---\ndescription: x\nargument-hint: y\n---\nbody\n"}, "never uses $ARGUMENTS")
