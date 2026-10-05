@@ -52,22 +52,32 @@ into the vault's `.claude/` folder.
   allow rule. The syntax is in the
   [permissions documentation](https://code.claude.com/docs/en/permissions).
 - **`.claude/hooks/guard.py`** is a PreToolUse hook. Claude Code runs it before
-  each file edit or shell command, and exit code 2 blocks the call. The protocol
+  each file edit or shell command, including PowerShell (partially covered), and
+  exit code 2 blocks the call. It runs once more when the session stops, to warn
+  about uncommitted paths; that one only warns. The protocol
   is in the [hooks documentation](https://code.claude.com/docs/en/hooks). The
   hook exists because permission rules cannot say "existing files only", which
   the append-only `raw/` folder needs.
 
-What this enforces, per the template's own table: no push, remote change or
-hard reset; no `rm`, `git rm`, `git clean` or `find -delete`; no writes to
-`journal/`; no changes to existing files in `raw/`; `CLAUDE.md` editable only
-in its Profile block; no staging of `raw/workspace/`; and, by tool-name
-pattern, no writes through connected services.
+What this enforces, per the template's own table:
+
+- no push, remote change, hard reset, `--amend`, rebase or `revert --abort`;
+- no `rm`, `git rm`, `git clean` or `find -delete`;
+- moves and copies stay inside the vault and never overwrite protected paths;
+- `journal/`, `scripts/` and `.claude/` are owner-only, so the agent cannot
+  write a script and then run it;
+- no changes to existing files in `raw/`; new files are allowed;
+- `CLAUDE.md` editable only in its Profile block;
+- no staging of `raw/workspace/`;
+- curl and wget uploads are denied, and web access asks first;
+- by tool-name pattern, no writes through connected services.
 
 What stays at the prompt level: the checkpoint, the log entry, the report and
 the queue, secrets, and merging people. Neither layer reads a script's insides,
-so a Python file the agent writes and runs can still delete things. Both layers
-also depend on not running in `bypassPermissions` mode, and for operating-system
-enforcement you would turn on Claude Code's sandbox. Check the connector
+so a Python file the agent writes and runs can still delete things. The ask rules
+are skipped in `bypassPermissions` mode, so don't run the vault in it; the deny
+rules and the hook still apply. For operating-system enforcement, turn on Claude
+Code's sandbox. Check the connector
 patterns against the tool names your own connectors expose, because they differ
 by server.
 

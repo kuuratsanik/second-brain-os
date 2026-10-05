@@ -298,7 +298,7 @@ date.
 | Repo | Stars | Ships |
 |---|---|---|
 | [AgriciDaniel/claude-obsidian](https://github.com/AgriciDaniel/claude-obsidian) | 15.4K | 15 skills, 3 subagents, role presets |
-| [eugeniughelbur/obsidian-second-brain](https://github.com/eugeniughelbur/obsidian-second-brain) | 4.7K | 47 commands on eight platforms per its README; the GitHub description says 45 |
+| [eugeniughelbur/obsidian-second-brain](https://github.com/eugeniughelbur/obsidian-second-brain) | 4.7K | 47 commands on eight platforms, per its README |
 | [Astro-Han/karpathy-llm-wiki](https://github.com/Astro-Han/karpathy-llm-wiki) | 2.4K | 1 skill covering ingest, compile, query, lint |
 | [ballred/obsidian-claude-pkm](https://github.com/ballred/obsidian-claude-pkm) | 1.9K | 10 skills, 4 subagents, full starter kit |
 | [coleam00/second-brain-starter](https://github.com/coleam00/second-brain-starter) | 795 | 1 skill that interviews you first |

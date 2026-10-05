@@ -37,7 +37,7 @@ def score():
 
 def main():
     # refuse to run over uncommitted work; the loop's own files are exempt
-    if sh("git status --porcelain -- . ':!ratchet.json' ':!MORNING-REPORT.md'").stdout.strip():
+    if sh("git status --porcelain -- ':!ratchet.json' ':!MORNING-REPORT.md'").stdout.strip():
         sys.exit("working tree not clean")
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M")
     sh(f"git checkout -b overnight/{stamp}")  # rail 1: own branch, never pushed

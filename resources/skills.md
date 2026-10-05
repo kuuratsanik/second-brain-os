@@ -23,7 +23,7 @@ format.
 | Repo | Stars | Ships |
 |---|---|---|
 | [AgriciDaniel/claude-obsidian](https://github.com/AgriciDaniel/claude-obsidian) | 15,364 | 15 skills, 3 subagents. Self-organizing vault with role presets |
-| [eugeniughelbur/obsidian-second-brain](https://github.com/eugeniughelbur/obsidian-second-brain) | 4,676 | 47 commands on eight platforms, per its README. The GitHub description says 45 commands and Claude Code plus six other CLI agents, so the two disagree |
+| [eugeniughelbur/obsidian-second-brain](https://github.com/eugeniughelbur/obsidian-second-brain) | 4,676 | 47 commands on eight platforms, per its README |
 | [Astro-Han/karpathy-llm-wiki](https://github.com/Astro-Han/karpathy-llm-wiki) | 2,418 | 1 skill covering the full ingest, compile, query, lint loop |
 | [ballred/obsidian-claude-pkm](https://github.com/ballred/obsidian-claude-pkm) | 1,875 | 10 skills, 4 subagents. A complete starter kit |
 | [coleam00/second-brain-starter](https://github.com/coleam00/second-brain-starter) | 795 | 1 skill that interviews you and generates a build plan |

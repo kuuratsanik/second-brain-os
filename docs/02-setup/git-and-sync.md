@@ -22,7 +22,8 @@ vault's agent setup, which is worth versioning so a revert covers it too. `raw`
 is included so the empty subfolders are tracked.
 
 The template's `.claude/settings.json` and `.claude/hooks/guard.py` block pushes,
-file deletion and edits to `raw/` and `journal/` before they run; commit them so
+deletion, changes to existing `raw/` files, and writes to `journal/`, `scripts/`
+and `.claude/` before they run; commit them so
 a revert restores them too. See
 [what is enforced](../../vault-template/README.md#what-is-enforced-and-what-is-not).
 

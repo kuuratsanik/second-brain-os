@@ -30,7 +30,8 @@ and have sat for a year, and stubs that were never filled. They move to
 
 ## Setting one up
 
-In Claude Desktop, the Schedule tab, then a new task:
+In Claude Desktop, Code tab, then Routines, New routine, Local (see the
+[desktop scheduled tasks documentation](https://code.claude.com/docs/en/desktop-scheduled-tasks)):
 
 ```
 Frequency:  Daily, 7:00am
@@ -94,8 +95,17 @@ that means four things:
 - It runs without permission prompts.
 
 For a vault that follows the template, use Desktop scheduled tasks or headless
-Claude Code, which see your local files and your `.claude/settings.json`. These
+Claude Code, which run in your vault folder. These
 features change, so check the documentation before relying on any of it.
+
+### Permission mode for unattended runs
+
+In the default permission mode, a headless or Desktop run with the template
+refuses every page write, because nobody is there to approve it. Start the run
+with `--permission-mode acceptEdits`, set the task's permission mode in the
+Desktop form, or set `permissions.defaultMode` in `.claude/settings.json`. The
+deny rules and the hook still apply. See the "Scheduled runs" paragraph in the
+[vault template README](../../vault-template/README.md#what-is-enforced-and-what-is-not).
 
 ## What a run must produce
 
