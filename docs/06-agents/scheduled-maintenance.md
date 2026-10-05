@@ -18,11 +18,15 @@ ingestion.
 
 **Lint, weekly.** After the linker, so it catches what that pass broke.
 
-**Review, weekly.** The one output you actually read. Put it on the morning you
-plan.
+**Review, weekly.** The one output you actually read, written as a review page
+in the vault rather than a chat message. Put it on the morning you plan.
 
 **Metrics, monthly.** Four numbers appended to a note. See
 [metrics](../05-graphs/metrics.md).
+
+**Archive pass, monthly.** Retire pages that have one source, no inbound links
+and have sat for a year, and stubs that were never filled. They move to
+`archive/`; nothing is deleted.
 
 ## Setting one up
 
@@ -31,11 +35,28 @@ In Claude Desktop, the Schedule tab, then a new task:
 ```
 Frequency:  Daily, 7:00am
 Folder:     your vault
-Prompt:     File anything new in raw/ into the wiki following CLAUDE.md.
-            Link it to existing pages. Update index.md and log.md. Commit
-            with a message naming the run. Then write me three lines on
-            what changed.
+Prompt:     File the 20 oldest pending items in raw/ into the wiki
+            following CLAUDE.md. Before any merge, archive or batch
+            rewrite, commit a checkpoint of the paths you will change.
+            Link what you create to existing pages. Update index.md and
+            log.md. Do not delete anything; archive instead. If an item
+            hits a hard stop (a secret, a connected service, a person's
+            details leaving the vault, two pages you cannot tell apart),
+            skip it and record it in wiki/systems/needs-owner.md. Make
+            one commit for the run, staging only the paths you wrote,
+            by path, with the run id in the message. Then write me three
+            lines in counts and names: created, updated, archived, still
+            pending, waiting on you.
 ```
+
+A scheduled task can fire a slash command only from the 16-command maintenance
+set listed in [`commands/README.md`](../../commands/README.md) (`/ingest`,
+`/link`, `/lint`, `/review`, `/weekly`, `/monthly`, `/metrics`, `/health`,
+`/commit`, `/stale`, `/orphans`, `/prune`, `/archive`, `/dedupe`, `/backfill`
+and `/index`). Anything else needs a plain-language prompt like the one above.
+The backlog limit of 20 and the rest of the rails come from the [vault
+template](../../vault-template/CLAUDE.md), which applies them to scheduled runs
+too.
 
 Or ask for it in a session: "set up a daily task at 7am that ingests raw/ and
 summarises what changed".
@@ -50,8 +71,9 @@ Three things, every time.
 
 **A log entry.** Otherwise you cannot audit what happened while you were asleep.
 
-**A commit.** One per run, with the run named in the message. This is what makes
-a bad run revertible in one command instead of an evening.
+**A commit.** One per run, with the run named in the message, staging only the
+paths the run wrote. This is what makes a bad run revertible in one command
+instead of an evening, without touching your own edits.
 
 **A report to you.** Even one line. A scheduled task that produces nothing
 visible is one you stop trusting and then stop reading.

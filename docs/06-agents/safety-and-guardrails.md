@@ -22,32 +22,80 @@ Same principle for connectors: read-only wherever the option exists. A calendar
 connector that can only read cannot cancel a meeting, no matter what a
 misinterpreted instruction says.
 
-## Never delete without a record
+## Archive, never delete
 
 Deletion is the one operation you cannot recover from by reading a diff, because
 the content is gone and only the absence remains.
 
-Rule: no page is deleted without a line in `log.md` naming it and why. Merges
-count as deletions. Applied consistently, a page that vanishes is always
-traceable, and "where did that page go" stops being an unanswerable question.
+Rule: retire a page by moving it to `archive/`, keeping its path, and write a
+line in `log.md` naming it and why. Merges count: the absorbed page is archived
+with a `merged_into` field, its aliases move to the survivor and inbound links
+are repointed. Applied consistently, a page that vanishes is always traceable
+and restorable by moving it back, and "where did that page go" stops being an
+unanswerable question.
+
+The [vault template](../../vault-template/CLAUDE.md) goes further and treats
+deleting files as a hard stop. The agent never hard-deletes anything, never
+touches `raw/`, `journal/` or `output/` destructively, and never archives hubs,
+the index, the log or anything in `wiki/systems/`. Imports that would have
+dropped material (a chat export's "delete" pile, for instance) skip it and
+record it instead.
 
 ## Git is the real safety net
 
 Every guardrail above is preventive. Git is what saves you when one fails.
 
-Commit before any run that writes at scale. Scheduled runs commit their own work.
-Then a bad ingest is `git checkout .`, and a bad merge is one revert.
+The vault has to be its own git repository for this to work. The template's
+rules:
+
+- **Checkpoint before destructive steps.** Before a merge, prune, archive,
+  rename, split or any batch rewriting more than a few existing pages, the agent
+  commits exactly the paths it is about to change, by path, with a message
+  `checkpoint: <op> <run id>`. If the checkpoint fails, it queues the problem and
+  carries on with non-destructive work only.
+- **One commit per run,** staging only the paths that run wrote, by path. Never
+  `git add -A` or `git add .`, which would sweep in your own uncommitted edits
+  and anything git-ignored. The message starts with the run id, such as
+  `run-2026-10-05-ingest`.
+- **Restore by path.** A bad ingest is a revert of that run's commit, or a
+  restore of the paths it listed. `git checkout .` and `git reset --hard`
+  discard your own unrelated work along with the agent's, so they are not
+  the fix. `/rollback` reverts that run's own commit only.
+- **Never stage a file in which a secret was found.** Report the file and kind,
+  not the value.
 
 Read the diffs from scheduled runs occasionally, especially in the first weeks.
 That is how you learn what your agent actually does at 7am, which is reliably
 different from what you assumed.
+
+## A queue and hard stops
+
+A scheduled run cannot ask a question. The template gives it somewhere to put
+one: `wiki/systems/needs-owner.md`, a page where each skipped item is recorded
+with what it was, why it stopped and what the agent needs from you. The agent
+searches the page first and updates the date on an existing entry instead of
+adding a second one. You answer an entry and the agent moves it to Done.
+
+Items go there when they hit a hard stop. In a live session the agent asks; in a
+scheduled run it skips and queues. The template's hard stops:
+
+- writing to any connected service, pushing to a remote, or publishing, which
+  happens only when you ask for that specific action in a live session
+- any web request or API call carrying a person's name or email, or content from
+  `private` or `restricted` pages
+- anything irreversible: deleting files, force-push, rewriting history,
+  `git clean`, emptying `archive/`
+- credentials, tokens or account numbers in any file
+- changing `CLAUDE.md` (except the Profile block), skills, commands or schedule
+  prompts
+- merging two people, or two pages whose identity is uncertain
 
 ## Dry runs
 
 For anything that touches many files, run it once in report-only mode.
 
 ```
-Do a dry run: list every page you would create, update or delete, and the links
+Do a dry run: list every page you would create, update or archive, and the links
 you would add. Write nothing.
 ```
 
