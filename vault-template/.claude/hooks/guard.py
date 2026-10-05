@@ -287,6 +287,9 @@ def check_git(args, cwd, root):
                                    for f in flags):
             raise Block("git commit -a stages every tracked change; stage the "
                         "run's own paths by name (rail 5).")
+    if sub == "mv":
+        for p in pos:
+            check_path("Bash", p, {}, cwd, root)
     if sub in {"add", "stage", "commit", "mv", "update-index", "stash"}:
         if any(under_workspace(p, cwd, root) for p in pos):
             raise Block("raw/workspace/ holds other people's words and is never "

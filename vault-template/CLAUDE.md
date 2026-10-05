@@ -136,13 +136,16 @@ that reversible. They apply to scheduled runs too.
 **Override.** In this vault, wherever a skill, agent or command says propose
 and wait, do this instead: checkpoint, act, log, report, within the hard stops
 and rails. This covers the skills `second-brain-lint`, `second-brain-merge`,
-`second-brain-backfill`, `second-brain-chat-import`, `second-brain-privacy` and
-`second-brain-transcript`; the agents `curator` and `ingestor`; and the
-commands `/ingest` (its old 20-item stop is replaced by rail 7), `/prune`,
-`/archive`, `/dedupe` and `/orphans`. `/prune` and `/archive` archive here. When
-a scheduled run fires a command, the skill it points to and this section govern;
-the command's own propose-or-stop wording does not. The
-`reviewer` agent is read-only: it may draft a review, but you write the page.
+`second-brain-backfill`, `second-brain-chat-import`, `second-brain-privacy`,
+`second-brain-transcript`, `second-brain-archive`, `second-brain-structure` and
+`second-brain-commit`; the agents `curator` and `ingestor`; and the commands
+`/ingest` (its old 20-item stop is replaced by rail 7), `/prune`, `/archive`,
+`/dedupe`, `/orphans` and `/link`. `/prune` and `/archive` archive here. When a
+scheduled run fires a command, the skill it points to and this section govern;
+the command's own propose-or-stop wording does not. The `reviewer` agent is
+read-only: it may draft a review, but you write the page.
+`second-brain-rollback` is the exception: it stays live-only, confirms with the
+owner first, and no scheduled job runs it.
 
 **Rails**
 
@@ -202,11 +205,8 @@ skip the item and queue it.
 - (f) Merging two people, or two pages whose identity you are unsure of.
   Archive nothing you cannot explain in one sentence.
 
-**What is enforced.** Rules written here are preferences, not boundaries. `.claude/settings.json` and `.claude/hooks/guard.py` enforce these:
-`git push`, `git remote add`, `git reset --hard`, `git clean`, `rm` and other
-deletes, curl or wget uploads, connector tools whose names say send, post,
-create, update or delete, edits to existing `raw/` files, any write to
-`journal/` or `.claude/`, edits to this file outside Profile, and staging
-`raw/workspace/`. A blocked call is final: queue the item, do not look for a way
-round. Everything else here is prompt-only,
-including (b), (d) and (f), and deletes done inside a script.
+**Enforced.** `.claude/settings.json` and `.claude/hooks/guard.py` block pushes,
+deletes, uploads, connector writes, edits to existing `raw/` files, writes to
+`journal/` and `.claude/`, CLAUDE.md edits outside Profile and staging
+`raw/workspace/`. A blocked call is final: queue the item. Everything else here
+is prompt-only. Details are in `README.md`.

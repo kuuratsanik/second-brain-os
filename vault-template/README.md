@@ -82,6 +82,8 @@ the exact names you want blocked or remove a pattern that catches a read-only
 tool. Patterns can also block reads whose names contain the word, such as a
 tool called `get_updates`.
 
+**Allowed without asking.** `python3 scripts/*.py`, `git add`, `commit`, `status`, `log`, `diff`, `show`, `revert`, `rev-parse`, `check-ignore`, `mv`, `git mv` and `mkdir`, so scheduled archive, commit and rollback steps run. `git restore` and `git checkout` ask first, so a scheduled run cannot use them; rollback is live-only anyway.
+
 **Adjusting.** Edit `.claude/settings.json` yourself. A deny rule beats an ask
 rule, and an ask rule beats an allow rule, at every settings level, so to let
 the agent do something denied, delete the deny entry; adding an allow entry
