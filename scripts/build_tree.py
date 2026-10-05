@@ -107,10 +107,19 @@ def row(name, href, desc, cls=""):
 
 
 def branch(label, href, desc, rows, open_=True):
-    inner = "".join(rows)
-    return (f'<details{" open" if open_ else ""}><summary><a href="{href}">'
-            f'{esc(label)}</a><span class="c"># {esc(desc)}</span></summary>'
-            f'<div class="kids">{inner}</div></details>')
+    return (f'<details{" open" if open_ else ""}>'
+            f'<summary>{summary(label, desc)}</summary>'
+            f'<div class="kids">{go_row(label, href)}{"".join(rows)}</div></details>')
+
+
+def summary(label, desc):
+    """Summary text only: a link inside <summary> is nested interactive content."""
+    return f'<span class="lb">{esc(label)}</span><span class="c"># {esc(desc)}</span>'
+
+
+def go_row(label, href):
+    return (f'<div class="r go"><a href="{href}" aria-label="Open {esc(label)}">'
+            f'&rarr; open</a></div>')
 
 
 def main():
@@ -184,9 +193,8 @@ def main():
             [row("/" + n, GH + f"commands/{n}.md", cmd_desc[n]) for n in stray],
             open_=False))
     out.append('<div class="sec"><details open><summary>'
-               f'<a href="{GHT}commands">commands/</a>'
-               f'<span class="c"># {len(cmd_desc)} slash commands, thin by design'
-               '</span></summary><div class="kids">'
+               + summary("commands/", f"{len(cmd_desc)} slash commands, thin by design")
+               + '</summary><div class="kids">' + go_row("commands/", GHT + "commands")
                + "".join(groups_html) + "</div></details></div>")
 
     # scripts
@@ -219,9 +227,9 @@ def main():
              for i in ids], open_=False))
     n_secs = len(guide_secs)
     out.append('<div class="sec"><details open><summary>'
-               f'<a href="index.html">docs/</a><span class="c"># The guide. '
-               f'{n_secs} sections, {n_guide} pages</span></summary>'
-               '<div class="kids">' + "".join(guide_secs) + "</div></details></div>")
+               + summary("docs/", f"The guide. {n_secs} sections, {n_guide} pages")
+               + '</summary><div class="kids">' + go_row("docs/", "index.html")
+               + "".join(guide_secs) + "</div></details></div>")
 
     # the course
     course_secs, n_course = [], 0
@@ -236,9 +244,8 @@ def main():
             [row(i.split("/")[1] + ".md", "index.html#" + i, title[i])
              for i in ids], open_=False))
     out.append('<div class="sec"><details open><summary>'
-               f'<a href="index.html">docs/course-*/</a><span class="c"># '
-               f'The agents course. {len(course_secs)} modules, {n_course} pages'
-               '</span></summary><div class="kids">'
+               + summary("docs/course-*/", f"The agents course. {len(course_secs)} modules, {n_course} pages")
+               + '</summary><div class="kids">' + go_row("docs/course-*/", "index.html")
                + "".join(course_secs) + "</div></details></div>")
 
     # the tracks
@@ -254,9 +261,8 @@ def main():
             [row(i.split("/")[1] + ".md", "index.html#" + i, title[i])
              for i in ids], open_=False))
     out.append('<div class="sec"><details open><summary>'
-               f'<a href="index.html">docs/track-*/</a><span class="c"># '
-               f'{word(len(track_secs), True)} handbooks, {n_track} pages, each ends in a build'
-               '</span></summary><div class="kids">'
+               + summary("docs/track-*/", f"{word(len(track_secs), True)} handbooks, {n_track} pages, each ends in a build")
+               + '</summary><div class="kids">' + go_row("docs/track-*/", "index.html")
                + "".join(track_secs) + "</div></details></div>")
 
     # resources
@@ -291,7 +297,7 @@ def main():
 
 
 CSS = """
-:root{--paper:#EAEEE9;--card:#F7F9F6;--ink:#15201B;--soft:#4B5A52;--faint:#7C8A82;
+:root{--paper:#EAEEE9;--card:#F7F9F6;--ink:#15201B;--soft:#4B5A52;--faint:#5C6A62;
   --rule:#D2DACF;--accent:#1F6B52;--accent-bg:#E1EDE5}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--paper);color:var(--ink);
@@ -320,10 +326,11 @@ details>summary{cursor:pointer;list-style:none;white-space:nowrap;overflow:hidde
 details>summary::before{content:'\\25B8';color:var(--faint);margin-right:7px;
   display:inline-block;transition:transform .12s}
 details[open]>summary::before{transform:rotate(90deg)}
-summary a{font-weight:700}
+.lb{font-weight:700}
+.r.go{font-size:12px}
 .kids{margin-left:9px;padding-left:14px;border-left:1px solid var(--rule)}
 .kids details{margin:1px 0}
-.r{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r{content-visibility:auto;contain-intrinsic-size:auto 22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .r.top{margin:1px 0}
 .c{color:var(--faint);margin-left:10px;font-size:12px}
 .counts{margin-top:26px;border-top:1px solid var(--rule);padding-top:12px;
@@ -337,7 +344,7 @@ DESC = ("Every component in second-brain-os on one page: the guide, {handbooks} 
 
 TEMPLATE = """{{HEAD}}
 {{HEADER}}
-<div class="wrap">
+<main class="wrap" id="main" tabindex="-1">
   <h1>The full component tree</h1>
   <p class="lede">Everything in the repository on one page, annotated. Every line is a link: pages open on this site, code opens on GitHub. Click a branch to fold it.</p>
   <div class="ctl">
@@ -346,7 +353,7 @@ TEMPLATE = """{{HEAD}}
   </div>
   <div class="cols">{{TREE}}</div>
   <div class="counts"><b>{{COUNTS}}</b><span>generated from the repo</span></div>
-</div>
+</main>
 {{FOOTER}}
 </body></html>"""
 

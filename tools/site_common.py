@@ -4,7 +4,7 @@ Imported by tools/build_site.py, scripts/build_tracks.py and
 scripts/build_tree.py, so the fork URL, the favicon, the header and the
 footer exist in exactly one place.
 """
-import json, re
+import html as _html, json, re
 
 OWNER = "kuuratsanik"
 REPO = f"https://github.com/{OWNER}/second-brain-os"
@@ -28,25 +28,60 @@ NAV_PAGES = [("guide", "index.html", "Guide"),
              ("tree", "tree.html", "Tree")]
 
 
-def head(title, description, page, css):
-    """Everything from the doctype to the closing </head>."""
+# Rules every page shares: skip link, focus ring, reduced motion.
+SHARED_CSS = """
+.skip{position:absolute;left:12px;top:-60px;z-index:100;background:#F7F9F6;color:#15201B;
+  border:2px solid #1F6B52;border-radius:3px;padding:9px 14px;font:600 14px/1 ui-monospace,Menlo,monospace}
+.skip:focus{top:10px;text-decoration:none}
+:focus-visible{outline:2px solid #1F6B52;outline-offset:3px;border-radius:2px}
+main:focus{outline:none}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*{transition:none!important;animation:none!important}}
+"""
+
+THEME_COLOR = "#EAEEE9"
+SITE_NAME = "Second Brain OS"
+
+
+def head(title, description, page, css, base="", robots=""):
+    """Everything from the doctype through the opening <body> and skip link.
+
+    `base` is prepended to the page URL and the nav links; the 404 page
+    passes SITE_URL because GitHub Pages serves it from any depth.
+    """
+    url = SITE_URL + ("" if page == "index.html" else page)
+    t, d, u = (_html.escape(x, quote=True) for x in (title, description, url))
+    meta = [
+        f'<meta name="description" content="{d}">',
+        f'<meta name="theme-color" content="{THEME_COLOR}">',
+        f'<link rel="canonical" href="{u}">',
+        '<meta property="og:type" content="website">',
+        f'<meta property="og:site_name" content="{SITE_NAME}">',
+        f'<meta property="og:title" content="{t}">',
+        f'<meta property="og:description" content="{d}">',
+        f'<meta property="og:url" content="{u}">',
+        '<meta property="og:locale" content="en">',
+        '<meta name="twitter:card" content="summary">',
+        f'<meta name="twitter:title" content="{t}">',
+        f'<meta name="twitter:description" content="{d}">',
+    ]
+    if robots:
+        meta.append(f'<meta name="robots" content="{robots}">')
     return (f'<!DOCTYPE html><html lang="en"><head>\n'
             f'<meta charset="utf-8"><meta name="viewport" '
             f'content="width=device-width,initial-scale=1">\n'
-            f'{FAVICON}<title>{title}</title>\n'
-            f'<meta name="description" content="{description}">\n'
-            f'<link rel="canonical" href="{SITE_URL}{"" if page == "index.html" else page}">\n'
-            f'<style>{css}</style>\n</head><body>')
+            f'{FAVICON}<title>{t}</title>\n' + "\n".join(meta) + "\n"
+            f'<style>{css}{min_css(SHARED_CSS)}</style>\n</head><body>\n'
+            f'<a class="skip" href="#main">Skip to content</a>')
 
 
-def header(active, extra=""):
-    on = ' class="on"'
+def header(active, extra="", base=""):
+    on = ' class="on" aria-current="page"'
     links = "\n".join(
-        f'    <a href="{href}"{on if key == active else ""}>{label}</a>'
+        f'    <a href="{base}{href}"{on if key == active else ""}>{label}</a>'
         for key, href, label in NAV_PAGES)
     return (f'<header><div class="bar">\n'
-            f'  <a class="brand" href="index.html">[[ second<span>brain</span>os ]]</a>\n'
-            f'  <nav>\n{links}\n    <a href="{REPO}">Repo</a>\n  </nav>\n'
+            f'  <a class="brand" href="{base}index.html">[[ second<span>brain</span>os ]]</a>\n'
+            f'  <nav aria-label="Site">\n{links}\n    <a href="{REPO}">Repo</a>\n  </nav>\n'
             f'{extra}</div></header>')
 
 

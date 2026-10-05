@@ -3,7 +3,7 @@
 import io, json, os, html, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from site_common import (REPO, FOOTER, head, header, min_css, min_js, dumps,
+from site_common import (REPO, GHT, FOOTER, head, header, min_css, min_js, dumps,
                          slim_page, word)
 
 D = json.load(io.open("site_data.json", encoding="utf-8"))
@@ -12,8 +12,8 @@ os.makedirs(OUT, exist_ok=True)
 
 CSS = """
 :root{
-  --paper:#EAEEE9; --card:#F7F9F6; --ink:#15201B; --soft:#4B5A52; --faint:#7C8A82;
-  --rule:#D2DACF; --accent:#1F6B52; --accent-bg:#E1EDE5; --num:#8A6B23;
+  --paper:#EAEEE9; --card:#F7F9F6; --ink:#15201B; --soft:#4B5A52; --faint:#5C6A62;
+  --rule:#D2DACF; --accent:#1F6B52; --accent-bg:#E1EDE5; --num:#7A5E1C;
   --w:68ch;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -24,7 +24,6 @@ body{background:var(--paper);color:var(--ink);
 .mono{font-family:ui-monospace,SFMono-Regular,Menlo,"DejaVu Sans Mono",monospace}
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline;text-underline-offset:3px}
-:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
 
 header{position:sticky;top:0;z-index:40;background:rgba(234,238,233,.94);
   backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
@@ -88,7 +87,7 @@ aside{position:sticky;top:57px;height:calc(100vh - 57px);overflow:auto;
 
 main{padding:34px 0 90px;min-width:0}
 .rail{position:sticky;top:80px;padding:38px 0;font-size:13px;color:var(--faint)}
-.rail h4{font:11px/1 ui-monospace,Menlo,monospace;color:var(--faint);
+.rail .rh{font:11px/1 ui-monospace,Menlo,monospace;color:var(--faint);
   letter-spacing:.08em;margin-bottom:9px;font-weight:600}
 .rail a{display:block;color:var(--soft);padding:3px 0;font-size:13px;line-height:1.35}
 .rail .grp{margin-bottom:24px}
@@ -103,7 +102,9 @@ main{padding:34px 0 90px;min-width:0}
 svg .edge{stroke:var(--accent);fill:none}
 svg .node circle{fill:var(--card);stroke:var(--accent);stroke-width:1.5;cursor:pointer;
   transition:fill .15s}
-svg .node:hover circle{fill:var(--accent-bg)}
+svg .node:hover circle,svg .node:focus circle{fill:var(--accent-bg)}
+svg .node:focus-visible{outline:none}
+svg .node:focus-visible circle{stroke-width:3.5}
 svg .node text{font:12px ui-monospace,Menlo,monospace;fill:var(--ink);cursor:pointer}
 svg .node .cnt{font-size:10px;fill:var(--faint)}
 svg .node .idx{font-size:11px;fill:var(--accent);font-weight:600}
@@ -111,7 +112,7 @@ svg .node .idx{font-size:11px;fill:var(--accent);font-weight:600}
 .stat b{display:block;font:600 27px/1 Charter,Georgia,serif;color:var(--num)}
 .stat span{font:12px/1.4 ui-monospace,Menlo,monospace;color:var(--faint)}
 .seclist{max-width:var(--w)}
-.seclist article{padding:16px 0;border-top:1px solid var(--rule)}
+.seclist article{padding:16px 0;border-top:1px solid var(--rule);content-visibility:auto;contain-intrinsic-size:auto 96px}
 .seclist h3{font:600 18px/1.3 Charter,Georgia,serif;margin-bottom:3px}
 .seclist p{font-size:15px;color:var(--soft)}
 .seclist .pg{font:12px ui-monospace,Menlo,monospace;color:var(--faint);margin-top:5px}
@@ -138,6 +139,7 @@ article.page table{width:100%;border-collapse:collapse;margin-bottom:18px;font-s
 article.page th{text-align:left;font-weight:600;padding:7px 10px 7px 0;
   border-bottom:1px solid var(--ink)}
 article.page td{padding:8px 10px 8px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+article.page p a,article.page li a,article.page td a,article.page blockquote a{text-decoration:underline;text-underline-offset:3px}
 article.page a.wiki{color:var(--accent);white-space:normal}
 article.page a.wiki::before{content:"[[";color:var(--faint)}
 article.page a.wiki::after{content:"]]";color:var(--faint)}
@@ -161,7 +163,7 @@ article.page a.wiki::after{content:"]]";color:var(--faint)}
 .count{font:12px ui-monospace,Menlo,monospace;color:var(--faint);padding:14px 0 4px}
 .grp-h{font:600 15px/1 ui-monospace,Menlo,monospace;color:var(--faint);
   margin:26px 0 6px;padding-top:14px;border-top:1px solid var(--rule)}
-.row{display:grid;grid-template-columns:minmax(180px,260px) 120px 1fr;gap:18px;
+.row{content-visibility:auto;contain-intrinsic-size:auto 52px;display:grid;grid-template-columns:minmax(180px,260px) 120px 1fr;gap:18px;
   padding:12px 0;border-bottom:1px solid var(--rule);align-items:baseline}
 @media(max-width:760px){.row{grid-template-columns:1fr;gap:3px}}
 .row .nm{font-weight:600;font-size:16px}
@@ -170,11 +172,11 @@ article.page a.wiki::after{content:"]]";color:var(--faint)}
 .row .kd{font:11px ui-monospace,Menlo,monospace;color:var(--faint);display:block;margin-top:2px}
 footer{border-top:1px solid var(--rule);padding:22px;text-align:center;
   font:12px ui-monospace,Menlo,monospace;color:var(--faint)}
-@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 """
 
 # styles for the course and handbook sections injected by scripts/build_tracks.py
 GUIDE_CSS = """
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .sdiv{margin:16px 12px 4px;padding-top:12px;border-top:1px solid var(--rule);
   color:var(--faint);font:600 10px/1 ui-monospace,Menlo,monospace;
   letter-spacing:.14em;text-transform:uppercase}
@@ -184,16 +186,18 @@ GUIDE_CSS = """
 .tracklist article{border-top:2px solid var(--accent)}
 .courselist article{border-top:2px solid var(--num)}
 article.page img{max-width:100%;height:auto;display:block;margin:20px auto}
-.entr{max-width:var(--w);display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:34px 0 8px}@media(max-width:760px){.entr{grid-template-columns:1fr}}.ent{display:block;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px 20px 16px;text-decoration:none;transition:border-color .15s}.ent:hover{border-color:var(--accent)}.ent .ek{font:11px/1 ui-monospace,Menlo,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}.ent h3{font:600 20px/1.2 Charter,Georgia,serif;color:var(--ink);margin:9px 0 7px}.ent p{font-size:14px;line-height:1.5;color:var(--soft);margin:0 0 12px}.ent .em{font:12px ui-monospace,Menlo,monospace;color:var(--accent)}.ent.e2{border-top:3px solid var(--num)}.ent.e1{border-top:3px solid var(--accent)}.ent.e3{border-top:3px solid var(--rule)}"""
+.entr{max-width:var(--w);display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:34px 0 8px}@media(max-width:760px){.entr{grid-template-columns:1fr}}.ent{display:block;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px 20px 16px;text-decoration:none;transition:border-color .15s}.ent:hover{border-color:var(--accent)}.ent .ek{font:11px/1 ui-monospace,Menlo,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}.ent h2{font:600 20px/1.2 Charter,Georgia,serif;color:var(--ink);margin:9px 0 7px}.ent p{font-size:14px;line-height:1.5;color:var(--soft);margin:0 0 12px}.ent .em{font:12px ui-monospace,Menlo,monospace;color:var(--accent)}.ent.e2{border-top:3px solid var(--num)}.ent.e1{border-top:3px solid var(--accent)}.ent.e3{border-top:3px solid var(--rule)}"""
 
 SEARCHBOX = ('<div class="search"><input id="q" type="search" '
-             'placeholder="search the guide" autocomplete="off">'
-             '<div class="hits" id="hits"></div></div>')
+             'placeholder="search the guide" aria-label="Search the guide" '
+             'autocomplete="off">'
+             '<div class="hits" id="hits" role="region" aria-label="Search results" '
+             'aria-live="polite"></div></div>')
 
 def page_header(active):
     extra = ""
     if active == "guide":
-        extra = '<button class="toc-btn" id="toc">Index</button>\n  ' + SEARCHBOX + "\n"
+        extra = '<button class="toc-btn" id="toc" aria-controls="side" aria-expanded="false">Index</button>\n  ' + SEARCHBOX + "\n"
     return header(active, extra)
 
 # ---------------- graph: sections on a ring in reading order, links as chords
@@ -223,7 +227,8 @@ for i, sec in enumerate(order):
     anchor = "middle" if abs(cos) < 0.35 else ("start" if cos > 0 else "end")
     dx = 0 if anchor == "middle" else (r+9 if cos > 0 else -(r+9))
     dy = (r+18) if math.sin(a) > 0.35 else (-(r+12) if math.sin(a) < -0.35 else 5)
-    nodes_svg += (f'<g class="node" data-sec="{sec}">'
+    nodes_svg += (f'<g class="node" data-sec="{sec}" tabindex="0" role="link" '
+                  f'aria-label="{html.escape(D["sections"][sec]["title"], quote=True)}, {n} pages">'
                   f'<circle cx="{x:.0f}" cy="{y:.0f}" r="{r:.1f}"/>'
                   f'<text x="{x+dx:.0f}" y="{y+dy:.0f}" text-anchor="{anchor}">'
                   f'{D["sections"][sec]["title"]}</text>'
@@ -231,7 +236,7 @@ for i, sec in enumerate(order):
                   f'<text class="idx" x="{x:.0f}" y="{y+3.5:.0f}" text-anchor="middle">{i+1}</text>'
                   f'</g>')
 
-GRAPH = (f'<figure class="figure"><svg viewBox="0 0 800 470" role="img" '
+GRAPH = (f'<figure class="figure"><svg viewBox="0 0 800 470" role="group" '
          f'aria-label="The {word(len(order))} sections of the guide and the links between them">'
          f'{edges_svg}{nodes_svg}</svg>'
          f'<figcaption>The {word(len(order))} sections, in reading order, with the '
@@ -259,15 +264,21 @@ for sec, meta in D["sections"].items():
                 f'<p>{inline(meta["blurb"])}</p>'
                 f'<div class="pg">{len(D["order"][sec])} pages</div></article>')
 
+NOSCRIPT = ('<h1>Second Brain OS</h1><p>The guide needs JavaScript. The same pages '
+            'are plain markdown on GitHub:</p><ul>'
+            + "".join(f'<li><a href="{GHT}docs/{sec}">{html.escape(m["title"])}</a></li>'
+                      for sec, m in D["sections"].items())
+            + f'</ul><p><a href="{GHT}docs">All of docs/</a></p>')
+
 GUIDE = f"""{head("Second Brain OS - the guide", f"A {s['pages']}-page guide to building a knowledge base your AI agent maintains, in plain markdown you own.", "index.html", min_css(CSS + GUIDE_CSS))}
 {page_header('guide')}
 <template id="hero"><div class="hero"><h1>A knowledge base your agent maintains</h1>
 <p>Everything you read, watched and wrote, turned into linked pages and kept current by an agent. Plain markdown on your own machine.</p>
 {GRAPH}{STATS}</div><!--ENTRIES--><!--/ENTRIES--><div class="trkhead"><h2>the second-brain guide</h2><p>A path you follow once, in order: from the concept to a vault that maintains itself, one evening to set up.</p></div><div class="seclist">{seclist}</div><!--COURSE--><!--/COURSE--><!--TRACKS--><!--/TRACKS--></template>
 <div class="wrap">
-  <aside id="side"></aside>
-  <main id="main"></main>
-  <div class="rail" id="rail"></div>
+  <aside id="side" aria-label="Guide sections"></aside>
+  <main id="main" tabindex="-1"><noscript>{NOSCRIPT}</noscript></main>
+  <div class="rail" id="rail" role="complementary" aria-label="On this page"></div>
 </div>
 {FOOTER}
 <script id="data" type="application/json">{dumps({'pages': [slim_page(p) for p in D['pages']], 'sections': D['sections'], 'order': D['order']})}</script>
@@ -293,7 +304,7 @@ function side(cur){{
       <button aria-expanded="${{!!open}}"><span class="k">${{badge}}</span>
       ${{D.sections[sec].title}}<span class="n">${{D.order[sec].length}}</span></button><ol>`;
     D.order[sec].forEach(id=>{{
-      h+=`<li><a href="#${{id}}" class="${{id===cur?'cur':''}}">${{P[id].title}}</a></li>`;
+      h+=`<li><a href="#${{id}}" class="${{id===cur?'cur':''}}"${{id===cur?' aria-current="page"':''}}>${{P[id].title}}</a></li>`;
     }});
     h+='</ol></div>';
   }});
@@ -304,16 +315,19 @@ function side(cur){{
   }});
 }}
 
+let first=true;
 function render(){{
   const id=decodeURIComponent(location.hash.slice(1));
   const main=document.getElementById('main'), rail=document.getElementById('rail');
   if(!P[id]){{
     main.innerHTML=HERO; rail.innerHTML=''; side(null);
-    main.querySelectorAll('svg .node').forEach(n=>n.onclick=()=>{{
-      location.hash=D.order[n.dataset.sec][0];
+    main.querySelectorAll('svg .node').forEach(n=>{{
+      const go=()=>{{location.hash=D.order[n.dataset.sec][0];}};
+      n.onclick=go;
+      n.addEventListener('keydown',e=>{{if(e.key==='Enter'||e.key===' '){{e.preventDefault();go();}}}});
     }});
     document.title='Second Brain OS - the guide';
-    window.scrollTo(0,0); return;
+    window.scrollTo(0,0); done(); return;
   }}
   const p=P[id], i=FLAT.indexOf(id), prev=FLAT[i-1], next=FLAT[i+1];
   main.innerHTML=`<article class="page">
@@ -350,14 +364,17 @@ function render(){{
     const kind=(path===''||path.endsWith('/')||last.indexOf('.')<0)?'tree':'blob';
     a.setAttribute('href','{REPO}/'+kind+'/main/'+out.join('/')+tail);
   }});
+  main.querySelectorAll('pre').forEach(e=>e.tabIndex=0);
+  main.querySelectorAll('th').forEach(h=>{{if(!h.textContent.trim())h.innerHTML='<span class="vh">Row label</span>';}});
   const heads=[...main.querySelectorAll('h2')];
   const outs=[...main.querySelectorAll('a.wiki')].slice(0,8);
-  rail.innerHTML=(heads.length?`<div class="grp"><h4>on this page</h4>`+
+  rail.innerHTML=(heads.length?`<div class="grp"><div class="rh">on this page</div>`+
       heads.map((h,n)=>{{h.id='h'+n;return `<a href="#${{id}}" onclick="document.getElementById('h${{n}}').scrollIntoView();return false">${{h.textContent}}</a>`}}).join('')+`</div>`:'')
-    +(outs.length?`<div class="grp"><h4>links out</h4>`+
+    +(outs.length?`<div class="grp"><div class="rh">links out</div>`+
       outs.map(a=>`<a href="${{a.getAttribute('href')}}">${{a.textContent}}</a>`).join('')+`</div>`:'');
-  side(id); document.title=p.title+' - Second Brain OS'; window.scrollTo(0,0);
+  side(id); document.title=p.title+' - Second Brain OS'; window.scrollTo(0,0); done();
 }}
+function done(){{ if(first){{first=false;return;}} document.getElementById('main').focus({{preventScroll:true}}); }}
 
 // search
 const q=document.getElementById('q'), hits=document.getElementById('hits');
@@ -377,7 +394,9 @@ q.addEventListener('input',()=>{{
 q.addEventListener('keydown',e=>{{if(e.key==='Escape'){{q.value='';hits.classList.remove('open');q.blur();}}}});
 document.addEventListener('click',e=>{{if(!e.target.closest('.search'))hits.classList.remove('open');}});
 document.addEventListener('keydown',e=>{{
-  if(e.key==='/'&&document.activeElement!==q){{e.preventDefault();q.focus();}}
+  const tg=e.target, typing=tg.closest&&tg.closest('input,textarea,select,[contenteditable]');
+  if(e.key==='/'&&!typing&&!e.ctrlKey&&!e.metaKey&&!e.altKey){{e.preventDefault();q.focus();}}
+  if(typing||e.ctrlKey||e.metaKey||e.altKey||e.shiftKey)return;
   if(!P[decodeURIComponent(location.hash.slice(1))])return;
   const i=FLAT.indexOf(decodeURIComponent(location.hash.slice(1)));
   if(e.key==='ArrowRight'&&FLAT[i+1])location.hash=FLAT[i+1];
@@ -385,9 +404,9 @@ document.addEventListener('keydown',e=>{{
 }});
 hits.addEventListener('click',()=>{{hits.classList.remove('open');q.value='';}});
 const toc=document.getElementById('toc');
-if(toc){{toc.onclick=()=>document.getElementById('side').classList.toggle('show');}}
+if(toc){{toc.onclick=()=>{{const o=document.getElementById('side').classList.toggle('show');toc.setAttribute('aria-expanded',o);}};}}
 document.getElementById('side').addEventListener('click',e=>{{
-  if(e.target.tagName==='A'&&innerWidth<=860) document.getElementById('side').classList.remove('show');
+  if(e.target.tagName==='A'&&innerWidth<=860){{ document.getElementById('side').classList.remove('show'); if(toc)toc.setAttribute('aria-expanded','false'); }}
 }});
 addEventListener('hashchange',render); render();
 </script></body></html>"""
@@ -407,17 +426,17 @@ for r in R:
 
 RES = f"""{head("Second Brain OS - resources", f"{len(R)} checked links: Obsidian plugins by installs, repositories by stars, papers, tools and reading.", "resources.html", min_css(CSS))}
 {page_header('res')}
-<div class="rwrap">
+<main class="rwrap" id="main" tabindex="-1">
   <h1>Everything worth opening</h1>
   <p class="lede">{len(R)} links, each one checked. Plugins are ranked by installs from Obsidian's own community stats rather than by stars, because in this ecosystem the two disagree by an order of magnitude. Figures are from September 2026 and will drift.</p>
   <div class="controls" id="ctl">
-    <button class="chip on" data-k="all">All</button>
-    {"".join(f'<button class="chip" data-k="{html.escape(k)}">{html.escape(k)}</button>' for k in kinds)}
-    <input id="rq" type="search" placeholder="filter" autocomplete="off">
+    <button class="chip on" data-k="all" aria-pressed="true">All</button>
+    {"".join(f'<button class="chip" data-k="{html.escape(k)}" aria-pressed="false">{html.escape(k)}</button>' for k in kinds)}
+    <input id="rq" type="search" placeholder="filter" aria-label="Filter resources" autocomplete="off">
   </div>
-  <div class="count" id="count"></div>
+  <div class="count" id="count" role="status"></div>
   <div id="rows"></div>
-</div>
+</main>
 {FOOTER}
 <script id="rdata" type="application/json">{dumps(R)}</script>
 <script>
@@ -440,7 +459,7 @@ function draw(){{
 }}
 document.getElementById('ctl').addEventListener('click',e=>{{
   const b=e.target.closest('.chip'); if(!b)return;
-  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c===b));
+  document.querySelectorAll('.chip').forEach(c=>{{c.classList.toggle('on',c===b);c.setAttribute('aria-pressed',c===b);}});
   kind=b.dataset.k; draw();
 }});
 document.getElementById('rq').addEventListener('input',e=>{{term=e.target.value.trim().toLowerCase();draw();}});

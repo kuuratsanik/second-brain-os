@@ -213,13 +213,13 @@ def main():
     entries_block = (
         '<!--ENTRIES--><div class="entr">'
         f'<a class="ent e1" href="#{first("01-")}"><span class="ek">the guide &middot; 01&ndash;{n_guide_secs:02d}</span>'
-        '<h3>The second brain</h3><p>A path you follow once: a knowledge base an agent builds and maintains for you, in markdown you own.</p>'
+        '<h2>The second brain</h2><p>A path you follow once: a knowledge base an agent builds and maintains for you, in markdown you own.</p>'
         f'<span class="em">{guide_pages} pages &middot; starter vault &middot; {n_skills} skills</span></a>'
         f'<a class="ent e2" href="#{first("course-")}"><span class="ek">the agents course &middot; C0&ndash;C{n_course_secs - 1}</span>'
-        f'<h3>The agents course</h3><p>A path you read in order: {word(n_course_secs)} modules from a single prompt to a production agent, practice in every module.</p>'
+        f'<h2>The agents course</h2><p>A path you read in order: {word(n_course_secs)} modules from a single prompt to a production agent, practice in every module.</p>'
         f'<span class="em">{n_course} lessons &middot; plugin: tools in two commands</span></a>'
         f'<a class="ent e3" href="#{first("track-")}"><span class="ek">handbooks &middot; T1&ndash;T{n_tracks}</span>'
-        '<h3>The handbooks</h3><p>Not a path &mdash; references: the full menu of techniques, tools and builds for one layer, when it starts hurting.</p>'
+        '<h2>The handbooks</h2><p>Not a path &mdash; references: the full menu of techniques, tools and builds for one layer, when it starts hurting.</p>'
         f'<span class="em">{n_tracks} handbooks &middot; {n_track} pages &middot; dip in anywhere</span></a>'
         '</div><!--/ENTRIES-->')
     for marker, block in (("ENTRIES", entries_block), ("COURSE", course_block), ("TRACKS", track_block)):
