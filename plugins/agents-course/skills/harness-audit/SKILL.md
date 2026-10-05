@@ -7,6 +7,7 @@ description: >-
   guardrails, or asks what a bad session could break. Read-only: reports the
   blast radius and a hardening list, changes nothing. Do NOT use for context
   layout (context-audit) or cost routing (gate-check).
+disallowed-tools: Edit Write NotebookEdit
 ---
 
 # Audit the four rings

@@ -7,6 +7,7 @@ description: >-
   AGENTS.md layout. Read-only: reports findings and a fix list, changes
   nothing. Do NOT use for writing evals (evals-bootstrap) or for loop
   design (goal-test).
+disallowed-tools: Edit Write NotebookEdit
 ---
 
 # Audit the context window
@@ -39,8 +40,9 @@ edit session, not this skill.
    change mid-run; a changing list invalidates the whole prefix.
 4. **Hunt window bloat.** Find the largest single item in the history. A
    verbatim tool result over ~2,000 tokens should have been a file path plus
-   a one-line receipt. Count tools: past twenty (or ~10K tokens of
-   definitions), recommend deferred tools + tool search.
+   a one-line receipt. Count tools: past twenty (the course's line; see
+   [Context in practice](https://kuuratsanik.github.io/second-brain-os/#course-1-context/context-practice))
+   or ~10K tokens of definitions, recommend deferred tools and tool search.
 5. **Check the tail.** Locate the current goal. If it appears only in the
    opening message, it lives in the weak middle of the window — recommend
    restating it in the tail every three to five steps.

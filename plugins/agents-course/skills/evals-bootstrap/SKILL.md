@@ -28,9 +28,7 @@ just scoring.
    behaviour that should have happened and did not. Failures cluster into
    four to eight behaviours; name them.
 3. **Ensure traces exist.** Each run must be stored as `traces/<id>.json` —
-   a list of events including tool calls. If the user's harness is Claude
-   Code, the transcript already is the trace; wire up whatever copies or
-   converts it. No trace, no behavioural checks.
+   a list of events including tool calls. If the user's harness is Claude Code, it already writes each session as JSONL under `~/.claude/projects/`, but the entry format is internal and changes between versions ([sessions docs](https://code.claude.com/docs/en/sessions#where-transcripts-are-stored)). Convert it to the `traces/<id>.json` shape in one small script, so a format change breaks one file. No trace, no behavioural checks.
 4. **Write `cases.yaml`.** One entry per failure:
 
 ```yaml

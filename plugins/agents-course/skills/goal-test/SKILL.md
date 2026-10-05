@@ -39,12 +39,14 @@ not the model — returns true or false against it.
 # goal-loop.sh — run a headless agent until the goal test passes or attempts run out.
 set -u
 MAX_ATTEMPTS=5
+MAX_USD=2   # per attempt
 for i in $(seq 1 "$MAX_ATTEMPTS"); do
   FEEDBACK=$(./goal-test.sh 2>&1) && { echo "done in $i attempt(s)"; exit 0; }
   claude -p "Goal: <the goal>. The goal test currently fails with:
 $FEEDBACK
 Fix the code so the goal test passes." \
-    --permission-mode acceptEdits --output-format json > ".attempt-$i.json"
+    --permission-mode acceptEdits --max-turns 20 --max-budget-usd "$MAX_USD" \
+    --output-format json > ".attempt-$i.json"
 done
 echo "goal test still failing after $MAX_ATTEMPTS attempts — falling back to a human"
 exit 1
@@ -52,8 +54,7 @@ exit 1
 
 Adjust the agent command to whatever CLI the user runs. Keep the three
 brakes visible and named: the checker outside the model (`goal-test.sh`),
-the stop rule (test passes), the budget (`MAX_ATTEMPTS`, plus a dollar cap
-read from the JSON output if they want one).
+the stop rule (test passes), the budget (`MAX_ATTEMPTS`, with `--max-turns` and `--max-budget-usd` capping each attempt; both apply to `-p` runs only). With `acceptEdits` the agent can edit files but cannot run most shell commands unprompted, and a `-p` run denies prompts. If it needs to run the tests itself, add `--allowedTools "Bash(<the test command>)"`.
 
 ## Rules
 

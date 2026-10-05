@@ -15,8 +15,7 @@ description: >-
 Theory: [Cheap decisions](https://kuuratsanik.github.io/second-brain-os/#course-3-gate/cheap-decisions)
 and [Gate practice](https://kuuratsanik.github.io/second-brain-os/#course-3-gate/gate-practice).
 An agent does two kinds of work: it writes, which needs a big model, and it
-decides — is this spam, which queue, does this need a person — which is a
-bounded question the answer to which comes from a set you already know.
+decides — is this spam, which queue, does this need a person — which is a bounded question whose answer comes from a label set you already know.
 A gate is a cheap decision layer that sorts the stream so the expensive
 model only sees the items that actually need judgement.
 
@@ -36,7 +35,7 @@ model only sees the items that actually need judgement.
    - a **classic classifier** — logistic regression or similar over simple
      features, trained on a few hundred labelled examples: milliseconds,
      fractions of a cent, and the baseline every fancier option must beat
-   - a **small / System One model** — when the input is too varied for
+   - a **small model** (the course's "System One" class: typed output, no text generation) — when the input is too varied for
      features but the output is still a label with a confidence score
 4. **Route fail-closed.** Every gate needs a confidence threshold, and doubt
    goes down the safe path: unsure means escalate to the big model (or a
