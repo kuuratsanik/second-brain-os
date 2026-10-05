@@ -6,8 +6,8 @@ agent-maintained vault.
 
 ## Agents inside Obsidian
 
-A route this guide's [setup](../docs/02-setup/claude-code-setup.md) originally
-skipped: instead of running the agent in a terminal pointed at the vault folder,
+The third setup option in [Claude Code setup](../docs/02-setup/claude-code-setup.md):
+instead of running the agent in a terminal pointed at the vault folder,
 run it inside Obsidian.
 
 | Plugin | Installs | What it does |
