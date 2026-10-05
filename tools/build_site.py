@@ -326,22 +326,29 @@ function render(){{
     <div class="src">source: <a href="{REPO}/blob/main/${{p.path}}">${{p.path}}</a></div>
   </article>`;
   // rewrite internal links to hash routes, style them as wikilinks
-  main.querySelectorAll('a[href$=".md"]').forEach(a=>{{
-    if(/^https?:/.test(a.getAttribute('href'))) return;
-    const parts=a.getAttribute('href').replace(/^\\.\\//,'').split('/');
+  main.querySelectorAll('a[href]').forEach(a=>{{
+    const href=a.getAttribute('href');
+    if(/^([a-z][a-z0-9+.-]*:|\/\/|#)/i.test(href)) return;
+    const hashAt=href.search(/[#?]/), path=hashAt<0?href:href.slice(0,hashAt), tail=hashAt<0?'':href.slice(hashAt);
     let target=null;
-    const file=parts[parts.length-1].replace('.md','');
-    if(file==='README'){{
-      const sec=parts[parts.length-2]; if(D.order[sec]) target=D.order[sec][0];
-    }} else {{
-      const sec = parts.length>1 ? parts[parts.length-2] : p.section;
-      const cand = sec+'/'+file;
-      target = P[cand] ? cand : (P[p.section+'/'+file] ? p.section+'/'+file : null);
+    if(path.endsWith('.md')){{
+      const parts=path.replace(/^\.\//,'').split('/');
+      const file=parts[parts.length-1].replace('.md','');
+      if(file==='README'){{
+        const sec=parts[parts.length-2]; if(D.order[sec]) target=D.order[sec][0];
+      }} else {{
+        const sec = parts.length>1 ? parts[parts.length-2] : p.section;
+        const cand = sec+'/'+file;
+        target = P[cand] ? cand : (P[p.section+'/'+file] ? p.section+'/'+file : null);
+      }}
     }}
-    if(target){{ a.setAttribute('href','#'+target); a.className='wiki'; }}
-    else if(a.getAttribute('href').indexOf('..')===0 || !/^https?:/.test(a.getAttribute('href'))){{
-      a.setAttribute('href','{REPO}/blob/main/'+a.getAttribute('href').replace(/^(\\.\\.\\/)+/,''));
-    }}
+    if(target){{ a.setAttribute('href','#'+target); a.className='wiki'; return; }}
+    // anything else points into the repository: send it to GitHub
+    const out=p.path.split('/').slice(0,-1);
+    path.split('/').forEach(seg=>{{ if(seg==='..') out.pop(); else if(seg&&seg!=='.') out.push(seg); }});
+    const last=out[out.length-1]||'';
+    const kind=(path===''||path.endsWith('/')||last.indexOf('.')<0)?'tree':'blob';
+    a.setAttribute('href','{REPO}/'+kind+'/main/'+out.join('/')+tail);
   }});
   const heads=[...main.querySelectorAll('h2')];
   const outs=[...main.querySelectorAll('a.wiki')].slice(0,8);
