@@ -2,7 +2,7 @@
 
 The [anatomy page](what-a-harness-is.md) claims the core of every harness is a while-loop. This page proves it. In roughly seventy lines of Python you get an agent that reads files and runs commands against the live Claude API; the [next part](build-guardrails.md) adds the machinery that makes it a harness. Budget an evening for all three pages, about 150 lines total.
 
-You need Python 3.10+, `pip install anthropic` (the 1.x SDK), and `ANTHROPIC_API_KEY` set in your environment.
+You need Python 3.10+, `pip install anthropic` (the 1.x SDK; [PyPI](https://pypi.org/project/anthropic/) lists 1.11.0 as the latest release and `>=3.10` as its Python floor), and `ANTHROPIC_API_KEY` set in your environment. `claude-opus-5-5` is the Claude Opus 5.5 API ID from the [models overview](https://platform.claude.com/docs/en/about-claude/models/overview); swap in `claude-sonnet-5-5` for a cheaper run.
 
 ## Two tools
 
@@ -17,7 +17,7 @@ import sys
 
 import anthropic
 
-MODEL = "claude-opus-5"
+MODEL = "claude-opus-5-5"
 SYSTEM = "You are a coding agent working in the current directory. Investigate before you conclude."
 
 TOOLS = [

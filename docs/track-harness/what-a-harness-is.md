@@ -24,7 +24,7 @@ The window is finite and quality degrades before it fills. The harness decides w
 
 ## Why the harness matters as much as the model
 
-Benchmarks through 2026 keep showing the same thing: the harness moves the numbers. Databricks' internal testing found pi's minimal harness beat heavier ones on pass rate at a third of the context per turn — same models, different machinery. A harness that sends bloated context wastes money and degrades reasoning; one that recovers well from failed tool calls finishes tasks that others abandon. Model labs now tune harnesses to their models (OpenAI calls theirs "in-distribution"), which tells you they consider it part of the product, not packaging.
+Benchmarks through 2026 keep showing the same thing: the harness moves the numbers. Databricks reported that pi's minimal harness beat heavier ones on pass rate while sending less context per turn — same models, different machinery. (No primary source for this result is cited here; the exact ratio is omitted for that reason.) A harness that sends bloated context wastes money and degrades reasoning; one that recovers well from failed tool calls finishes tasks that others abandon. Model labs now tune harnesses to their models (OpenAI calls theirs "in-distribution"), which tells you they consider it part of the product, not packaging.
 
 ## The rest of the anatomy
 
