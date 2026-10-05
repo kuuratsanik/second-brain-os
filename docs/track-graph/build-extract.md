@@ -12,7 +12,7 @@ The repo ships `scripts/graph_export.py`, stdlib only. Run it at the vault root:
 python scripts/graph_export.py . edges.csv
 ```
 
-Use `python3` on a Mac; on Windows that name is usually the Store stub. The script walks every page outside hidden, template and script folders, resolves `[[wikilinks]]` case-insensitively against filenames, and writes:
+Use `python3` on a Mac; on Windows that name is usually the Store stub. The script walks every page except those in hidden folders and in `templates`, `scripts`, `raw`, `archive`, `journal`, `output` and `node_modules` (pass `--include` to count some of these anyway), skips `CLAUDE.md` and `README.md`, resolves `[[wikilinks]]` case-insensitively against filenames and frontmatter aliases, and writes:
 
 ```csv
 source,target

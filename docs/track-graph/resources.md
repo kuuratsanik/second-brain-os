@@ -1,15 +1,15 @@
 # Resources
 
-Curated, not comprehensive. Everything here was checked to be live in September 2026.
+Curated, not comprehensive. Paper venues, repositories and package versions were checked against the projects' own READMEs and PyPI pages on 5 October 2026. The checking environment could not reach arXiv, Neo4j, DeepLearning.AI, Medium, Microsoft's documentation site or Gephi, so links to those were last confirmed live in September 2026 and their descriptions below are not re-verified.
 
 ## Papers
 
 - [From Local to Global: A Graph RAG Approach to Query-Focused Summarization](https://arxiv.org/abs/2404.16130) — the Microsoft GraphRAG paper. Read it for the problem framing as much as the method; the [GraphRAG](graphrag.md) page is the short version.
-- [HippoRAG: Neurobiologically Inspired Long-Term Memory for LLMs](https://arxiv.org/abs/2405.14831) — knowledge graph plus personalised PageRank for multi-hop retrieval, NeurIPS 2024. The closest formal analogue to an agent walking links outward from a page.
-- [From RAG to Memory: Non-Parametric Continual Learning for LLMs](https://arxiv.org/abs/2502.14802) — HippoRAG 2. Makes the case that graph memory can beat vector RAG without losing on simple lookups.
-- [LightRAG: Simple and Fast Retrieval-Augmented Generation](https://arxiv.org/abs/2410.05779) — the dual-level graph-plus-vector design most 2026 systems quietly copied.
+- [HippoRAG: Neurobiologically Inspired Long-Term Memory for Large Language Models](https://arxiv.org/abs/2405.14831) — knowledge graph plus personalised PageRank for multi-hop retrieval, NeurIPS 2024 per the [HippoRAG repository](https://github.com/OSU-NLP-Group/HippoRAG). The closest formal analogue to an agent walking links outward from a page.
+- [From RAG to Memory: Non-Parametric Continual Learning for Large Language Models](https://arxiv.org/abs/2502.14802) — HippoRAG 2, ICML 2025. The repository says it improves multi-hop retrieval and sense-making without sacrificing performance on simpler tasks; that is the authors' claim, not an independent result.
+- [LightRAG: Simple and Fast Retrieval-Augmented Generation](https://arxiv.org/abs/2410.05779) — dual-level graph-plus-vector retrieval with incremental updates; the [repository](https://github.com/HKUDS/LightRAG) lists it as an EMNLP 2025 paper.
 - [Zep: A Temporal Knowledge Graph Architecture for Agent Memory](https://arxiv.org/abs/2501.13956) — the design paper behind Graphiti; the best written account of why agent memory needs time on its edges.
-- [When to Use Graphs in RAG](https://arxiv.org/abs/2506.05690) — a sober comparative analysis of where graph retrieval helps and where it is overhead. The corrective to read after the enthusiastic papers above.
+- [When to Use Graphs in RAG](https://arxiv.org/abs/2506.05690) — ICLR 2026 per its [benchmark repository](https://github.com/GraphRAG-Bench/GraphRAG-Benchmark), which says GraphRAG frequently underperforms vanilla RAG on many real-world tasks. A comparative analysis of where graph retrieval helps and where it is overhead; read it after the papers above.
 
 ## Guides and courses
 

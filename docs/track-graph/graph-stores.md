@@ -8,21 +8,21 @@ A folder of markdown files where `[[Page]]` links are edges is a knowledge graph
 
 ## NetworkX in files
 
-When you need algorithms — PageRank, community detection, centrality — load the graph into [NetworkX](https://networkx.org) and persist it as GraphML or JSON alongside your notes. In-memory Python, no infrastructure, fine into the tens of thousands of nodes. Several [GraphRAG](graphrag.md) implementations use exactly this as their default backend, which tells you what scale they actually expect.
+When you need algorithms — PageRank, community detection, centrality — load the graph into [NetworkX](https://networkx.org) and persist it as GraphML or JSON alongside your notes. In-memory Python, no infrastructure. A test of the [Build: Query It](build-query.md) script on one machine took about 0.35 seconds to load 10,000 nodes and 40,000 edges and about 1.5 seconds for 50,000 and 200,000, so "tens of thousands of nodes" is where a reload stops being instant. [LightRAG](https://github.com/HKUDS/LightRAG) defaults to `NetworkXStorage` and its README says the in-memory defaults are for small-scale testing and evaluation, not production, which tells you what scale such defaults expect.
 
 ## Embedded databases, and the Kuzu lesson
 
-Kuzu was the obvious embedded choice — DuckDB-for-graphs, Cypher, a single file. Then Kùzu Inc. was acquired by Apple and the [repository](https://github.com/kuzudb/kuzu) was archived in October 2025 with 0.11.3 as the final release. It still works, community forks exist, but the episode is the argument for the layers above: an MIT licence saved the code, and plain files would have needed no saving. The [post-Kuzu landscape](https://gdotv.com/blog/kuzu-legacy-embedded-graph-database-landscape/) is still sorting itself out.
+Kuzu was the obvious embedded choice: a serverless, embeddable graph database with Cypher. Its [repository](https://github.com/kuzudb/kuzu) was archived on 10 October 2025. The archive notice says the team is "working on something new", that earlier releases keep working, and points to release 0.11.3 for the bundled extensions; it says nothing about why, and this page does not repeat press reports of an acquisition. The code is MIT-licensed, and [Graphiti](https://github.com/getzep/graphiti#installing-with-kuzu-support) now marks its Kuzu driver deprecated and tells new projects to use Neo4j or FalkorDB. The episode is the argument for the layers above: an MIT licence kept the code readable, and plain files would have needed no rescue. A [third-party survey of the post-Kuzu landscape](https://gdotv.com/blog/kuzu-legacy-embedded-graph-database-landscape/) exists; it was not reachable when this page was last checked.
 
 ## Servers: Neo4j and FalkorDB
 
-[Neo4j](https://neo4j.com) is the incumbent: Cypher, the largest ecosystem, first-class integrations in every framework, and a free tier that covers personal use. The cost is operational — it is a server, and you now run one. [FalkorDB](https://www.falkordb.com/) is the lighter alternative, a Redis-module graph database aimed squarely at GraphRAG workloads, with its own actively developed SDK. Reasonable when an agent fleet shares one graph and query latency matters.
+[Neo4j](https://neo4j.com) is the incumbent: Cypher, and integrations in LangChain (`langchain-neo4j`) and LlamaIndex (`llama-index-graph-stores-neo4j`). The Community Edition is GPLv3; the Enterprise Edition is closed-source and commercially licensed ([repository](https://github.com/neo4j/neo4j)). The cost is operational — it is a server, and you now run one. [FalkorDB](https://github.com/FalkorDB/FalkorDB) is the alternative, a Redis module built on GraphBLAS sparse matrices and aimed at GraphRAG workloads, with its own [GraphRAG-SDK](https://github.com/FalkorDB/GraphRAG-SDK). Check its licence before adopting: the repository is under the Server Side Public License v1. Reasonable when an agent fleet shares one graph and query latency matters.
 
 ## What fits what
 
 - One person, curated corpus: wikilinks. You are reading the proof of concept.
 - Personal corpus plus graph algorithms: NetworkX over exported links.
-- Single-agent memory: whatever your memory library defaults to — [Graphiti](https://github.com/getzep/graphiti) wants Neo4j or FalkorDB, others bundle NetworkX. See [tools](tools.md).
+- Single-agent memory: whatever your memory library defaults to — [Graphiti](https://github.com/getzep/graphiti) supports Neo4j, FalkorDB and Amazon Neptune (Kuzu is deprecated), while LightRAG defaults to NetworkX. See [tools](tools.md).
 - Multi-agent, shared, concurrent writes: a real server, and now you have a database to operate.
 
 Choose the store after the extraction pipeline works, not before. A graph in files can move to Neo4j in an afternoon; the reverse migration is how projects discover their graph was never worth the server. The threshold logic is in [why graphs](why-graphs.md).

@@ -4,7 +4,7 @@ Part three. The graph exists and answers questions; now the agent has to reach i
 
 ## A slash command, not a server
 
-Drop this in the vault as `.claude/commands/connects.md`:
+Drop this in the vault as `.claude/commands/connects.md`. Claude Code's [documentation](https://code.claude.com/docs/en/slash-commands) says custom commands have been merged into skills and that existing `.claude/commands/` files keep working, with the same `description` frontmatter and `$ARGUMENTS` placeholder:
 
 ```markdown
 ---

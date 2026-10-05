@@ -1,14 +1,14 @@
 # Build: Query It
 
-Part two of the build. [Build: Extract the Graph](build-extract.md) left two files at the vault root: `edges.csv` with the plain links and `typed_edges.csv` with the typed pass. This page turns them into answers, in a little over forty lines of Python.
+Part two of the build. [Build: Extract the Graph](build-extract.md) left two files at the vault root: `edges.csv` with the plain links and `typed_edges.csv` with the typed pass. This page turns them into answers, in about sixty lines of Python.
 
-The store is NetworkX in memory, loaded fresh from the CSVs on every call — the second rung on the ladder in [graph stores](graph-stores.md). No server, no schema migration, and at personal-vault scale a full load takes milliseconds. One dependency:
+The store is NetworkX in memory, loaded fresh from the CSVs on every call — the second rung on the ladder in [graph stores](graph-stores.md). No server, no schema migration, and at personal-vault scale a full load takes tens of milliseconds. On one test machine, loading 10,000 nodes and 40,000 edges took about 0.35 seconds and 50,000 nodes and 200,000 edges about 1.5 seconds. One dependency:
 
 ```
 pip install networkx
 ```
 
-NetworkX 3.7 at the time of writing; anything in the 3.x line works.
+NetworkX 3.7 was the current release on PyPI on 5 October 2026; the script was run against 3.6.1 as well, and only uses long-standing functions (`shortest_path`, `label_propagation_communities`).
 
 ## The script
 
@@ -104,9 +104,11 @@ $ python scripts/graph_query.py neighbors "RAG"
 <- Lost in the Middle (links-to)
 
 $ python scripts/graph_query.py communities
-[4] GraphRAG, Long context replaces RAG, Lost in the Middle, RAG
-[2] Jerry Liu, LlamaIndex
+[4] GraphRAG, Jerry Liu, LlamaIndex, RAG
+[2] Long context replaces RAG, Lost in the Middle
 ```
+
+The sample output above comes from running the script on small CSV files containing those edges (including a `contradicts` edge from `Lost in the Middle` to `Long context replaces RAG`). Label propagation is a heuristic, so the grouping on a real vault can vary with the graph.
 
 `neighbors` is the one-hop view of a page, both directions, with the relationship named. `communities` is the theme layer: each line one cluster, largest first.
 
