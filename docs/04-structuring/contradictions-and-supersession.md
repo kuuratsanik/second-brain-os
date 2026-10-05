@@ -22,17 +22,18 @@ alone, because it tells you how firm Y actually is.
 
 ## What a contradiction looks like on a page
 
-Both positions, each attributed and dated:
+Both positions, each attributed and dated. The claim and the sources in this
+example are placeholders, not findings:
 
 ```markdown
 ## Current position
 
 Retrieval quality degrades past roughly 50k tokens of context
-([[Lost in the Middle]], 2023).
+([[Source A]], 2023).
 
 ## Contested
 
-[[Some 2026 benchmark]] reports no degradation up to 200k on the same task
+[[Source B]] (2026) reports no degradation up to 200k on the same task
 family. The two use different evaluation setups: the first measures position
 sensitivity, the second end-task accuracy. Unresolved.
 ```
@@ -45,7 +46,8 @@ ingested last cannot be acted on at all.
 Sometimes it is not a genuine disagreement, it is old information. A tool
 changed its API, a company was acquired, a paper was retracted.
 
-Mark the old claim as superseded and keep it:
+Mark the old claim as superseded and keep it. This example is illustrative; the
+date is invented:
 
 ```markdown
 ~~Requires Node 18 or later~~ superseded 2026-05: the native installer no

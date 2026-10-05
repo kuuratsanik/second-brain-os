@@ -25,7 +25,8 @@ A new page links out to what it references. What it references links back.
 
 One-directional linking produces pages that reference the vault but that the
 vault never reaches. They exist, they are correct, and nothing finds them.
-Obsidian shows unlinked backlinks, which helps you spot these, but the agent
+Obsidian's [Backlinks](https://help.obsidian.md/plugins/backlinks) pane shows
+unlinked mentions, which helps you spot these, but the agent
 should be closing the loop at ingest rather than leaving it to you.
 
 ## Links that do not exist yet
