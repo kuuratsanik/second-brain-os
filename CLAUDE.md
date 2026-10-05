@@ -40,8 +40,12 @@ the previous step's output. The build is deterministic, and CI
 fresh build.
 
 The pinned `markdown==3.11` needs Python 3.11 or newer. The vault scripts have
-no such floor. `python3 tools/doc_links.py` checks relative links and anchors in
-`docs/` and `README.md`; CI runs it too.
+no such floor. CI also runs three stdlib-only checks, which you can run locally:
+`python3 tools/doc_links.py` (relative links and anchors in `docs/` and
+`README.md`; add `--selftest`), `python3 tools/check_kit.py` (frontmatter,
+references and plugin manifests in the shipped kit; add `--selftest`) and
+`python3 -m unittest discover -s tests -t .` (the vault scripts, also run on
+Windows).
 
 Rebuild after any change to `docs/`, `resources/`, `skills/`, `commands/`,
 `agents/`, `scripts/` or `plugins/`, and commit the result in the same change.

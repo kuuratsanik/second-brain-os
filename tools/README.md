@@ -42,6 +42,28 @@ JSON writer. Change the repository owner or the credit line there.
 
 `doc_links.py` is a stdlib-only check for relative markdown links and `#anchors`
 in `docs/` and `README.md`. CI runs it; run it locally before committing docs.
+`python3 tools/doc_links.py --selftest` checks the checker.
+
+`check_kit.py` is a stdlib-only validator for what ships to users' vaults:
+`skills/`, `commands/`, `agents/` and `plugins/`. It checks that frontmatter
+parses, required fields are present and no key is outside the list in the
+Claude Code docs (source URLs are in the script), that skill names match their
+folders and descriptions fit 1,536 characters, that every `second-brain-*` skill
+and `scripts/*.py` a file names exists, that `argument-hint` is set exactly when
+a command uses `$ARGUMENTS`, that `marketplace.json` and each `plugin.json` are
+valid with resolving sources, and that the schedulable list in
+`commands/README.md` equals the commands without `disable-model-invocation:
+true`. It reports `path:line: message` and exits 1 on any problem. It never edits
+anything. Run `python3 tools/check_kit.py` and `python3 tools/check_kit.py
+--selftest`; when the Claude Code docs add a frontmatter field, update the key
+sets at the top of the script.
+
+`tests/` holds `unittest` tests for the four vault scripts, using a fixture vault
+built in a temp dir (CRLF and BOM files, aliases, piped links, skip folders and
+`--include`, CSV and GraphML shape, and ChatGPT and Claude chat exports). Run
+`python3 -m unittest discover -s tests -t .` from the repo root. No installs.
+CI runs these on Linux with Python 3.9 and on Windows with Python 3.13, because
+the vault scripts must work on plain Python 3 everywhere.
 
 Size: the embedded JSON carries only `id`, `title` and `html` per page. Search
 text, section, source path and heading lists are derived in the browser, and the
@@ -49,5 +71,8 @@ CSS and JS are minified. To measure, run `wc -c index.html` and
 `gzip -9 -c index.html | wc -c` (both in bytes) before and after a change.
 
 CI runs on pushes to `main` and on pull requests, not on pushes to other
-branches. Open a pull request, or run `python3 scripts/build_all.py` and
-`python3 tools/doc_links.py` locally, to get the same checks on a feature branch.
+branches. Open a pull request, or run `python3 scripts/build_all.py` and the
+checks above locally, to get the same checks on a feature branch. Every action
+in `.github/workflows/` is pinned to a full commit SHA with the version in a
+comment; Dependabot (`.github/dependabot.yml`) proposes weekly updates for
+actions and pip.
