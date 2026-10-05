@@ -76,27 +76,33 @@ img[src$=".svg"]{background:var(--fig);border-radius:4px}
 THEME_INIT = ("<script>try{var t=localStorage.getItem('sbo-theme')||localStorage.getItem('theme');"
               "if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>")
 
-# Sits right after the toggle button; cycles system, light, dark. The button ships
-# hidden so it is never an empty control without JavaScript. The visually hidden
-# role=status span announces each change, and the button name carries the state.
-# The script also points theme-color at the chosen theme.
+# Sits right after the toggle button. It is a two-state light/dark toggle, so every
+# click changes the page. With nothing stored the page follows the OS ("system");
+# the first click picks the opposite of what the OS shows. Picking the theme the
+# OS already shows clears the stored choice, which is the way back to system.
+# The button ships hidden so it is never an empty control without JavaScript. The
+# visually hidden role=status span announces each change, and the button name
+# carries the state. The script also points theme-color at the shown theme.
 THEME_BUTTON = (
     '<button class="theme" id="theme" type="button" hidden></button>'
     '<span class="sr" id="theme-say" role="status" aria-live="polite"></span>\n'
     '<script>(function(){var b=document.getElementById("theme"),s=document.getElementById("theme-say"),'
-    'r=document.documentElement,o=["system","light","dark"],'
+    'r=document.documentElement,q=window.matchMedia?matchMedia("(prefers-color-scheme: dark)"):{},'
     f'C={{light:"{LIGHT["paper"]}",dark:"{DARK["paper"]}"}},'
     'M=document.querySelectorAll("meta[name=theme-color]");'
-    'function g(){var t=r.dataset.theme;return t==="light"||t==="dark"?t:"system"}'
-    'function u(){var t=g(),n=o[(o.indexOf(t)+1)%3];b.textContent="Theme: "+t;'
-    'b.setAttribute("aria-label","Theme: "+t+". Switch to "+n);'
-    'for(var i=0;i<M.length;i++){var d=/dark/.test(M[i].media||"");M[i].content=C[t==="system"?(d?"dark":"light"):t]}}'
+    'function e(){var t=r.dataset.theme;return t==="light"||t==="dark"?t:""}'
+    'function g(){return e()||(q.matches?"dark":"light")}'
+    'function l(){var t=g();return e()?t:t+" (system)"}'
+    'function u(){var t=g(),n=t==="dark"?"light":"dark";b.textContent="Theme: "+l();'
+    'b.setAttribute("aria-label","Theme: "+l()+". Switch to "+n);'
+    'for(var i=0;i<M.length;i++)M[i].content=C[e()?t:(/dark/.test(M[i].media||"")?"dark":"light")]}'
     'b.hidden=false;'
-    'b.onclick=function(){var n=o[(o.indexOf(g())+1)%3];'
-    'if(n==="system")delete r.dataset.theme;else r.dataset.theme=n;'
-    'try{localStorage.removeItem("theme");if(n==="system")localStorage.removeItem("sbo-theme");'
-    'else localStorage.setItem("sbo-theme",n)}catch(e){}u();s.textContent="Theme set to "+n}'
-    ';u()})()</script>')
+    'b.onclick=function(){var n=g()==="dark"?"light":"dark",y=n===(q.matches?"dark":"light");'
+    'if(y)delete r.dataset.theme;else r.dataset.theme=n;'
+    'try{localStorage.removeItem("theme");if(y)localStorage.removeItem("sbo-theme");'
+    'else localStorage.setItem("sbo-theme",n)}catch(x){}u();s.textContent="Theme set to "+l()};'
+    'if(q.addEventListener)q.addEventListener("change",u);'
+    'u()})()</script>')
 
 THEME_COLOR = LIGHT["paper"]
 THEME_COLOR_DARK = DARK["paper"]
