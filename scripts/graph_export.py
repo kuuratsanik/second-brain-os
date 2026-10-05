@@ -47,13 +47,83 @@ def load(vault):
     return pages
 
 
+def _scalar(s):
+    """One YAML scalar: quotes stripped, `\\"` and `\\\\` unescaped in double
+    quotes, `''` in single quotes, a trailing ` # comment` dropped when plain."""
+    s = s.strip()
+    if s[:1] == '"':
+        out, i = [], 1
+        while i < len(s) and s[i] != '"':
+            if s[i] == "\\" and i + 1 < len(s):
+                i += 1
+            out.append(s[i])
+            i += 1
+        return "".join(out)
+    if s[:1] == "'":
+        out, i = [], 1
+        while i < len(s):
+            if s[i] == "'":
+                if s[i + 1:i + 2] != "'":
+                    break
+                i += 1
+            out.append(s[i])
+            i += 1
+        return "".join(out)
+    return re.sub(r"\s+#.*$", "", s).strip()
+
+
+def _flow_items(s):
+    """Split the inside of a flow list on commas outside quotes, up to `]`."""
+    items, cur, quote, i = [], [], None, 0
+    while i < len(s):
+        c = s[i]
+        if quote:
+            cur.append(c)
+            if quote == '"' and c == "\\" and i + 1 < len(s):
+                i += 1
+                cur.append(s[i])
+            elif c == quote:
+                if quote == "'" and s[i + 1:i + 2] == "'":
+                    i += 1
+                    cur.append("'")
+                else:
+                    quote = None
+        elif c in "\"'" and not "".join(cur).strip():
+            quote = c
+            cur.append(c)
+        elif c in ",]":
+            items.append("".join(cur))
+            cur = []
+            if c == "]":
+                break
+        else:
+            cur.append(c)
+        i += 1
+    return items
+
+
 def aliases_of(text):
-    """Names from a flow-style `aliases: [a, b]` line in the frontmatter."""
+    """Names from `aliases:` in the frontmatter: a flow list `[a, "b, c"]`, a
+    block list of `- item` lines, or a single scalar. Quotes are stripped."""
     m = re.search(r"^---\n(.*?)\n---", text, re.S)
-    m2 = m and re.search(r"^aliases:[ \t]*\[(.*?)\]", m.group(1), re.M)
+    m2 = m and re.search(r"^aliases:[ \t]*(.*)$", m.group(1), re.M)
     if not m2:
         return []
-    return [a.strip().strip("\"'") for a in m2.group(1).split(",") if a.strip()]
+    rest = m2.group(1).strip()
+    if rest.startswith("["):
+        raw = _flow_items(m.group(1)[m2.start(1) + 1:])
+    elif rest and not rest.startswith("#"):
+        raw = [rest]
+    else:
+        raw = []
+        for line in m.group(1)[m2.end():].lstrip("\n").split("\n"):
+            b = re.match(r"^[ \t]*-[ \t]+(.*)$", line)
+            if not b:
+                if line.strip() and not line.lstrip().startswith("#"):
+                    break
+                continue
+            raw.append(b.group(1))
+    return [a for a in (_scalar(x) for x in raw) if a]
 
 
 def link_key(target):
