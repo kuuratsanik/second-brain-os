@@ -31,7 +31,7 @@ owner may have written it by hand.
    into `index.md` under Gaps.
 3. **Orphans.** Pages with no inbound links. For each, either find where it
    should be linked from and add the link, or flag it as a candidate for
-   deletion.
+   archiving.
 4. **Stubs.** Pages under roughly 40 words with no links. Usually a failed
    ingest. Flag for re-ingest from the original source in `raw/`.
 5. **Schema.** Missing or malformed frontmatter, wrong `type`, missing dates,

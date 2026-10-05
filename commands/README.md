@@ -94,7 +94,7 @@ Most take an optional argument. With none, they default to the sensible whole:
 | `/review` | Periodic review of what the vault learned |
 | `/weekly` | The weekly review |
 | `/monthly` | The monthly structural review |
-| `/prune` | Propose what is safe to remove; deletes only if CLAUDE.md grants autonomy |
+| `/prune` | Propose what is safe to remove; archives only if CLAUDE.md grants autonomy |
 | `/archive` | Propose cold material to move out of the wiki; moves only if CLAUDE.md grants autonomy |
 | `/commit` | Commit the current state with a useful message |
 
