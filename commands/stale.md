@@ -1,6 +1,5 @@
 ---
 description: Find concept pages nobody has touched
-disable-model-invocation: true
 ---
 
 List concept pages whose `updated` date is older than ninety days, sorted oldest first, with how many sources arrived on their topic since.

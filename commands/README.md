@@ -14,7 +14,13 @@ Commands are thin on purpose: each one points at a skill and sets its scope. The
 behaviour lives in the skill, so `/ingest-youtube` and a scheduled task and you
 asking in plain language all produce the same result.
 
-Each sets `disable-model-invocation: true`: the commands run only when you type them, and the skills handle automatic triggering. This also keeps the command descriptions out of every session's context.
+Except for the maintenance set, every command sets `disable-model-invocation:
+true`: it runs only when you type it, and the skills handle automatic
+triggering. This also keeps those descriptions out of every session's context.
+The maintenance set can be scheduled and run without you: `/ingest`, `/link`,
+`/lint`, `/review`, `/weekly`, `/monthly`, `/metrics`, `/health`, `/commit`,
+`/stale`, `/orphans`, `/prune`, `/archive`, `/dedupe`, `/backfill` and
+`/index`. A scheduled task can fire only these.
 
 Most take an optional argument. With none, they default to the sensible whole:
 `/lint` audits everything, `/ingest` takes whatever is waiting in `raw/`.
@@ -88,8 +94,8 @@ Most take an optional argument. With none, they default to the sensible whole:
 | `/review` | Periodic review of what the vault learned |
 | `/weekly` | The weekly review |
 | `/monthly` | The monthly structural review |
-| `/prune` | Find what is safe to remove |
-| `/archive` | Move cold material out of the wiki |
+| `/prune` | Propose what is safe to remove; deletes only if CLAUDE.md grants autonomy |
+| `/archive` | Propose cold material to move out of the wiki; moves only if CLAUDE.md grants autonomy |
 | `/commit` | Commit the current state with a useful message |
 
 ### Outputs

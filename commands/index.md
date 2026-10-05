@@ -1,6 +1,5 @@
 ---
 description: Rebuild the index
-disable-model-invocation: true
 ---
 
 Rebuild `index.md` from the actual contents of `wiki/`. Group by type and theme, one line of description per entry, gaps at the bottom.
