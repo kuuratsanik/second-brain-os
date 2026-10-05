@@ -1,5 +1,6 @@
 ---
 description: Check what is safe to publish
+disable-model-invocation: true
 ---
 
 Audit the opt-in set. Links to unpublished pages, flagged content, frontmatter to strip. Report only; do not build.

@@ -1,5 +1,7 @@
 ---
 description: Find near-duplicate pages
+argument-hint: "[folder]"
+disable-model-invocation: true
 ---
 
 Scan $ARGUMENTS, or the whole wiki, for near-duplicates by title, alias overlap and shared inbound links. Propose merges with reasoning. Merge nothing.

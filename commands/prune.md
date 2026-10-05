@@ -1,5 +1,6 @@
 ---
 description: Find what is safe to remove
+disable-model-invocation: true
 ---
 
 Find concept pages with one source and no inbound links after a year, and stubs that never got filled. Propose removals with reasoning. Delete nothing.

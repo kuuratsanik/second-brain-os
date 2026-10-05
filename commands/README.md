@@ -14,6 +14,8 @@ Commands are thin on purpose: each one points at a skill and sets its scope. The
 behaviour lives in the skill, so `/ingest-youtube` and a scheduled task and you
 asking in plain language all produce the same result.
 
+Each sets `disable-model-invocation: true`: the commands run only when you type them, and the skills handle automatic triggering. This also keeps the command descriptions out of every session's context.
+
 Most take an optional argument. With none, they default to the sensible whole:
 `/lint` audits everything, `/ingest` takes whatever is waiting in `raw/`.
 

@@ -1,5 +1,6 @@
 ---
 description: Find unreachable pages
+disable-model-invocation: true
 ---
 
 List pages with no inbound links. For each, either propose where it should be linked from, or flag it as a deletion candidate.

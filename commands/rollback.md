@@ -1,5 +1,6 @@
 ---
 description: Undo the last run
+disable-model-invocation: true
 ---
 
 Show what the last run changed, then revert it on confirmation. Record the rollback in `log.md`.

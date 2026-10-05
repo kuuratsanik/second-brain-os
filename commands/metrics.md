@@ -1,5 +1,6 @@
 ---
 description: Record a dated metrics snapshot
+disable-model-invocation: true
 ---
 
 Append this month's numbers to the metrics note and compare against the last entry.

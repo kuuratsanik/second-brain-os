@@ -1,5 +1,6 @@
 ---
 description: Find missing aliases
+disable-model-invocation: true
 ---
 
 Find pages whose acronyms, alternate spellings or common names are not in `aliases`. Missing aliases are the main reason a vault grows two pages for one thing.

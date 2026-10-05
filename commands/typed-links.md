@@ -1,5 +1,7 @@
 ---
 description: Add relation types where they matter
+argument-hint: "[pages]"
+disable-model-invocation: true
 ---
 
 Review the links in $ARGUMENTS and add types (supports, contradicts, extends, part-of, applies) only where the source states the relationship. Never infer a type.

@@ -1,5 +1,6 @@
 ---
 description: Show what the vault is actually about
+disable-model-invocation: true
 ---
 
 Identify clusters and name them. Compare against what the user thinks their interests are, if that is recorded.
