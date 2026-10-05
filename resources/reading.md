@@ -16,14 +16,10 @@ it.
 ## The pattern at company scale
 
 **[An organizational second brain: AI that learns from experts](https://engineering.fb.com/2026/09/02/ml-applications/organizational-second-brain-ai-learns-from-experts/)**,
-Meta Engineering, September 2026. Described below as the same pattern this
+Meta Engineering, September 2026. Reported to describe the same pattern this
 guide teaches, run inside Meta with a whole domain team as the user.
 
-**Unverified.** The article could not be fetched when this page was last
-checked (5 October 2026; the host was blocked from the review environment, so
-the URL, date and every claim below are from an earlier reading and have not
-been confirmed against the page). Open the article before relying on any of
-it.
+Last checked September 2026; not re-checked on 5 October 2026 because the page could not be fetched. Open the article before relying on the summary below.
 
 It was reported to describe: 200+ structured knowledge files with
 YAML frontmatter forming a dependency graph — position files, taxonomies,

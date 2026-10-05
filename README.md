@@ -134,7 +134,7 @@ them separate matters more than it sounds.
 | [`plugins/`](plugins/README.md) | Claude Code plugins — the course's tools, installable in two commands |
 | [`scripts/`](scripts/README.md) | Dependency-free Python for link checking, stats and graph export |
 | [`resources/`](resources/README.md) | Tools, repos, papers and reading worth your time |
-| [`examples/`](examples/README.md) | Real vaults and real output |
+| [`examples/`](examples/README.md) | A fictional demo vault with link-check and stats output |
 
 ## The guide
 
@@ -286,23 +286,24 @@ This repo ships **18 skills, 72 commands, 6 subagents and 4 scripts**: one skill
 per workflow in the guide, and a command for every scoped version of it you would
 actually run.
 
-Other implementations, counted the same way. A repo shipping sixteen skills
-counts as sixteen. Stars from the GitHub API, as of 5 October 2026. Skill and
-command counts for other repositories are from September 2026.
+Other implementations, counted the same way. A repo shipping fifteen skills
+counts as fifteen. Stars from the GitHub API, as of 5 October 2026. Counts for
+other repositories were read from their folder listings or READMEs on the same
+date.
 
 | Repo | Stars | Ships |
 |---|---|---|
-| [AgriciDaniel/claude-obsidian](https://github.com/AgriciDaniel/claude-obsidian) | 15.4K | 16 skills, 3 subagents, role presets |
-| [eugeniughelbur/obsidian-second-brain](https://github.com/eugeniughelbur/obsidian-second-brain) | 4.7K | 47 commands, works across three agents |
+| [AgriciDaniel/claude-obsidian](https://github.com/AgriciDaniel/claude-obsidian) | 15.4K | 15 skills, 3 subagents, role presets |
+| [eugeniughelbur/obsidian-second-brain](https://github.com/eugeniughelbur/obsidian-second-brain) | 4.7K | 47 commands on eight platforms per its README; the GitHub description says 45 |
 | [Astro-Han/karpathy-llm-wiki](https://github.com/Astro-Han/karpathy-llm-wiki) | 2.4K | 1 skill covering ingest, compile, query, lint |
-| [ballred/obsidian-claude-pkm](https://github.com/ballred/obsidian-claude-pkm) | 1.9K | 13 skills, 4 subagents, full starter kit |
+| [ballred/obsidian-claude-pkm](https://github.com/ballred/obsidian-claude-pkm) | 1.9K | 10 skills, 4 subagents, full starter kit |
 | [coleam00/second-brain-starter](https://github.com/coleam00/second-brain-starter) | 795 | 1 skill that interviews you first |
 | [NicholasSpisak/second-brain](https://github.com/NicholasSpisak/second-brain) | 735 | 4 skills, npm installer |
 | [micuintus/llm-wiki](https://github.com/micuintus/llm-wiki) | 28 | 1 skill, deliberately minimal |
 
 Where the format itself is defined:
-[anthropics/skills](https://github.com/anthropics/skills) (20 skills),
-[obra/superpowers](https://github.com/obra/superpowers) (14),
+[anthropics/skills](https://github.com/anthropics/skills) (19 skills),
+[obra/superpowers](https://github.com/obra/superpowers) (15),
 [VoltAgent/awesome-agent-skills](https://github.com/VoltAgent/awesome-agent-skills)
 (index of 1,000+). Notes on each: [skills.md](resources/skills.md).
 

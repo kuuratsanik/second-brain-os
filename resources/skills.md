@@ -1,10 +1,10 @@
 # Skills and agents
 
-Counted individually: a repo shipping sixteen skills counts as sixteen, because
-that is what you install. Skill, command and subagent counts for other repositories were taken by
-reading each repository's file tree in September 2026 and were not re-checked
-on 5 October 2026, because file trees were not reachable from the review
-environment. Star counts are from the GitHub API as of 5 October 2026.
+Counted individually: a repo shipping fifteen skills counts as fifteen, because
+that is what you install. Skill, command and subagent counts for other
+repositories were read from each repository's folder listing or README on
+5 October 2026. Where the two disagree, the entry says so. Star counts are from
+the GitHub API as of 5 October 2026.
 
 ## This repo
 
@@ -22,10 +22,10 @@ format.
 
 | Repo | Stars | Ships |
 |---|---|---|
-| [AgriciDaniel/claude-obsidian](https://github.com/AgriciDaniel/claude-obsidian) | 15,364 | 16 skills, 3 subagents. Self-organizing vault with role presets |
-| [eugeniughelbur/obsidian-second-brain](https://github.com/eugeniughelbur/obsidian-second-brain) | 4,676 | 47 commands across Claude, Codex and Gemini in September 2026. The repository description now says 45 commands and seven CLI agents; the file tree was not re-counted |
+| [AgriciDaniel/claude-obsidian](https://github.com/AgriciDaniel/claude-obsidian) | 15,364 | 15 skills, 3 subagents. Self-organizing vault with role presets |
+| [eugeniughelbur/obsidian-second-brain](https://github.com/eugeniughelbur/obsidian-second-brain) | 4,676 | 47 commands on eight platforms, per its README. The GitHub description says 45 commands and Claude Code plus six other CLI agents, so the two disagree |
 | [Astro-Han/karpathy-llm-wiki](https://github.com/Astro-Han/karpathy-llm-wiki) | 2,418 | 1 skill covering the full ingest, compile, query, lint loop |
-| [ballred/obsidian-claude-pkm](https://github.com/ballred/obsidian-claude-pkm) | 1,875 | 13 skills, 4 subagents. A complete starter kit |
+| [ballred/obsidian-claude-pkm](https://github.com/ballred/obsidian-claude-pkm) | 1,875 | 10 skills, 4 subagents. A complete starter kit |
 | [coleam00/second-brain-starter](https://github.com/coleam00/second-brain-starter) | 795 | 1 skill that interviews you and generates a build plan |
 | [NicholasSpisak/second-brain](https://github.com/NicholasSpisak/second-brain) | 735 | 4 skills, npm installer, close to the original gist |
 | [micuintus/llm-wiki](https://github.com/micuintus/llm-wiki) | 28 | 1 skill, deliberately minimal, no dependencies. Good counterpoint |
@@ -41,8 +41,8 @@ where the best-written examples live.
 
 | Repo | Stars | Ships |
 |---|---|---|
-| [obra/superpowers](https://github.com/obra/superpowers) | 295,627 | 14 skills. An agentic skills framework and development methodology |
-| [anthropics/skills](https://github.com/anthropics/skills) | 179,781 | 20 skills, 3 subagents. The official reference for the format |
+| [obra/superpowers](https://github.com/obra/superpowers) | 295,627 | 15 skills. An agentic skills framework and development methodology |
+| [anthropics/skills](https://github.com/anthropics/skills) | 179,781 | 19 skills. The official reference for the format |
 | [hesreallyhim/awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code) | 55,105 | Commands, hooks, workflows and tooling for Claude Code |
 | [VoltAgent/awesome-agent-skills](https://github.com/VoltAgent/awesome-agent-skills) | 35,238 | A curated index of 1,000+ community skills |
 

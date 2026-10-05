@@ -34,8 +34,8 @@ format where leaving the tool costs nothing.
 
 | Tool | Stars | Notes |
 |---|---|---|
-| [Khoj](https://github.com/khoj-ai/khoj) | 37,561 | Self-hostable AI second brain over your docs, with custom agents and scheduled automations |
 | [Quivr](https://github.com/The-Vibe-Company/quivr) | 39,578 | The repository's description now reads "an open-source engine that turns continuous content streams into search and monitoring". It was previously described here as an embeddable RAG framework, so check that it still fits before relying on it |
+| [Khoj](https://github.com/khoj-ai/khoj) | 37,561 | Self-hostable AI second brain over your docs, with custom agents and scheduled automations |
 | [Reor](https://github.com/reorproject/reor) | 8,544 | Archived (read-only) on GitHub as of 5 October 2026. Local-first AI note app that links notes automatically as you write |
 
 These are products, not patterns. They do the job for you, at the cost of the

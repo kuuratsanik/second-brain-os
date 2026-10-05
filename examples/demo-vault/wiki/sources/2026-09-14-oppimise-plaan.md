@@ -29,7 +29,7 @@ Ajaveebi artikkel, mille on kirjutanud Reet Palumäe (väljamõeldud autor). Tek
 - Pärast iga lugemist tuleks tekst sulgeda ja kolm lauset mälu järgi kirja panna.
 - Kirjutatut tuleb kontrollida ühe, kolme ja seitsme päeva pärast.
 - Autor väidab, et pool tundi lugemist ja kümme minutit meenutamist annavad rohkem kui tund aega pelgalt lugemist. Artiklis puudub allikas, mis seda väidet toetaks.
-- Meelde jäämata lauseid ei maksa uuesti pähe õppida. Need tuleb märkmetes ümber sõnastada.
+- Lauseid, mis meelde ei jäänud, ei maksa uuesti pähe õppida. Need tuleb märkmetes ümber sõnastada.
 
 ## Miks see siin oluline on
 

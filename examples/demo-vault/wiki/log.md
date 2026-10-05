@@ -26,7 +26,7 @@ review, rollback, skip.
 2026-09-06 link journal/2026-09-06.md -> idea captured at wiki/self-improvement/ideas/fifteen-minute-friday-review.md, status new
 2026-09-11 review wiki/self-improvement/ideas/fifteen-minute-friday-review.md -> promoted to experiment wiki/self-improvement/experiments/friday-review-trial.md by the owner
 2026-09-15 ingest raw/clippings/2026-09-14-oppimise-plaan.md -> wiki/sources/2026-09-14-oppimise-plaan.md (lang et, slug ASCII, title and original form in aliases)
-2026-09-15 merge wiki/concepts/spaced-repetition.md -> wiki/concepts/retrieval-practice.md (same idea under two names; aliases moved to the survivor)
+2026-09-15 merge wiki/concepts/spaced-repetition.md -> wiki/concepts/retrieval-practice.md (same idea under two names; aliases moved to the survivor; checkpoint 4e91c07)
 2026-09-15 archive wiki/concepts/spaced-repetition.md -> archive/wiki/concepts/spaced-repetition.md (merged into retrieval-practice; checkpoint 4e91c07)
 2026-09-16 link wiki/self-improvement/ideas/morning-flashcards.md -> idea captured from the Estonian source, status new
 2026-09-23 ingest raw/meetings/2026-09-22-q4-planning-sync.md -> wiki/sources/2026-09-22-q4-planning-sync.md, wiki/entities/anu-kask.md, wiki/entities/mihkel-sepp.md, wiki/entities/kuusk-analytics.md

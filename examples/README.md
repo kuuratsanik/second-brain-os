@@ -13,7 +13,10 @@ carries a line saying so.
 It shows the page contract from
 [`vault-template/CLAUDE.md`](../vault-template/CLAUDE.md) in use. It does not
 copy the template's `CLAUDE.md`, `templates/`, skills or settings, because those
-change; copy them from `vault-template/` when you build your own.
+change; copy them from `vault-template/` when you build your own. It also omits
+the `hub-personal` and `hub-creative` hubs and the four `wiki/systems/` pages the
+template ships (routing, lifecycle, operating notes and needs-owner), so its
+`index.md` lists four hubs where yours will list six.
 
 What to look at:
 
