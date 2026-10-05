@@ -85,9 +85,10 @@ are copied with the template into `.claude/`:
 
 The permission rules cannot express "existing files only", so the `raw/` and
 `CLAUDE.md` checks live in the hook. Both layers run: a call must pass the hook
-and the permission rules. Deny rules apply in every permission mode, including
-`bypassPermissions`, but that mode skips the ask rules, so do not run the vault
-in it. A hook blocks only by exiting with code 2: a hook that crashes, cannot
+and the permission rules. Deny rules and explicit ask rules apply in every
+permission mode, including `bypassPermissions`; that mode approves everything
+the rules leave unmatched without a prompt and disables Claude Code's other
+safety checks, so do not run the vault in it. A hook blocks only by exiting with code 2: a hook that crashes, cannot
 start or times out does not block, and the deny rules are then the only layer.
 `guard.py` itself fails closed on bad input.
 Neither layer is a sandbox. They read the command text, so a script that
