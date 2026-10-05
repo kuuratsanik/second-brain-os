@@ -44,11 +44,11 @@ SHELLS = {"sh", "bash", "zsh", "dash", "ksh", "pwsh", "powershell"}
 GIT_OPTS_WITH_VALUE = {"-C", "-c", "--git-dir", "--work-tree", "--namespace",
                        "--exec-path", "--super-prefix", "--config-env"}
 # Owner-maintained: the agent may not write here at all.
-OWNER_DIRS = {".claude", "journal", "scripts"}
+OWNER_DIRS = frozenset({".claude", "journal", "scripts"})
 # Never moved away or archived (rail 2), and never overwritten once they exist.
 KEEP_PAGES = ["wiki/systems", "wiki/hubs", "wiki/index.md", "wiki/log.md"]
 # A source of a move may not be (or contain) any of these.
-MOVE_SOURCE_BLOCKED = ["raw", "archive", "journal", ".claude", "scripts", "claude.md"] + KEEP_PAGES
+MOVE_SOURCE_BLOCKED = ["raw", "archive", "journal", ".claude", "scripts", "claude.md", ".gitignore"] + KEEP_PAGES
 MOVE_CMDS = {"mv", "move", "move-item", "mi", "rename-item", "rni", "ren", "rename"}
 RENAME_CMDS = {"rename-item", "rni", "ren", "rename"}
 COPY_CMDS = {"cp", "copy", "copy-item", "cpi", "copy-item", "install", "ln"}
@@ -76,6 +76,9 @@ def rel_to_root(path, cwd, root):
     """Path relative to the vault root with '/' separators, or None if outside."""
     p = os.path.expanduser(path)
     if not os.path.isabs(p):
+        if cwd is None:
+            raise Block(f"cannot tell where '{path}' points: an earlier cd could not be "
+                        "followed. Use a path from the vault root, or an absolute one.")
         p = os.path.join(cwd, p)
     real, base = norm(p), norm(root)
     try:
@@ -144,11 +147,21 @@ def check_claude_md(tool, tool_input, real_path):
 def check_path(tool, path, tool_input, cwd, root):
     """Raise Block if `tool` may not write `path`. tool 'Bash' means no
     content-level checks are possible, so CLAUDE.md is fully blocked."""
+    if tool == "Bash" and FUZZY.search(path):
+        full, _ = lit_rel(path, cwd, root)
+        if full is not None and any(
+                overlaps(full, p) for p in OWNER_DIRS | {"raw", "claude.md", ".gitignore"}):
+            raise Block(f"'{path}' uses a glob, brace or variable and may write to a "
+                        "protected path (raw/, journal/, scripts/, .claude/, CLAUDE.md); "
+                        "name the file exactly.")
+        return
     r = rel_to_root(path, cwd, root)
     if r is None:
         return
     first = r.split("/")[0].lower()
     real = os.path.realpath(os.path.join(cwd, os.path.expanduser(path)))
+    if r.lower() == ".gitignore":
+        raise Block(".gitignore is owner-maintained (it decides what is versioned).")
     if first in {".claude", "scripts"}:
         raise Block(f"'{r}' is owner-maintained configuration or tooling (settings, "
                     "hooks, skills, commands, agents, scripts). Only the owner "
@@ -202,7 +215,12 @@ def split_commands(cmd):
             end_tok()
         elif c == "|" and i and cmd[i - 1] == ">":
             cur.append(c)  # the >| redirect
-        elif c in ";|\n(){}`":
+        elif c in "{}" and not cur and (
+                i + 1 >= n or cmd[i + 1] in " \t;\n)"):
+            end_seg()  # a standalone { or } group token, not a brace expansion
+        elif c in "{}":
+            cur.append(c)  # inside a token: wiki/{a,b}.md, ${VAR}
+        elif c in ";|\n()`":
             end_seg()
         elif c == "&":
             prev = cmd[i - 1] if i else ""
@@ -227,22 +245,42 @@ def inner_strings(cmd):
     return found
 
 
-def strip_prefix(tokens):
-    """Drop VAR=value assignments and wrapper commands (sudo, env, xargs ...)."""
-    t = list(tokens)
+SHELL_KEYWORDS = {"do", "then", "else", "elif", "if", "while", "until", "!", "time"}
+WRAPPER_VALUE_FLAGS = {
+    "nice": {"-n", "--adjustment"}, "sudo": {"-u", "-g", "-h", "-p", "-C", "-r", "-t", "-U"},
+    "doas": {"-u", "-C"}, "env": {"-u", "-C", "-S"},
+    "xargs": {"-n", "-I", "-L", "-P", "-d", "-E", "-s", "-a"},
+    "timeout": {"-s", "-k"}, "stdbuf": {"-i", "-o", "-e"}, "ionice": {"-c", "-n", "-p"},
+}
+
+
+def strip_prefix_ex(tokens):
+    """Drop VAR=value assignments, shell keywords and wrapper commands (sudo, env,
+    xargs, nice ...). Returns (remaining tokens, assignments seen)."""
+    t, assigns = list(tokens), []
     while t:
         if re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", t[0]):
+            assigns.append(t.pop(0))
+        elif t[0] in SHELL_KEYWORDS:
             t.pop(0)
         elif os.path.basename(t[0]).lower().removesuffix(".exe") in WRAPPERS:
-            w = os.path.basename(t[0]).lower()
+            w = os.path.basename(t[0]).lower().removesuffix(".exe")
             t.pop(0)
             while t and t[0].startswith("-"):
-                t.pop(0)
+                f = t.pop(0)
+                if f in WRAPPER_VALUE_FLAGS.get(w, ()) and t:
+                    t.pop(0)
+            while t and re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", t[0]):
+                assigns.append(t.pop(0))  # env VAR=x cmd
             if w == "timeout" and t and re.match(r"^\d", t[0]):
                 t.pop(0)
         else:
             break
-    return t
+    return t, assigns
+
+
+def strip_prefix(tokens):
+    return strip_prefix_ex(tokens)[0]
 
 
 def cmd_name(tokens):
@@ -255,7 +293,7 @@ def paths_in_segment(tokens):
 
 # ------------------------------------------------------------ shell rules
 
-FUZZY = re.compile(r"[*?\[$]")
+FUZZY = re.compile(r"[*?\[${]")
 
 
 def lit_rel(tok, cwd, root):
@@ -325,6 +363,13 @@ def flag_letters(flags):
     return letters
 
 
+SAFE_GIT_C = re.compile(r"^(user\.|core\.quotepath$|color\.|log\.|diff\.renames$|commit\.gpgsign$)")
+GIT_ENV_BLOCKED = re.compile(r"^(GIT_CONFIG|GIT_DIR=|GIT_WORK_TREE=|GIT_SSH|GIT_EXEC_PATH=|"
+                             r"GIT_INDEX_FILE=|GIT_COMMON_DIR=|GIT_PAGER=|GIT_EDITOR=)", re.I)
+GIT_READ_CONFIG = {"--get", "--get-all", "--get-regexp", "--get-urlmatch", "--list", "-l",
+                   "--show-origin", "--show-scope", "--get-color", "--get-colorbool"}
+
+
 def check_git(args, cwd, root):
     a = list(args)
     while a and a[0].startswith("-"):
@@ -334,13 +379,24 @@ def check_git(args, cwd, root):
             value = a.pop(0)
         elif opt.startswith("-c") and len(opt) > 2:
             value = opt[2:]
-        elif opt.startswith("--config-env="):
+        elif opt.startswith("--config-env=") or opt.startswith("--git-dir=") \
+                or opt.startswith("--work-tree="):
             value = opt.split("=", 1)[1]
-        if opt.startswith("-c") or opt.startswith("--config-env"):
-            key = (value or "").split("=", 1)[0].lower()
-            if re.match(r"^(alias\.|core\.(sshcommand|hookspath|fsmonitor|pager|editor)|url\.)", key):
-                raise Block("git -c with an alias or command-running setting can run "
-                            "any command (hard stop c).")
+        if opt == "-C" and value is not None:
+            if FUZZY.search(value):
+                raise Block("git -C with a glob or variable cannot be checked.")
+            if rel_to_root(value, cwd, root) is None:
+                raise Block(f"git -C '{value}' points outside the vault.")
+            cwd = os.path.join(cwd, os.path.expanduser(value))
+        elif opt.startswith(("--git-dir", "--work-tree")) and value is not None:
+            if rel_to_root(value, cwd, root) is None:
+                raise Block(f"git {opt.split('=')[0]} points outside the vault.")
+        elif opt == "-c" or opt.startswith("-c") or opt.startswith("--config-env"):
+            key = (value or "").split("=", 1)[0]
+            if not SAFE_GIT_C.match(key.lower()):
+                raise Block(f"git -c {key or '...'} is not on the short allowlist (user.*, "
+                            "core.quotepath, color.*, log.*, diff.renames, commit.gpgsign); "
+                            "other settings can run commands (hard stop c).")
     if not a:
         return
     sub, rest = a[0].lower(), a[1:]
@@ -351,8 +407,10 @@ def check_git(args, cwd, root):
             sub == "svn" and "dcommit" in rest):
         raise Block(f"git {sub} sends the vault out (hard stop a). The agent never "
                     "pushes or sends.")
-    if sub == "config" and any(x.lower().startswith("alias.") for x in rest):
-        raise Block("defining a git alias can hide a push or delete (hard stop c).")
+    if sub == "config" and not (set(x.lower() for x in rest) & GIT_READ_CONFIG
+                                or any(x.lower().startswith("--get") for x in rest)):
+        raise Block("git config may only read (--get, --list, --show-origin); writing "
+                    "settings can define aliases or hooks (hard stop c).")
     if sub == "remote" and pos and pos[0].lower() in {"add", "set-url"}:
         raise Block("adding or repointing a git remote (hard stop a).")
     if sub == "reset" and ("--hard" in flags or "--merge" in flags):
@@ -373,6 +431,8 @@ def check_git(args, cwd, root):
         if any(f.startswith("--pathspec-") for f in flags):
             raise Block("--pathspec-from-file hides the paths being staged (rail 5).")
     if sub == "commit":
+        if "n" in letters or "--no-verify" in flags:
+            raise Block("git commit --no-verify skips hooks (hard stop c).")
         if "a" in letters or "--all" in flags:
             raise Block("git commit -a stages every tracked change; stage the "
                         "run's own paths by name (rail 5).")
@@ -396,20 +456,39 @@ def check_git(args, cwd, root):
         check_move("git mv", pos, [], cwd, root, is_move=True)
 
 
+PS_PARAMS = ("method", "body", "infile")
+
+
+def ps_param(f):
+    """Canonical PowerShell web parameter for a flag, allowing unambiguous prefixes
+    (-Me, -Bod); None for anything else."""
+    key = f.lower().split(":", 1)[0]
+    if not key.startswith("-") or key.startswith("--") or len(key) < 3:
+        return None
+    key = key[1:]
+    for p in PS_PARAMS:
+        if p.startswith(key):
+            return p
+    return "form" if key == "form" else None
+
+
 def check_net(name, args):
     low = [x.lower() for x in args]
     if name in WEB_CMDS:  # PowerShell Invoke-WebRequest / Invoke-RestMethod and aliases
-        for i, f in enumerate(low):
-            key = f.split(":", 1)[0]
-            if key in {"-body", "-infile", "-form"}:
-                raise Block(f"{name} {key} uploads data (hard stop b).")
-            if key == "-method":
-                val = f.split(":", 1)[1] if ":" in f else (low[i + 1] if i + 1 < len(low) else "")
+        for i, f in enumerate(args):
+            p = ps_param(f)
+            if p in {"body", "infile", "form"}:
+                raise Block(f"{name} -{p} uploads data (hard stop b).")
+            if p == "method":
+                val = f.split(":", 1)[1].lower() if ":" in f else (
+                    low[i + 1] if i + 1 < len(low) else "")
                 if val not in {"get", "head"}:
                     raise Block(f"{name} with a non-GET method (hard stop b).")
     if name == "curl":
         for i, f in enumerate(args):
-            if f.lower().lstrip("-") in PS_WEB_FLAGS:
+            # PowerShell-style single-dash words (-Headers, -OutFile) are not curl clusters
+            if (f.startswith("-") and not f.startswith("--")
+                    and f[1:].lower() in PS_WEB_FLAGS and len(f) > 3):
                 continue
             if f.startswith("--"):
                 key = f.split("=", 1)[0].lower()
@@ -539,7 +618,7 @@ def check_move(name, pos, args, cwd, root, is_move):
 def decode_ps(b64):
     import base64
     try:
-        return base64.b64decode(b64).decode("utf-16-le")
+        return base64.b64decode(b64, validate=True).decode("utf-16-le")
     except (ValueError, UnicodeDecodeError):
         raise Block("could not decode a PowerShell -EncodedCommand; refusing.")
 
@@ -570,12 +649,16 @@ def nested_script(name, args):
 def check_segment(tokens, cwd, root, depth):
     for target in redirect_targets(tokens):
         check_path("Bash", target, {}, cwd, root)
-    t = strip_prefix(tokens)
+    t, assigns = strip_prefix_ex(tokens)
     if not t:
         return
     name = cmd_name(t)
     args = t[1:]
     pos = paths_in_segment(t)
+    if (name == "git" or name.startswith("git-")) and any(
+            GIT_ENV_BLOCKED.match(x) for x in assigns):
+        raise Block("GIT_CONFIG*, GIT_DIR, GIT_WORK_TREE, GIT_SSH* and GIT_EXEC_PATH "
+                    "change what git runs or where; not allowed (hard stop c).")
 
     if name.startswith("git-") and name[4:] in {"push", "send-pack", "imap-send",
                                                 "send-email", "clean", "rm", "rebase"}:
@@ -616,6 +699,9 @@ def check_segment(tokens, cwd, root, depth):
     elif name in MOVE_CMDS:
         check_move(name, positionals(args, {"-t", "--target-directory", "-S", "--suffix"}),
                    args, cwd, root, is_move=True)
+    elif name == "install" and "-d" in args:
+        for p in positionals(args, {"-m", "-o", "-g", "-t", "-S"}):
+            check_path("Bash", p, {}, cwd, root)
     elif name in COPY_CMDS:
         check_move(name, positionals(args, {"-t", "--target-directory", "-S", "--suffix"}),
                    args, cwd, root, is_move=False)
@@ -624,20 +710,43 @@ def check_segment(tokens, cwd, root, depth):
             check_path("Bash", p.split("=", 1)[-1], {}, cwd, root)
 
 
-CD_CMDS = {"cd", "pushd", "chdir", "set-location", "sl"}
+CD_CMDS = {"cd", "pushd", "chdir", "set-location", "sl", "popd"}
 
 
-def check_shell(cmd, cwd, root, depth=0):
+def next_cwds(cwds, seg):
+    """Candidate working directories after a segment. The original directory stays in
+    the list (a cd may sit in a subshell or be undone), a followable cd adds its
+    target, and one that cannot be followed (cd -, popd, a variable) adds None,
+    meaning relative paths can no longer be resolved."""
+    t = strip_prefix(seg)
+    if not t or cmd_name(t) not in CD_CMDS:
+        return cwds
+    name, args = cmd_name(t), t[1:]
+    pos = paths_in_segment(t)
+    out = list(cwds)
+    if name == "popd" or "-" in args or (pos and FUZZY.search(pos[0])) or (
+            not pos and name == "pushd"):
+        new = [None]
+    elif not pos:
+        new = [os.path.expanduser("~")]
+    else:
+        new = [os.path.join(c, os.path.expanduser(pos[0])) for c in cwds if c is not None]
+    for n in new:
+        if n not in out:
+            out.append(n)
+    return out[:16]
+
+
+def check_shell(cmd, cwds, root, depth=0):
+    if not isinstance(cwds, list):
+        cwds = [cwds]
     for inner in inner_strings(cmd):
         if depth < 3:
-            check_shell(inner, cwd, root, depth + 1)
+            check_shell(inner, cwds, root, depth + 1)
     for seg in split_commands(cmd):
-        check_segment(seg, cwd, root, depth)
-        t = strip_prefix(seg)
-        if t and cmd_name(t) in CD_CMDS:
-            p = paths_in_segment(t)
-            if p and not FUZZY.search(p[0]) and p[0] != "-":
-                cwd = os.path.join(cwd, os.path.expanduser(p[0]))
+        for c in cwds:
+            check_segment(seg, c, root, depth)
+        cwds = next_cwds(cwds, seg)
 
 
 # ------------------------------------------------------------------- main

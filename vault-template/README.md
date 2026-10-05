@@ -60,9 +60,9 @@ are copied with the template into `.claude/`:
 | Never delete (`rm`, `rmdir`, `unlink`, `git rm`, `find -delete`, `git clean`) | deny rules and hook | Deleting from inside a script the agent runs |
 | Moves and copies stay in the vault and never clobber protected paths | hook (`mv`, `cp`, `git mv`, `install`, `ln`, PowerShell equivalents) | |
 | Writing to connected services (a) | deny rules on MCP tool names | Connectors whose tool names do not match, and MCP file tools (Obsidian REST and similar) whose names the patterns miss |
-| Sending vault content out (b) | deny rules and hook for curl, wget and PowerShell web uploads; ask for WebFetch, WebSearch, curl, wget | What goes into a search query or a read |
+| Sending vault content out (b) | deny rules and hook for curl, wget and PowerShell web uploads; ask for WebFetch, WebSearch, curl, wget | What goes into a search query or a read, and other upload routes: `scp`, `rsync` to a host, `ssh`, `nc`, `gh api` and `gh gist`, and Python, Node or other one-liners that open a socket |
 | `raw/` is append-only | hook (new files allowed, existing files and folders cannot be changed, moved or renamed) | |
-| `journal/`, `scripts/` and `.claude/` are yours | deny rules and hook | |
+| `journal/`, `scripts/`, `.claude/` and `.gitignore` are yours | deny rules and hook | |
 | `CLAUDE.md` only changes in Profile (e) | hook; ask rule | Schedule prompts, which live outside the vault |
 | `raw/workspace/` never staged | hook (also blocks `git add -A`, `.`, the vault root, `raw`, `-f`, `commit -a`) | |
 | Checkpoint, log, report, queue, run commit | | All of it; the Stop hook only warns about uncommitted paths |
@@ -80,7 +80,13 @@ deletes files itself is not seen; for that, turn on Claude Code's sandbox.
 PowerShell coverage is partial: the hook knows the common cmdlets
 (`Remove-Item`, `Move-Item`, `Rename-Item`, `Set-Content`, `Out-File`,
 `Invoke-WebRequest` and friends), `cmd /c` and `-EncodedCommand`, but not every
-way to write a file. `scripts/` is owner-maintained so the agent cannot write a
+way to write a file. The shell parser is also conservative about things it cannot
+resolve: a path with a glob, a brace list or a variable that could reach a
+protected folder is refused (so `git mv wiki/{a,b}.md archive/` is blocked: name
+each file), and after a `cd` it cannot follow (`cd -`, `cd $DIR`, `popd`),
+relative paths are refused until the command uses absolute or vault-root paths.
+`git -c` only accepts a short allowlist of harmless settings, `git config` only
+reads, and `git -C` must stay inside the vault. `scripts/` is owner-maintained so the agent cannot write a
 script and then run it under the `python3 scripts/*.py` allow rule.
 
 **Connector names.** The MCP deny rules match tool names by pattern
@@ -100,13 +106,17 @@ refuses to move files out of the vault or over an existing page. `git restore`
 and `git checkout` ask first, so a scheduled run cannot use them; rollback is
 live-only anyway. `git revert --abort` is denied; use `git revert --quit`.
 
-**Scheduled runs.** A headless run (`claude -p`, or a scheduled task) has nobody
-to answer a prompt, so anything that would ask is refused. In the default
-permission mode that includes every page write. Start scheduled runs with
+**Scheduled runs.** A headless run (`claude -p`) has nobody to answer a prompt,
+so anything that would ask is refused. In the default permission mode that
+includes every page write. Start scheduled runs with
 `--permission-mode acceptEdits` (or set `permissions.defaultMode` to
-`acceptEdits` in `.claude/settings.json`), or add `Edit` and `Write` allow rules
-for `wiki/`, `output/` and `archive/`. `acceptEdits` also auto-approves `mv` and
-`cp` inside the vault; the hook still blocks the harmful forms. The ask rules
+`acceptEdits` in `.claude/settings.json`), or add `Edit(/wiki/**)`,
+`Edit(/output/**)` and `Edit(/archive/**)` allow rules. Write them as `Edit`
+rules: Claude Code never consults a path rule written for `Write`. In
+`acceptEdits` mode Claude Code also auto-approves `rm`, `rmdir`, `sed`, `touch`,
+`mkdir`, `mv` and `cp` for paths inside the vault, which is why the deny rules
+and the hook matter in that mode: the hook is what stops a `mv` out of the vault
+or a `sed -i` on a `raw/` file. The ask rules
 (CLAUDE.md edits, web access, `git checkout`, `git restore`) are refused in a
 scheduled run, which is what you want. See the
 [permission modes](https://code.claude.com/docs/en/permission-modes) page.
