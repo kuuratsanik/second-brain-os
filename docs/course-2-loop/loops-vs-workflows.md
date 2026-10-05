@@ -7,7 +7,7 @@ A workflow is a sequence you wrote in advance: step one, step two, step three, d
 That is the entire distinction. In a workflow, you chose every step at design time; the code merely replays your decisions, and the same input takes the same path every run. In a loop, the model chooses at run time, so two runs of the same input can take different paths — which is the point, and also the problem. The Google whitepaper frames it as the developer moving from bricklayer to director: you stop laying each step and instead set the goal, pick the tools, and let the system route itself. Directing costs more than bricklaying, and it is harder to audit.
 
 
-![](fig-workflow-vs-loop.svg)
+![Two diagrams. In a workflow you chose every step, from step 1 to step 2. In a loop the model chooses: think, act, observe, decide.](fig-workflow-vs-loop.svg)
 
 ## When each wins
 

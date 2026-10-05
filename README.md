@@ -15,7 +15,7 @@ nothing to install beyond Obsidian and an agent.
 
 Three things live here — pick your entrance:
 
-- **[The second-brain guide](#the-guide)** — a path you follow once: build a knowledge base an agent maintains for you. 65 pages, a starter vault, 18 skills.
+- **[The second-brain guide](#the-guide)** — a path you follow once: build a knowledge base an agent maintains for you. 65 pages, a starter vault, 24 skills.
 - **[The agents course](#the-agents-course)** — a path you read in order: seven modules from a single prompt to a production agent, with [tools you install in two commands](plugins/README.md).
 - **[The handbooks](#the-handbooks)** — not a path, references: the full menu of techniques, tools and builds for one layer. Open one when that layer starts hurting.
 
@@ -50,7 +50,7 @@ rm ~/brain/.claude/*/README.md ~/brain/scripts/README.md
 cd ~/brain
 git init
 git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw \
-  .claude/skills .claude/commands .claude/agents scripts
+  .claude/settings.json .claude/hooks .claude/skills .claude/commands .claude/agents scripts
 git commit -m "Initial vault"
 
 claude
@@ -62,8 +62,12 @@ commit per run, and the agent will not run `git init` for you or touch a parent
 repository. The `.gitignore` in the template already keeps `raw/workspace/`
 (email, chat, docs, calendar) and editor state out of git, and the first commit
 names its paths instead of using `git add .` so nothing unreviewed goes in. It
-includes `.claude/` (skills, commands, agents) and `scripts/`: the vault's agent
-setup is worth versioning, and a revert then covers it too. `raw` is included so
+includes `.claude/` (settings, hooks, skills, commands, agents) and `scripts/`: the
+vault's agent setup is worth versioning, and a revert then covers it too. The
+template's `.claude/settings.json` and `.claude/hooks/guard.py` are what turn
+some of the rules in `CLAUDE.md` into enforced ones. They arrive with the
+`vault-template` copy, and the later `cp` commands add to `.claude/` without
+replacing them. See [what is enforced](vault-template/README.md#what-is-enforced-and-what-is-not). `raw` is included so
 the empty subfolders are tracked; `raw/workspace/` stays ignored.
 
 The `scripts/` copy is what lets `/metrics`, `/health` and `/graph-export` run
@@ -128,8 +132,8 @@ them separate matters more than it sounds.
 | [`docs/course-*/`](docs/course-0-map/README.md) | The agents course: seven modules, prompt to production |
 | [`docs/track-*/`](docs/track-graph/README.md) | Five handbooks on the wider craft: graphs, Jev, harnesses, loops, evals |
 | [`vault-template/`](vault-template/) | An opinionated starter vault, tuned for an agent that works without asking first, for several domains (work, learning, personal, creative, self-improvement, systems) and for notes in more than one language. It ships with no personal facts: the [CLAUDE.md interview](docs/02-setup/claude-md.md) fills in your profile |
-| [`skills/`](skills/README.md) | 18 agent skills, one per workflow in the guide |
-| [`commands/`](commands/README.md) | 72 slash commands, scoped entry points into those skills |
+| [`skills/`](skills/README.md) | 24 agent skills, one per workflow in the guide |
+| [`commands/`](commands/README.md) | 72 slash commands, scoped entry points into those skills. The scheduling command is `/maintenance-schedule`, so it does not shadow Claude Code's built-in `/schedule` |
 | [`agents/`](agents/README.md) | 6 subagents, four of them read-only by design |
 | [`plugins/`](plugins/README.md) | Claude Code plugins — the course's tools, installable in two commands |
 | [`scripts/`](scripts/README.md) | Dependency-free Python for link checking, stats and graph export |
@@ -282,7 +286,7 @@ Outside Obsidian: [Web Clipper](https://obsidian.md/clipper) for capture,
 
 ## Skills and other implementations
 
-This repo ships **18 skills, 72 commands, 6 subagents and 4 scripts**: one skill
+This repo ships **24 skills, 72 commands, 6 subagents and 4 scripts**: one skill
 per workflow in the guide, and a command for every scoped version of it you would
 actually run.
 

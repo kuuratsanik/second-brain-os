@@ -31,7 +31,7 @@ The single highest-leverage piece of infrastructure is a gateway — one choke p
 This is the pattern grown-up stacks converge on: Palantir routes all LLM access through a secure integration layer with token consumption tracking and uniform audit logging, rather than letting each application call providers directly. You do not need Palantir to copy the shape — a 200-line proxy gets you most of it.
 
 
-![](fig-production.svg)
+![Diagram of a production agent: schedule, webhook and API call triggers all feed one gateway that masks, caches, retries and counts, then one agent with its tools, with a trace of every run. One agent sits behind every trigger, and evals gate each change.](fig-production.svg)
 
 ## The path the whitepaper draws
 

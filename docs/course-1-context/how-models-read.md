@@ -9,7 +9,7 @@ In [Lost in the Middle](https://arxiv.org/abs/2307.03172) (Liu et al., 2023), mo
 The same U-shaped curve held across GPT-3.5-Turbo (4K and 16K), Claude 1.3 (including the 100K variant), MPT-30B-Instruct and LongChat-13B, and across piles of 10, 20 and 30 documents. Models attend strongly to the start of the window (primacy) and to the end (recency), and weakly to everything between. Newer models flatten the curve; none has removed it. Google's whitepaper [Context Engineering: Sessions & Memory](https://www.kaggle.com/whitepaper-context-engineering-sessions-and-memory) (Milam and Gulli, November 2025) calls the broader failure "context rot": as context grows, the model's ability to pay attention to critical information diminishes.
 
 
-![](fig-lost-middle.svg)
+![Chart of accuracy by position of the relevant document in the window. Accuracy is highest at the start, dips lowest in the middle and recovers partly at the end. A reference line marks accuracy with no documents at all.](fig-lost-middle.svg)
 
 ## Every token costs four ways
 

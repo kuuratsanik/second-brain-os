@@ -3,7 +3,7 @@
 The previous modules built an agent that plans, calls tools, and edits your vault. This one is about knowing whether it works — before your users tell you. Everything in agent evaluation rests on one distinction: checks on the outcome versus checks on the behaviour. You need both, and they answer different questions.
 
 
-![](fig-two-checks.svg)
+![Diagram of one agent run with four steps: get_order, ask_approval, refund and reply. Behavioural checks read the steps: it looked up first and asked before acting. The end-to-end check reads only the result: the right outcome.](fig-two-checks.svg)
 
 ## End-to-end checks
 

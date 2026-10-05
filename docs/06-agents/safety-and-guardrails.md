@@ -41,6 +41,39 @@ the index, the log or anything in `wiki/systems/`. Imports that would have
 dropped material (a chat export's "delete" pile, for instance) skip it and
 record it instead.
 
+## A worked example: settings and a hook
+
+The [vault template](../../vault-template/README.md#what-is-enforced-and-what-is-not)
+ships two files that turn some of its rules into boundaries. Both are copied
+into the vault's `.claude/` folder.
+
+- **`.claude/settings.json`** holds permission rules in three lists, `deny`,
+  `ask` and `allow`. A deny rule wins over an ask rule, and an ask rule over an
+  allow rule. The syntax is in the
+  [permissions documentation](https://code.claude.com/docs/en/permissions).
+- **`.claude/hooks/guard.py`** is a PreToolUse hook. Claude Code runs it before
+  each file edit or shell command, and exit code 2 blocks the call. The protocol
+  is in the [hooks documentation](https://code.claude.com/docs/en/hooks). The
+  hook exists because permission rules cannot say "existing files only", which
+  the append-only `raw/` folder needs.
+
+What this enforces, per the template's own table: no push, remote change or
+hard reset; no `rm`, `git rm`, `git clean` or `find -delete`; no writes to
+`journal/`; no changes to existing files in `raw/`; `CLAUDE.md` editable only
+in its Profile block; no staging of `raw/workspace/`; and, by tool-name
+pattern, no writes through connected services.
+
+What stays at the prompt level: the checkpoint, the log entry, the report and
+the queue, secrets, and merging people. Neither layer reads a script's insides,
+so a Python file the agent writes and runs can still delete things. Both layers
+also depend on not running in `bypassPermissions` mode, and for operating-system
+enforcement you would turn on Claude Code's sandbox. Check the connector
+patterns against the tool names your own connectors expose, because they differ
+by server.
+
+The rest of this page is the prompt level. It still matters, but it sits on top
+of these boundaries and does not replace them.
+
 ## Git is the real safety net
 
 Every guardrail above is preventive. Git is what saves you when one fails.

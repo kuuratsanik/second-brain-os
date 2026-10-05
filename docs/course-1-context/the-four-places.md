@@ -3,7 +3,7 @@
 [How models read](how-models-read.md) established the physics: attention favours the start and end of the window, every token costs, and caching only pays when the prefix never moves. The discipline that follows is simple to state. Every piece of context belongs in exactly one of four places, and most agent problems trace back to something sitting in the wrong one.
 
 
-![](fig-four-places.svg)
+![Diagram of the context window in order: a byte-stable system prompt, a frozen tool set, history that grows and compacts, the goal, then a tail. Files on disk sit outside the window, and only their paths enter.](fig-four-places.svg)
 
 ## One: the system prompt
 

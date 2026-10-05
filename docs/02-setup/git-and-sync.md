@@ -10,16 +10,21 @@ made is a diff you can read and revert in one command.
 cd ~/brain
 git init
 git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw \
-  .claude/skills .claude/commands .claude/agents scripts
+  .claude/settings.json .claude/hooks .claude/skills .claude/commands .claude/agents scripts
 git commit -m "Initial vault"
 ```
 
 The vault must be its own repository, not a folder inside another one. The
 [vault template](../../vault-template/README.md) uses the explicit-path first
 commit above instead of `git add .`, so nothing you have not looked at is
-committed. It includes `.claude/` (skills, commands, agents) and `scripts/`, the
+committed. It includes `.claude/` (settings, hooks, skills, commands, agents) and `scripts/`, the
 vault's agent setup, which is worth versioning so a revert covers it too. `raw`
 is included so the empty subfolders are tracked.
+
+The template's `.claude/settings.json` and `.claude/hooks/guard.py` block pushes,
+file deletion and edits to `raw/` and `journal/` before they run; commit them so
+a revert restores them too. See
+[what is enforced](../../vault-template/README.md#what-is-enforced-and-what-is-not).
 
 The template's `.gitignore` already covers the list below plus `raw/workspace/`,
 where email, chat, docs and calendar pulls land. Its agent will

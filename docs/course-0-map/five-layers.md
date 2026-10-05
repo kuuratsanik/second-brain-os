@@ -5,7 +5,7 @@ Think of an agent as a new employee on his first day. He is bright, fast, and kn
 The field talks about these layers as if they were rival schools: context engineering, loop engineering, JEV engineering, harness engineering, eval engineering. Five buzzwords, five conference tracks, five people telling you the other four are hype. They are not competing approaches. They are five layers of one system, and each answers one question: what it sees, who decides, who sorts, what it can reach, how you know.
 
 
-![](fig-five-layers.svg)
+![Diagram of five layers around a model: the gate, the harness (tools, keys, sandbox), context (what it sees) and the loop (who decides next), with evals running the same test after every change.](fig-five-layers.svg)
 
 ## Context: what it sees
 

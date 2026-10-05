@@ -3,7 +3,7 @@
 Every loop that survives production has the same four parts: a goal with a testable definition of done, a checker that lives outside the model, a stop rule, and a budget counted in both turns and dollars. Remove any one and you have not simplified the loop; you have removed its brakes. This page takes each part in depth, then annotates the canonical skeleton.
 
 
-![](fig-four-parts.svg)
+![Diagram of a loop with a goal and a definition of done. The agent acts and a checker tests the result: pass ends the loop, fail retries unless it is stuck or over budget, in which case it falls back to a workflow. The checker lives outside the model.](fig-four-parts.svg)
 
 ## A goal with a testable done
 

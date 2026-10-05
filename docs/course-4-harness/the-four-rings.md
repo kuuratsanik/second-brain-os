@@ -3,7 +3,7 @@
 Build the harness from the outside in: containment, guides, sensors, permissions. The order matters because each ring must hold when every ring inside it fails. A guide can be ignored, a sensor can miss, an approval can be misclicked; a wall does not care. So the outermost ring goes up before the first prompt is written.
 
 
-![](fig-four-rings.svg)
+![Nested boxes around the model, from outside in: containment (what it cannot reach at all), guides (AGENTS.md, tool descriptions), sensors (tests, linters, review) and permissions (approval for the irreversible).](fig-four-rings.svg)
 
 ## Ring one: containment
 

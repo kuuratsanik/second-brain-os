@@ -9,7 +9,7 @@ The whitepaper names four components. The model is the brain: the reasoning engi
 The loop is the part people underestimate. The paper describes a think–act–observe cycle: the agent receives a mission, surveys what it has, plans a step, takes it, looks at what happened, and goes round again until the goal is met. Strip away the branding and an agent is a loop that keeps rebuilding the model's context between steps.
 
 
-![](fig-agent-loop.svg)
+![Diagram of the agent loop: a request goes to the model, which calls tools and gets results back, repeating until the goal is met, then returns an answer.](fig-agent-loop.svg)
 
 ## Five levels of agency
 

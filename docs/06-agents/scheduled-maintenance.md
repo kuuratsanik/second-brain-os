@@ -69,6 +69,34 @@ From a terminal, `cron` or Task Scheduler calling Claude Code headless works the
 same way, and is the better option if you want the run inside a git commit
 automatically.
 
+### Let the skill propose it
+
+The `second-brain-schedule` skill, or the `/maintenance-schedule` command that
+points at it, reads your vault and proposes the jobs, cadence, where each should
+run and the exact prompt for each. It proposes only; you create the tasks. The
+command is not called `/schedule` because that would shadow Claude Code's
+built-in `/schedule`, which creates cloud routines.
+
+### Why not cloud for a template vault
+
+A cloud routine runs on a fresh clone of a GitHub repository, per Anthropic's
+[routines documentation](https://code.claude.com/docs/en/routines). For a vault
+that means four things:
+
+- It cannot see git-ignored folders, so `raw/workspace/` (email, chat, docs and
+  calendar pulls) is absent.
+- It pushes its changes to `claude/` branches by default, so the run commit
+  does not reach your local history until you merge that branch. The template
+  treats pushing as a hard stop.
+- The account's connectors are available by default, and a connector that can
+  write will write without asking. The template treats writing to a connected
+  service as a hard stop.
+- It runs without permission prompts.
+
+For a vault that follows the template, use Desktop scheduled tasks or headless
+Claude Code, which see your local files and your `.claude/settings.json`. These
+features change, so check the documentation before relying on any of it.
+
 ## What a run must produce
 
 Three things, every time.

@@ -15,9 +15,13 @@ vault".
 
 ## What this repo ships
 
-Eighteen skills in [`skills/`](../../skills/README.md), one per workflow in this
-guide. Seventy-two commands in [`commands/`](../../commands/README.md), each a
-few lines pointing at a skill and setting its scope.
+Twenty-four skills in [`skills/`](../../skills/README.md), one per workflow in this
+guide. Seventy-two commands in [`commands/`](../../commands/README.md). Most are a
+few lines pointing at a skill and setting its scope; a few (`/audit`,
+`/dry-run`, `/index` and `/scope`) are self-contained and name no skill. The
+scheduling command is `/maintenance-schedule`, which points at
+`second-brain-schedule`. It is not called `/schedule` because that name would
+shadow Claude Code's built-in `/schedule`, which creates cloud routines.
 
 The ratio is deliberate. Behaviour belongs in a small number of well-written
 skills; commands are cheap, so there is no reason to make you remember how to
