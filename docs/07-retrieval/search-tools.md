@@ -10,8 +10,8 @@ rg -i "graph rag" ~/brain --type md -l
 rg -i "supersed" ~/brain -C 2
 ```
 
-Instant on tens of thousands of files. The agent uses it by default when working
-on the filesystem, and for "where did I mention this" it beats every fancier
+Instant on tens of thousands of files. Claude Code's Grep tool is built on it
+([tools reference](https://code.claude.com/docs/en/tools-reference)), and for "where did I mention this" it beats every fancier
 option on both speed and predictability.
 
 Its limit is exact wording. It cannot find the page about a concept you
@@ -19,8 +19,10 @@ described differently, which is what the graph and the index are for.
 
 ## Obsidian search
 
-Fine for interactive use. Operators worth knowing: `path:`, `file:`, `tag:` and
-`line:` for terms co-occurring on the same line, which cuts most false positives.
+Fine for interactive use. Operators worth knowing, from Obsidian's
+[Search](https://help.obsidian.md/plugins/search) help: `path:`, `file:`, `tag:`
+(written `tag:#work`) and `line:`, which matches terms that appear together on
+one line and so cuts false positives.
 
 ## Dataview
 
