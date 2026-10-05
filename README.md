@@ -49,7 +49,7 @@ rm ~/brain/.claude/*/README.md ~/brain/scripts/README.md
 # make the vault its own git repository, once, and commit the template
 cd ~/brain
 git init
-git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw \
+git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw .obsidian \
   .claude/settings.json .claude/hooks .claude/skills .claude/commands .claude/agents scripts
 git commit -m "Initial vault"
 
@@ -62,7 +62,8 @@ commit per run, and the agent will not run `git init` for you or touch a parent
 repository. The `.gitignore` in the template already keeps `raw/workspace/`
 (email, chat, docs, calendar) and editor state out of git, and the first commit
 names its paths instead of using `git add .` so nothing unreviewed goes in. It
-includes `.claude/` (settings, hooks, skills, commands, agents) and `scripts/`: the
+includes `.obsidian/` (the template's Obsidian preset), `.claude/` (settings,
+hooks, skills, commands, agents) and `scripts/`: the
 vault's agent setup is worth versioning, and a revert then covers it too. The
 template's `.claude/settings.json` and `.claude/hooks/guard.py` are what turn
 some of the rules in `CLAUDE.md` into enforced ones. They arrive with the
@@ -280,7 +281,7 @@ Outside Obsidian: [Web Clipper](https://obsidian.md/clipper) for capture,
 [yt-dlp](https://github.com/yt-dlp/yt-dlp) and
 [OCRmyPDF](https://github.com/ocrmypdf/OCRmyPDF) for processing,
 [ripgrep](https://github.com/BurntSushi/ripgrep),
-[NetworkX](https://networkx.org), [Kuzu](https://kuzudb.com) and
+[NetworkX](https://networkx.org), [Kuzu](https://kuzudb.com) (repository archived October 2025) and
 [Gephi](https://gephi.org) for the graph, and
 [Quartz](https://github.com/jackyzha0/quartz) to publish.
 

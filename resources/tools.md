@@ -8,7 +8,7 @@ Everything outside the Obsidian plugin catalog. For plugins, see
 | Tool | What it does |
 |---|---|
 | [Obsidian](https://obsidian.md) | Local markdown editor. The vault is a plain folder, which is why agents work well with it |
-| [Obsidian Web Clipper](https://obsidian.md/clipper) | Official browser extension, saves articles into `raw/`. Uses Mozilla Readability |
+| [Obsidian Web Clipper](https://obsidian.md/clipper) | Official browser extension, saves articles into `raw/`. Uses Defuddle to extract the main content |
 | [Claude Code](https://code.claude.com/docs/en/setup) | The agent that maintains the wiki. Paid account required |
 
 ## Alternative homes for a vault
@@ -58,7 +58,7 @@ file-based approach is too much work.
 |---|---|
 | [ripgrep](https://github.com/BurntSushi/ripgrep) | Fast enough that most vaults never need an index |
 | [NetworkX](https://networkx.org) | Graph analysis once you have exported an edge list |
-| [Kuzu](https://kuzudb.com) | Embedded graph database, no server |
+| [Kuzu](https://kuzudb.com) | Embedded graph database, no server (repository archived October 2025) |
 | [Neo4j](https://neo4j.com) | Full graph database. Overkill unless you build on top |
 | [Gephi](https://gephi.org) | Visual graph exploration beyond Obsidian's view |
 | [txtai](https://github.com/neuml/txtai) | 12,990 stars. Semantic search and LLM workflows, if you decide you need embeddings |
