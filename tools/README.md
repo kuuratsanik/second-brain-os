@@ -53,12 +53,15 @@ Claude Code docs (source URLs are in the script), that skill names match their
 folders and descriptions fit 1,536 characters, that every `second-brain-*` skill
 and `scripts/*.py` a file names exists, that `argument-hint` is set exactly when
 a command uses `$ARGUMENTS`, that `marketplace.json` and each `plugin.json` are
-valid with resolving sources, and that the schedulable list in
+valid with resolving sources, that `vault-template/.claude/settings.json` has
+only known top-level and `permissions` keys (`SETTINGS_KEYS`), well-formed
+hooks with valid event names (`HOOK_EVENTS`), no rule in two lists, and
+existing `${CLAUDE_PROJECT_DIR}/...` hook paths, and that the schedulable list in
 `commands/README.md` equals the commands without `disable-model-invocation:
 true`. It reports `path:line: message` and exits 1 on any problem. It never edits
 anything. Run `python3 tools/check_kit.py` and `python3 tools/check_kit.py
---selftest`; when the Claude Code docs add a frontmatter field, update the key
-sets at the top of the script.
+--selftest`; when the Claude Code docs add a frontmatter field, a settings key
+or a hook event, update the key sets at the top of the script.
 
 `tests/` holds `unittest` tests for the four vault scripts, using a fixture vault
 built in a temp dir (CRLF and BOM files, aliases, piped links, skip folders and

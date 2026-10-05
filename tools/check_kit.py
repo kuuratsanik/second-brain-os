@@ -121,7 +121,24 @@ HOOK_EVENTS = set("""
     WorktreeRemove PreCompact PostCompact PreModelSwitch PostModelSwitch
     Elicitation ElicitationResult SessionEnd
 """.split())
-PROJECT_DIR_REF = re.compile(r"\$\{?CLAUDE_PROJECT_DIR\}?[/\\]([^\s\"']+)")
+PROJECT_DIR_REF = re.compile(r"\$\{?CLAUDE_PROJECT_DIR\}?[\"']?[/\\]([^\s\"']+)")
+
+# Source: https://code.claude.com/docs/en/settings (permissions keys).
+PERMISSION_KEYS = {"allow", "ask", "deny", "defaultMode", "disableBypassPermissionsMode",
+                   "disableAutoMode", "additionalDirectories"}
+# Source: https://code.claude.com/docs/en/hooks. These events ignore `matcher`.
+NO_MATCHER_EVENTS = {"UserPromptSubmit", "PostToolBatch", "Stop", "CwdChanged", "MessageDisplay",
+                     "TaskCreated", "TaskCompleted", "WorktreeCreate", "WorktreeRemove",
+                     "TeammateIdle"}
+# Source: https://code.claude.com/docs/en/hooks (handler fields by type).
+HOOK_COMMON = {"type", "if", "timeout", "statusMessage", "once"}
+HOOK_TYPE_KEYS = {
+    "command": HOOK_COMMON | {"command", "args", "async", "asyncRewake", "shell"},
+    "http": HOOK_COMMON | {"url", "headers", "allowedEnvVars"},
+    "mcp_tool": HOOK_COMMON | {"server", "tool", "input"},
+    "prompt": HOOK_COMMON | {"prompt", "model"},
+    "agent": HOOK_COMMON | {"prompt", "model"},
+}
 
 
 def _closing_quote(val):
@@ -432,12 +449,20 @@ class Checker:
         if not isinstance(perms, dict):
             self.err(path, line_of('"permissions"'), "'permissions' must be an object")
             perms = {}
+        for key in perms:
+            if key not in PERMISSION_KEYS:
+                self.err(path, line_of(json.dumps(key)), f"unknown permissions key '{key}'")
         for kind in ("allow", "ask", "deny"):
             val = perms.get(kind, [])
             if not isinstance(val, list) or not all(isinstance(x, str) for x in val):
                 self.err(path, line_of(f'"{kind}"'), f"permissions.{kind} must be a list of strings")
-            else:
-                rules[kind] = val
+                continue
+            rules[kind] = val
+            seen = set()
+            for rule in val:
+                if rule in seen:
+                    self.err(path, line_of(json.dumps(rule)), f"rule {rule!r} is repeated in {kind}")
+                seen.add(rule)
         for a, b in (("allow", "deny"), ("ask", "deny"), ("allow", "ask")):
             for rule in sorted(set(rules.get(a, [])) & set(rules.get(b, []))):
                 self.err(path, line_of(json.dumps(rule)), f"rule {rule!r} is in both {a} and {b}")
@@ -446,22 +471,53 @@ class Checker:
             self.err(path, line_of('"hooks"'), "'hooks' must be an object")
             return
         for event, groups in hooks.items():
+            eline = line_of(json.dumps(event))
             if event not in HOOK_EVENTS:
-                self.err(path, line_of(json.dumps(event)), f"unknown hook event '{event}'")
+                self.err(path, eline, f"unknown hook event '{event}'")
             if not isinstance(groups, list):
-                self.err(path, line_of(json.dumps(event)), f"hooks.{event} must be a list")
+                self.err(path, eline, f"hooks.{event} must be a list")
                 continue
             for g in groups:
-                for h in (g.get("hooks", []) if isinstance(g, dict) else []):
-                    if not isinstance(h, dict):
-                        continue
-                    strings = [h.get("command")] + (h.get("args") if isinstance(h.get("args"), list) else [])
-                    for sv in strings:
-                        for m in PROJECT_DIR_REF.finditer(sv if isinstance(sv, str) else ""):
-                            rel = m.group(1)
-                            if not (self.root / "vault-template" / rel).is_file():
-                                self.err(path, line_of(rel), f"hook path ${{CLAUDE_PROJECT_DIR}}/{rel} "
-                                         "does not exist in vault-template")
+                if not isinstance(g, dict) or not isinstance(g.get("hooks"), list):
+                    self.err(path, eline, f"each hooks.{event} entry must be an object with a 'hooks' list")
+                    continue
+                for k in g:
+                    if k not in ("matcher", "hooks"):
+                        self.err(path, line_of(json.dumps(k)), f"unknown key '{k}' in a hooks.{event} entry")
+                if "matcher" in g:
+                    if not isinstance(g["matcher"], str):
+                        self.err(path, line_of('"matcher"'), "'matcher' must be a string")
+                    elif event in NO_MATCHER_EVENTS:
+                        self.err(path, line_of('"matcher"'), f"{event} ignores 'matcher'")
+                for h in g["hooks"]:
+                    self.check_hook(path, line_of, event, h)
+
+    def check_hook(self, path, line_of, event, h):
+        if not isinstance(h, dict):
+            self.err(path, line_of(json.dumps(event)), "a hook must be an object")
+            return
+        typ = h.get("type")
+        if typ not in HOOK_TYPE_KEYS:
+            self.err(path, line_of('"type"'), f"hook type {typ!r} must be one of {sorted(HOOK_TYPE_KEYS)}")
+            return
+        for k in h:
+            if k not in HOOK_TYPE_KEYS[typ]:
+                self.err(path, line_of(json.dumps(k)), f"unknown key '{k}' for a {typ} hook")
+        if typ == "command" and not isinstance(h.get("command"), str):
+            self.err(path, line_of('"command"'), "a command hook needs a string 'command'")
+        args = h.get("args")
+        if "args" in h and not (isinstance(args, list) and all(isinstance(a, str) for a in args)):
+            self.err(path, line_of('"args"'), "'args' must be a list of strings")
+        t = h.get("timeout")
+        if "timeout" in h and (isinstance(t, bool) or not isinstance(t, (int, float))):
+            self.err(path, line_of('"timeout"'), "'timeout' must be a number")
+        strings = [h.get("command")] + (args if isinstance(args, list) else [])
+        for sv in strings:
+            for m in PROJECT_DIR_REF.finditer(sv if isinstance(sv, str) else ""):
+                rel = m.group(1)
+                if not (self.root / "vault-template" / rel.replace("\\", "/")).is_file():
+                    self.err(path, line_of(json.dumps(rel)[1:-1]),
+                             f"hook path ${{CLAUDE_PROJECT_DIR}}/{rel} does not exist in vault-template")
 
     # ---- driver -----------------------------------------------------------
 
@@ -603,6 +659,21 @@ def selftest():
     case("hook path in command string", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "command", "command": "python3 \\"$CLAUDE_PROJECT_DIR/.claude/hooks/nope.py\\""}]}]}}'}, "hooks/nope.py does not exist")
     case("hook path in command that exists", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "command", "command": "python3 ${CLAUDE_PROJECT_DIR}/.claude/hooks/guard.py"}]}]}}'}, None)
     case("settings missing from vault-template", {ST: None, "vault-template/README.md": "x"}, "missing from vault-template")
+    case("hook group without hooks wrapper", {ST: '{"hooks": {"PreToolUse": [{"matcher": "Bash", "type": "command", "command": "x"}]}}'}, "must be an object with a 'hooks' list")
+    case("args as a string", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "command", "command": "python3", "args": "x.py"}]}]}}'}, "'args' must be a list of strings")
+    case("hook bad type", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "shell", "command": "x"}]}]}}'}, "hook type 'shell'")
+    case("command hook without command", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "command"}]}]}}'}, "needs a string 'command'")
+    case("hook unknown key", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "command", "command": "x", "url": "u"}]}]}}'}, "unknown key 'url' for a command hook")
+    case("hook timeout string", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "command", "command": "x", "timeout": "10"}]}]}}'}, "'timeout' must be a number")
+    case("hook timeout float ok", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "command", "command": "x", "timeout": 2.5}]}]}}'}, None)
+    case("matcher on Stop", {ST: '{"hooks": {"Stop": [{"matcher": "Bash", "hooks": [{"type": "command", "command": "x"}]}]}}'}, "Stop ignores 'matcher'")
+    case("matcher on PreToolUse ok", {ST: '{"hooks": {"PreToolUse": [{"matcher": "Bash", "hooks": [{"type": "command", "command": "x"}]}]}}'}, None)
+    case("matcher not a string", {ST: '{"hooks": {"PreToolUse": [{"matcher": 1, "hooks": []}]}}'}, "'matcher' must be a string")
+    case("unknown permissions key", {ST: '{"permissions": {"alow": []}}'}, "unknown permissions key 'alow'")
+    case("permissions defaultMode ok", {ST: '{"permissions": {"defaultMode": "plan", "additionalDirectories": ["/x"]}}'}, None)
+    case("duplicate rule in a list", {ST: '{"permissions": {"deny": ["Bash(rm *)", "Bash(rm *)"]}}'}, "repeated in deny")
+    case("quoted project dir ref", {ST: '{"hooks": {"Stop": [{"hooks": [{"type": "command", "command": "python3 \\"$CLAUDE_PROJECT_DIR\\"/.claude/hooks/nope.py"}]}]}}'}, "hooks/nope.py does not exist")
+    case("backslash path line", {ST: '{\n"hooks": {"Stop": [{"hooks": [{"type": "command",\n"command": "x", "args": ["${CLAUDE_PROJECT_DIR}\\\\.claude\\\\hooks\\\\nope.py"]}]}]}}'}, "settings.json:3: hook path")
     for f in failures:
         print("FAIL", f)
     print("selftest:", "FAILED" if failures else "ok")
