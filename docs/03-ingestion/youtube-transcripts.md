@@ -38,7 +38,7 @@ Auto-captions have no punctuation, no speaker labels, and mangle technical
 terms. Have the agent do a pass first:
 
 ```
-Read raw/talk-transcript.md. Add punctuation and paragraph breaks, label
+Read raw/youtube/talk-transcript.md. Add punctuation and paragraph breaks, label
 speakers where they change, and fix obvious mistranscriptions of technical
 terms. Do not summarise, do not cut anything, and flag anything you could not
 make sense of.

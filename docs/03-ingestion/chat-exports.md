@@ -40,14 +40,16 @@ Sort into three piles:
   just facts.
 - **Worth keeping, not ingesting.** Leave them in `raw/` as an archive. The
   agent can search them on demand without every one having a wiki page.
-- **Delete.** Debugging sessions, one-off lookups, anything you would be
-  annoyed to find in a search result.
+- **Skip.** Debugging sessions, one-off lookups, anything you would be
+  annoyed to find in a search result. Skipped means not ingested: the file stays
+  in `raw/` and no page is made. The template's agent never deletes from `raw/`,
+  so if a file should not exist at all, remove it yourself.
 
 Have the agent help with the sort rather than doing it by hand:
 
 ```
-Read the titles and first exchange of every file in raw/chats/. Group them into
-worth-ingesting, archive, and delete, with one line of reasoning each. Do not
+Read the titles and first exchange of every file in raw/ai-chats/. Group them
+into worth-ingesting, archive, and skip, with one line of reasoning each. Do not
 move or delete anything, just give me the lists.
 ```
 
@@ -72,9 +74,11 @@ Chat history contains more about you than any other file in the vault: health,
 money, work you cannot discuss, other people's information you happened to
 mention.
 
-Before ingesting, decide what does not belong in the vault at all and delete
-those files from `raw/`. Redaction after the fact is unreliable, because the
-material will already have propagated into concept pages and links.
+Before ingesting, decide what does not belong in the vault at all and remove
+those files from `raw/` yourself, by hand; the template's agent never deletes
+there. Redaction after the fact is unreliable, because the material will already
+have propagated into concept pages and links. If you would rather keep the
+files, leave them in `raw/ai-chats/` and skip them.
 
 If the vault lives in a git repo, keep the remote private. See
 [privacy](../09-maintenance/privacy-and-secrets.md).

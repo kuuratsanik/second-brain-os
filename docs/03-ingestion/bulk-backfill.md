@@ -28,7 +28,7 @@ Ten sources per batch. After each batch: update `index.md`, append to `log.md`,
 commit, report.
 
 ```
-/backfill raw/archive/2024
+/backfill raw/inbox/2024
 ```
 
 The `backfill` command in [`commands/`](../../commands/README.md) works this

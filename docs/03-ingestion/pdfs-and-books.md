@@ -11,7 +11,7 @@ rewriting pages later.
 
 ```bash
 # text, layout preserved reasonably well
-pdftotext -layout paper.pdf raw/paper.md
+pdftotext -layout paper.pdf raw/inbox/paper.md
 ```
 
 For anything structured, `pymupdf` gives better control and can pull images and

@@ -10,7 +10,8 @@ Chrome, Firefox, Safari, Edge, Brave and Arc. It extracts the readable content
 of a page using Mozilla Readability, the same engine behind Firefox Reader View,
 and saves it as markdown straight into your vault.
 
-Install it, open the settings, and set the destination folder to `raw/`.
+Install it, open the settings, and set the destination folder to `raw/clippings/`, which is where the
+[vault template](../../vault-template/raw/README.md) expects web articles.
 
 ## Template
 
