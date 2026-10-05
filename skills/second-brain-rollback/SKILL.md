@@ -48,15 +48,15 @@ force or rewrite history.
    under `raw/`, `journal/` and `output/` that the commit touched, and for the
    log path (`log.md`), so the audit trail survives. List the `raw/`, `journal/`
    and `output/` paths for the owner; they decide what to do with them. If the
-   revert conflicts on a path, keep the clean hunks, restore each conflicted
-   path from HEAD the same way, and list it under "Not reverted". If git still
+   revert conflicts on a path, keep the clean hunks (in other files), restore each
+   conflicted file whole from HEAD the same way, and list it under "Not reverted". If git still
    reports a revert in progress, run `git revert --quit`. Never use
    `git revert --abort` or restore from the run's parent, which would discard
    later changes. `git restore` may prompt for approval in the vault's
    settings; that is expected, because rollback runs only in a live session.
 6. **Log.** Append one line to `log.md`:
    `YYYY-MM-DD rollback run-... (<n> paths; checkpoint <hash>)`.
-7. **Commit by path** with the second-brain-commit rules:
+7. **Stage by path and commit,** following `second-brain-commit`:
    `rollback run-2026-10-05-ingest`, the path list in the body, never `-A`.
 8. **Report.**
 

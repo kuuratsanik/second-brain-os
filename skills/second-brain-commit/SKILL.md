@@ -45,8 +45,11 @@ of this skill.
      queue it.
    A path inside a nested repository (a folder with its own `.git`) is not the
    vault repository's to stage. Report it and leave it.
-4. **Stage by path.** `git add -- <path> <path> ...`. For a moved or archived
-   page, list both the old and the new path, or the deletion is left behind.
+4. **Check the index, then stage by path.** Run `git diff --cached --name-only`
+   first. If it is not empty, the owner staged something: leave it alone, make
+   no commit, and queue it (`wiki/systems/needs-owner.md` if the vault has it,
+   otherwise the report). Then `git add -- <path> <path> ...`. For a moved or
+   archived page, list both the old and the new path, or the deletion is left behind.
 5. **Write the message.** The subject is the run id, `run-YYYY-MM-DD-<job>`,
    for example `run-2026-10-05-ingest`. Use the date the run started and a short
    job name (`ingest`, `link`, `lint`, `review`, `archive`). For a manual
@@ -55,10 +58,12 @@ of this skill.
    line of counts (created, updated, archived). Another skill finds a run's
    commit by that subject, so keep it first.
 6. **Commit the index.** `git commit -m "<message>"`, with no path list and no
-   `-a`. Before it, run `git diff --cached --name-only` and check it is exactly
-   the run's paths: the index must hold nothing else, so unstage anything that
-   is not (`git restore --staged -- <path>`). Committing `-- <path>` would take
-   the working-tree contents and sweep in owner edits made after the run. If it
+   `-a`. Check `git diff --cached --name-only` is exactly the run's paths.
+   Committing `-- <path>` would take the working-tree contents and sweep in
+   owner edits made after the run. Only in a live session, and only as a
+   fallback if something extra got staged, unstage it with
+   `git restore --staged -- <path>`; that may prompt for approval in the vault's
+   settings, which is expected. In a scheduled run, stop and queue instead. If it
    fails (no identity, a hook), report the git error and stop. Do not change git
    config, do not use `--no-verify`, do not amend.
 7. **Report.** Commit hash, path count, `git show --stat` summary, and the
