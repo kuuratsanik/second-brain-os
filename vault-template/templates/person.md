@@ -3,8 +3,9 @@ title:
 type: entity
 kind: person
 domain: []
-lang: en
+lang: en  # ISO 639-1 code
 sensitivity: private
+maintained_by: agent
 created:
 updated:
 aliases: []

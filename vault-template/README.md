@@ -1,28 +1,43 @@
 # vault-template
 
-A starting vault, set up for one owner with six domains: work, learning,
-personal life, creative work, self-improvement and systems. Copy this folder
-somewhere on your machine, open it in Obsidian as a vault, and start Claude Code
-inside it.
+An opinionated starter vault, tuned for an agent that works without asking
+first, for several life and work domains (work, learning, personal, creative,
+self-improvement, systems), and for notes in more than one language. Anyone can
+use it: it ships with no personal facts, and the interview fills in the
+profile. Copy this folder somewhere on your machine, open it in Obsidian as a
+vault, and start Claude Code inside it.
 
 ```bash
 cp -r vault-template ~/brain
 cd ~/brain
+git init
+git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw/README.md
+git commit -m "Initial vault"
 claude
 ```
 
-`CLAUDE.md` is the instruction sheet the agent reads every session. Read it
-before your first run. Its Profile section is empty on purpose: fill it with the
-interview from [the CLAUDE.md guide](../docs/02-setup/claude-md.md) before you
-rely on the agent. The rules are strict about linking and about never
-overwriting a contradiction, because those two are what separate a vault that
-compounds from a folder of summaries.
+Do the git step once. The agent's safety rails (a checkpoint commit before any
+destructive step, one commit per run) need the vault folder to be its own git
+repository. If the vault sits inside another repository, the agent will not
+create one and will queue the problem for you instead.
 
-The template lets the agent work without asking first, and pairs that with
-rails: a git checkpoint before any destructive step, archive instead of delete,
-a change log in `wiki/log.md`, and a hard stop before anything private leaves
-the vault. Read the Autonomy section before you schedule anything. The vault
-must be a git repository for the checkpoints to work.
+`CLAUDE.md` is the instruction sheet the agent reads every session. Read it
+before your first run. Its Profile block is empty on purpose: fill it with the
+interview from [the CLAUDE.md guide](../docs/02-setup/claude-md.md), in a live
+session, before you rely on the agent. The rules are strict about linking and
+about never overwriting a contradiction, because those two are what separate a
+vault that compounds from a folder of summaries.
+
+Read the Autonomy section before you schedule anything. It lets the agent
+ingest, merge and archive on its own, and limits that with rails: a checkpoint
+before destructive steps, archive instead of delete, a change log in
+`wiki/log.md`, and hard stops for writing to connected services, sending
+personal data out, secrets and irreversible steps.
+
+`.gitignore` keeps `raw/workspace/` (email, chat, docs, calendar) and editor
+state out of git. Your journal and meeting transcripts are versioned unless you
+uncomment their lines. Never push this vault to a remote without checking what
+is in it.
 
 ```
 raw/        what arrives, by source: clippings, youtube, meetings, workspace, ai-chats, inbox
@@ -35,5 +50,5 @@ archive/    retired pages, never deleted
 templates/  page templates
 ```
 
-Delete the domains you do not need, and rewrite the language and routing
-sections if your sources differ.
+Delete the domains you do not need, and edit `wiki/systems/routing.md` if your
+sources differ.

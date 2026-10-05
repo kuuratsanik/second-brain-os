@@ -3,8 +3,9 @@ title:
 type: system
 status: draft | active | retired
 domain: [systems]
-lang: en
+lang: en  # ISO 639-1 code
 sensitivity: normal
+maintained_by: human | agent
 created:
 updated:
 origin:

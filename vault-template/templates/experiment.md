@@ -3,8 +3,9 @@ title:
 type: experiment
 status: planned | active | reviewing | adopted | dropped
 domain: [self-improvement]
-lang: en
+lang: en  # ISO 639-1 code
 sensitivity: normal
+maintained_by: agent
 created:
 updated:
 idea:

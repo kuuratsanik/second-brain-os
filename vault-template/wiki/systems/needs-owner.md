@@ -5,22 +5,25 @@ status: active
 domain: [systems]
 lang: en
 sensitivity: normal
-created: 1970-01-01
-updated: 1970-01-01
+maintained_by: agent
+created:
+updated:
 aliases: [Queue for the owner]
 tags: [vault]
 ---
 
 # Needs owner
 
-Items the agent skipped because they hit a hard stop in `CLAUDE.md`: sending
-private data out of the vault, an irreversible step, a secret found in a file,
-a change to the instructions, or an uncertain merge. Scheduled runs cannot ask
-questions, so they write here and carry on.
+Items the agent skipped because they hit a hard stop in `CLAUDE.md`, or because
+git was not ready for a destructive step. Scheduled runs cannot ask questions,
+so they write here and carry on with the rest.
 
 Each entry: date, what, why it stopped, and what the agent needs from the
-owner. The owner resolves an entry by answering it, and the agent then moves
-it to the Done section with the outcome. Nothing is removed from this page.
+owner. Before adding an entry, the agent searches Waiting for the same path or
+item and updates that entry's date instead of adding a second. A checkpoint that
+keeps failing (for example no git identity) is one entry with the git error.
+The owner resolves an entry by answering it; the agent then moves it to Done
+with the outcome. Nothing is removed from this page.
 
 ## Waiting
 

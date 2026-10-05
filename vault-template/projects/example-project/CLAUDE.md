@@ -2,7 +2,7 @@
 
 ## Domain
 
-work | learning | creative | self-improvement | personal. Matches the `domain:` on its wiki pages.
+work | learning | personal | creative | self-improvement | systems. Matches the `domain:` on its wiki pages.
 
 ## What this is
 

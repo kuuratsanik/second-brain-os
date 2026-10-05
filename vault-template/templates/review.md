@@ -3,8 +3,9 @@ title:
 type: review
 scope: experiment | week | month | quarter | year
 domain: [self-improvement]
-lang: en
+lang: en  # ISO 639-1 code
 sensitivity: normal
+maintained_by: agent
 created:
 updated:
 period:

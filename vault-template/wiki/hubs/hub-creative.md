@@ -4,8 +4,9 @@ type: hub
 domain: [creative]
 lang: en
 sensitivity: normal
-created: 1970-01-01
-updated: 1970-01-01
+maintained_by: agent
+created:
+updated:
 aliases: [Creative hub]
 tags: [hub]
 ---

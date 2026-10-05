@@ -1,7 +1,7 @@
 ---
 title: Index
 type: index
-updated: 1970-01-01
+updated:
 ---
 
 # Index
@@ -42,6 +42,8 @@ _Nothing yet._
 
 ## Systems
 
+- [[routing|Routing]]
+- [[self-improvement-lifecycle|Self-improvement lifecycle]]
 - [[vault-operating-notes|Vault operating notes]]
 - [[needs-owner|Needs owner]]
 

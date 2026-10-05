@@ -4,8 +4,9 @@ type: hub
 domain: [systems]
 lang: en
 sensitivity: normal
-created: 1970-01-01
-updated: 1970-01-01
+maintained_by: agent
+created:
+updated:
 aliases: [Systems hub]
 tags: [hub]
 ---
@@ -25,7 +26,10 @@ upcoming reviews here.
 
 ## Pages
 
-_Nothing yet._ The agent links every page in this domain, grouped by type.
+- [[routing|Routing]]
+- [[self-improvement-lifecycle|Self-improvement lifecycle]]
+- [[vault-operating-notes|Vault operating notes]]
+- [[needs-owner|Needs owner]]
 
 ## Gaps
 
