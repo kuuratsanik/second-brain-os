@@ -93,7 +93,7 @@ if __name__ == "__main__":
 
 ## What each part is doing
 
-The API signals its intent through `stop_reason`. While it says `tool_use`, the response contains `tool_use` blocks — each with an `id`, a `name` and a parsed `input` dict. You append the assistant's entire `response.content` back unchanged (current models include thinking blocks that must travel with it), execute every tool call, and return all results as `tool_result` blocks in a single user message, matched by `tool_use_id`. Failures go back too, flagged with `is_error` — a good error message lets the model recover in one turn instead of guessing.
+The API signals its intent through `stop_reason`. While it says `tool_use`, the response contains `tool_use` blocks — each with an `id`, a `name` and a parsed `input` dict. You append the assistant's entire `response.content` back unchanged (current models may include thinking blocks, which Anthropic's [thinking docs](https://platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost) say to pass back unmodified, particularly during tool use), execute every tool call, and return all results as `tool_result` blocks in a single user message, matched by `tool_use_id`. Failures go back too, flagged with `is_error` — a good error message lets the model recover in one turn instead of guessing.
 
 Save it as `agent.py`, run `python agent.py "find the TODO comments in this repo and summarise them"`, and watch the loop go round. Thorsten Ball's tutorial in [resources](resources.md) does the same in Go; seeing it in your own terminal is the point.
 
