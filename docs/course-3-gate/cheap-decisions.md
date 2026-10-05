@@ -25,7 +25,7 @@ Four tools, in rising order of cost and fallibility:
 - **Rules.** Regular expressions, sender allowlists, "has an unsubscribe link". Free, instant, and blind to anything you did not anticipate. Always the first layer, never the last.
 - **A classic classifier.** Logistic regression or similar over TF-IDF features, trained on a few hundred of your own labelled examples. Runs in microseconds on your own machine, costs nothing per call, and its mistakes are inspectable.
 - **A small LLM.** A Haiku-class model prompted to answer with one word. No training data needed and it copes with novelty, but it is the slowest and dearest of the cheap options, and you must parse text to get your answer.
-- **A System One model.** Jev, released in early access by TypeSafe AI in September 2026 ([documentation](https://docs.typesafe.ai/introduction)), is the first of these: typed decisions — yes/no, one of up to 255 options, or a scalar on an ordered scale — each with a confidence score, and no text generation at all. Background in [system one models](../track-jev/system-one-models.md).
+- **A System One model.** Jev, released in waitlisted early access by TypeSafe AI in September 2026 (see [getting started](../track-jev/getting-started.md)), is the first of these: typed decisions — yes/no, one of up to 255 options, or a scalar on an ordered scale — each with a confidence score, and no text generation at all. Background in [system one models](../track-jev/system-one-models.md).
 
 ## Where gates belong
 
