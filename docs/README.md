@@ -2,7 +2,7 @@
 
 Ten sections, ordered the way you would actually build the system: understand the pattern, set it up, feed it, shape it, make the graph work, automate it, query it, get things out of it, keep it alive, and fix it when it breaks.
 
-All ten sections are written. The [roadmap](ROADMAP.md) maps every page in one place, and is where to propose new ones.
+All ten sections are written, and each section index below lists its pages. To propose a new page or a fix, open a pull request following [CONTRIBUTING.md](../CONTRIBUTING.md): every factual claim needs a primary source.
 
 | Section | What it covers |
 |---|---|
