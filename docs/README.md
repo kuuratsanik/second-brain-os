@@ -5,7 +5,7 @@ Ten sections, ordered the way you would actually build the system: understand th
 All ten sections are written. The [roadmap](ROADMAP.md) maps every page in one place, and is where to propose new ones.
 
 | Section | What it covers |
-|---|--- |
+|---|---|
 | [Concepts](01-concepts/README.md) | what the pattern is and why the old note systems died |
 | [Setup](02-setup/README.md) | Obsidian, Claude Code, CLAUDE.md, MCP, projects, git |
 | [Ingestion](03-ingestion/README.md) | articles, video, PDFs, chat exports, voice, backfilling |
@@ -22,7 +22,7 @@ All ten sections are written. The [roadmap](ROADMAP.md) maps every page in one p
 Seven modules, prompt to production, three lessons each.
 
 | Module | Pages |
-|---|--- |
+|---|---|
 | [0 · The map](course-0-map/README.md) | 3 |
 | [1 · Context](course-1-context/README.md) | 3 |
 | [2 · Loop](course-2-loop/README.md) | 3 |
@@ -37,7 +37,7 @@ Separate from the guide: five compact handbooks on the wider craft of building
 with agents, each ending in a hands-on build.
 
 | Handbook | Pages |
-|---|--- |
+|---|---|
 | [Knowledge graphs](track-graph/README.md) | 9 |
 | [Jev engineering](track-jev/README.md) | 8 |
 | [Agent harnesses](track-harness/README.md) | 9 |
