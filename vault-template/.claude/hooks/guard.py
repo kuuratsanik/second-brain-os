@@ -11,11 +11,14 @@ Registered in .claude/settings.json for two events:
 
 What it blocks:
   - changing an existing file under raw/ (new files are allowed)
-  - any write under journal/ or .claude/ (settings, hooks, skills, commands, agents)
+  - any write under journal/, scripts/ or .claude/ (settings, hooks, skills,
+    commands, agents), all owner-maintained
   - CLAUDE.md edits outside the "## Profile" block
   - shell commands that delete files, discard work, push, add remotes,
     rewrite history, upload data with curl or wget, or stage raw/workspace/
-  - shell writes (redirects, tee, sed -i, mv, cp, truncate) to those places
+  - shell writes (redirects, tee, sed -i, mv, cp, git mv, truncate, PowerShell
+    Set-Content and friends) to those places, and moves or copies that leave the
+    vault or clobber protected pages
 
 It is a safety net, not a sandbox. It reads the command text, so a script that
 deletes files from inside (for example `python3 x.py`) is not seen. For
@@ -39,7 +42,22 @@ WRAPPERS = {"sudo", "doas", "command", "builtin", "env", "nohup", "time",
             "exec", "xargs", "nice", "stdbuf", "timeout", "setsid", "ionice"}
 SHELLS = {"sh", "bash", "zsh", "dash", "ksh", "pwsh", "powershell"}
 GIT_OPTS_WITH_VALUE = {"-C", "-c", "--git-dir", "--work-tree", "--namespace",
-                       "--exec-path", "--super-prefix"}
+                       "--exec-path", "--super-prefix", "--config-env"}
+# Owner-maintained: the agent may not write here at all.
+OWNER_DIRS = {".claude", "journal", "scripts"}
+# Never moved away or archived (rail 2), and never overwritten once they exist.
+KEEP_PAGES = ["wiki/systems", "wiki/hubs", "wiki/index.md", "wiki/log.md"]
+# A source of a move may not be (or contain) any of these.
+MOVE_SOURCE_BLOCKED = ["raw", "archive", "journal", ".claude", "scripts", "claude.md"] + KEEP_PAGES
+MOVE_CMDS = {"mv", "move", "move-item", "mi", "rename-item", "rni", "ren", "rename"}
+RENAME_CMDS = {"rename-item", "rni", "ren", "rename"}
+COPY_CMDS = {"cp", "copy", "copy-item", "cpi", "copy-item", "install", "ln"}
+PS_WRITE_CMDS = {"set-content", "sc", "out-file", "add-content", "ac", "clear-content",
+                 "clc", "new-item", "ni", "mkdir", "md"}
+WEB_CMDS = {"invoke-webrequest", "iwr", "invoke-restmethod", "irm", "curl", "wget"}
+PS_WEB_FLAGS = {"headers", "header", "uri", "outfile", "method", "useb", "usebasicparsing",
+                "contenttype", "timeoutsec", "credential", "proxy", "useragent",
+                "maximumredirection", "skipcertificatecheck", "body", "infile", "form"}
 
 BLOCK_MSG = "Blocked by vault guard (.claude/hooks/guard.py): "
 
@@ -82,8 +100,8 @@ def profile_span(content):
 
 def apply_edits(content, edits):
     for e in edits:
-        old = e.get("old_string", e.get("old_str"))
-        new = e.get("new_string", e.get("new_str"))
+        old = e.get("old_string", e.get("old_str", e.get("original_text")))
+        new = e.get("new_string", e.get("new_str", e.get("new_text")))
         if not isinstance(old, str) or not isinstance(new, str) or old not in content:
             raise Block("the edit does not match the current CLAUDE.md text")
         if e.get("replace_all"):
@@ -131,9 +149,10 @@ def check_path(tool, path, tool_input, cwd, root):
         return
     first = r.split("/")[0].lower()
     real = os.path.realpath(os.path.join(cwd, os.path.expanduser(path)))
-    if first == ".claude":
-        raise Block(f"'{r}' is agent configuration (settings, hooks, skills, "
-                    "commands, agents). Only the owner changes it (hard stop e).")
+    if first in {".claude", "scripts"}:
+        raise Block(f"'{r}' is owner-maintained configuration or tooling (settings, "
+                    "hooks, skills, commands, agents, scripts). Only the owner "
+                    "changes it (hard stop e).")
     if first == "journal":
         raise Block(f"'{r}' is the owner's journal, read-only for the agent. "
                     "Put your writing on a wiki page.")
@@ -181,6 +200,8 @@ def split_commands(cmd):
             cur.append("")  # keep empty-string tokens alive
         elif c in " \t":
             end_tok()
+        elif c == "|" and i and cmd[i - 1] == ">":
+            cur.append(c)  # the >| redirect
         elif c in ";|\n(){}`":
             end_seg()
         elif c == "&":
@@ -234,73 +255,162 @@ def paths_in_segment(tokens):
 
 # ------------------------------------------------------------ shell rules
 
-def under_workspace(tok, cwd, root):
-    """True if a git pathspec token names raw/workspace (or could glob into it)."""
-    if tok.startswith(":"):
-        return True  # pathspec magic: cannot be evaluated, refuse
-    if re.search(r"[*?\[]", tok):
-        lit = re.split(r"[*?\[]", tok, 1)[0].replace("\\", "/")
-        r = rel_to_root(lit or ".", cwd, root)
-        if r is None:
-            return False
-        prefix = (r.lower() + "/") if r else ""
-        return "raw/workspace/".startswith(prefix) or prefix.startswith("raw/workspace/")
-    r = rel_to_root(tok, cwd, root)
+FUZZY = re.compile(r"[*?\[$]")
+
+
+def lit_rel(tok, cwd, root):
+    """(lowercase vault-relative path, fuzzy). For a token with a glob or a
+    variable, the path is the literal prefix, so callers test prefix overlap.
+    None when the path is outside the vault."""
+    t = tok.replace("\\", "/") if os.sep == "\\" else tok
+    m = FUZZY.search(t)
+    if not m:
+        r = rel_to_root(t, cwd, root)
+        return (None if r is None else r.lower()), False
+    lit = t[:m.start()]
+    d, sep, part = lit.rpartition("/")
+    base = (d + "/") if sep else "."
+    r = rel_to_root(base, cwd, root)
     if r is None:
+        return None, True
+    return ((r + "/" if r else "") + part).lower(), True
+
+
+def overlaps(full, prot):
+    """True if a (possibly partial) path could be, sit inside or contain `prot`."""
+    return full == prot or full.startswith(prot + "/") or prot.startswith(full)
+
+
+def pathspec_blocked(tok, cwd, root):
+    """git pathspecs that would stage the vault root, all of raw/, or raw/workspace/."""
+    if tok.startswith(":"):
+        return True  # pathspec magic cannot be evaluated: refuse
+    full, fuzzy = lit_rel(tok, cwd, root)
+    if full is None:
         return False
-    r = r.lower()
-    return r == "raw/workspace" or r.startswith("raw/workspace/")
+    if fuzzy:
+        return overlaps(full, "raw/workspace")
+    return (full in {"", "raw"} or full == "raw/workspace"
+            or full.startswith("raw/workspace/"))
+
+
+VALUE_FLAGS = {"-m", "-F", "-C", "-c", "--message", "--file", "--author", "--date",
+               "--reuse-message", "--reedit-message", "--template", "--cleanup",
+               "--trailer", "--fixup", "--squash", "--chmod", "--pathspec-from-file"}
+
+
+def git_positionals(rest):
+    pos, i, only_pos = [], 0, False
+    while i < len(rest):
+        t = rest[i]
+        if only_pos:
+            pos.append(t)
+        elif t == "--":
+            only_pos = True
+        elif t.startswith("-") and len(t) > 1:
+            cluster = re.fullmatch(r"-[A-Za-z]+", t)
+            if t in VALUE_FLAGS or (cluster and t.endswith("m") and len(t) > 2):
+                i += 1  # skip the flag's value (-m "msg", -am "msg")
+        else:
+            pos.append(t)
+        i += 1
+    return pos
+
+
+def flag_letters(flags):
+    letters = set()
+    for f in flags:
+        if re.fullmatch(r"-[A-Za-z]+", f):
+            letters.update(f[1:])
+    return letters
 
 
 def check_git(args, cwd, root):
     a = list(args)
     while a and a[0].startswith("-"):
         opt = a.pop(0)
+        value = None
         if opt in GIT_OPTS_WITH_VALUE and a:
-            a.pop(0)
+            value = a.pop(0)
+        elif opt.startswith("-c") and len(opt) > 2:
+            value = opt[2:]
+        elif opt.startswith("--config-env="):
+            value = opt.split("=", 1)[1]
+        if opt.startswith("-c") or opt.startswith("--config-env"):
+            key = (value or "").split("=", 1)[0].lower()
+            if re.match(r"^(alias\.|core\.(sshcommand|hookspath|fsmonitor|pager|editor)|url\.)", key):
+                raise Block("git -c with an alias or command-running setting can run "
+                            "any command (hard stop c).")
     if not a:
         return
     sub, rest = a[0].lower(), a[1:]
     flags = [x for x in rest if x.startswith("-")]
-    pos = [x for x in rest if not x.startswith("-")]
-    if sub == "push":
-        raise Block("git push (hard stop a). The vault is never pushed by the agent.")
+    letters = flag_letters(flags)
+    pos = git_positionals(rest)
+    if sub in {"push", "send-pack", "imap-send", "send-email"} or (
+            sub == "svn" and "dcommit" in rest):
+        raise Block(f"git {sub} sends the vault out (hard stop a). The agent never "
+                    "pushes or sends.")
+    if sub == "config" and any(x.lower().startswith("alias.") for x in rest):
+        raise Block("defining a git alias can hide a push or delete (hard stop c).")
     if sub == "remote" and pos and pos[0].lower() in {"add", "set-url"}:
         raise Block("adding or repointing a git remote (hard stop a).")
     if sub == "reset" and ("--hard" in flags or "--merge" in flags):
         raise Block("git reset --hard discards work (hard stop c). Use git revert.")
+    if sub == "revert" and "--abort" in flags:
+        raise Block("git revert --abort discards later changes; use "
+                    "git revert --quit (second-brain-rollback).")
     if sub in {"clean", "rm", "rebase", "filter-branch", "filter-repo"}:
         raise Block(f"git {sub} deletes files or rewrites history (hard stop c).")
     if sub in {"checkout", "restore"} and (
             any(p in {".", "*", ":/"} for p in pos)
-            or "-f" in flags or "--force" in flags):
+            or "-f" in flags or "--force" in flags or "f" in letters):
         raise Block(f"git {sub} would discard working-tree changes (hard stop c).")
     if sub in {"add", "stage"}:
-        bad = {"-A", "--all", "-f", "--force", "-u", "--update"}
-        if any(f in bad for f in flags):
+        if letters & {"A", "f", "u"} or any(
+                f.split("=")[0] in {"--all", "--force", "--update"} for f in flags):
             raise Block("stage by explicit path only: no -A, -u or -f (rail 5).")
-        if any(p in {".", "*", ":/", "raw", "raw/"} for p in pos):
-            raise Block("stage by explicit path: not '.', '*' or the whole raw/ "
-                        "folder (rail 5; raw/workspace/ is never staged).")
+        if any(f.startswith("--pathspec-") for f in flags):
+            raise Block("--pathspec-from-file hides the paths being staged (rail 5).")
     if sub == "commit":
-        if "--all" in flags or any(re.match(r"^-[A-Za-z]*a[A-Za-z]*$", f) and not f.startswith("--")
-                                   for f in flags):
+        if "a" in letters or "--all" in flags:
             raise Block("git commit -a stages every tracked change; stage the "
                         "run's own paths by name (rail 5).")
+        if any(f == "--amend" or f.startswith(("--fixup", "--squash")) for f in flags):
+            raise Block("amending or fixing up commits rewrites history (hard stop c); "
+                        "make a new commit.")
+        if any(f.startswith("--pathspec-") for f in flags):
+            raise Block("--pathspec-from-file hides the paths being committed (rail 5).")
+    if sub in {"add", "stage", "commit"}:
+        for p in pos if sub != "commit" else [x for x in pos if x]:
+            if pathspec_blocked(p, cwd, root):
+                raise Block(f"pathspec '{p}' covers the vault root, all of raw/ or "
+                            "raw/workspace/. Stage by explicit path; raw/workspace/ "
+                            "is never staged (rail 5, hard stop b).")
+    if sub in {"update-index", "stash"}:
+        if any(pathspec_blocked(p, cwd, root) for p in pos):
+            raise Block("raw/workspace/ is never staged (hard stop b).")
     if sub == "mv":
-        for p in pos:
-            check_path("Bash", p, {}, cwd, root)
-    if sub in {"add", "stage", "commit", "mv", "update-index", "stash"}:
-        if any(under_workspace(p, cwd, root) for p in pos):
-            raise Block("raw/workspace/ holds other people's words and is never "
-                        "staged or committed (hard stop b).")
+        if "-f" in flags or "--force" in flags or "f" in letters:
+            raise Block("git mv --force can overwrite pages (hard stop c).")
+        check_move("git mv", pos, [], cwd, root, is_move=True)
 
 
 def check_net(name, args):
-    flags = [x for x in args if x.startswith("-")]
     low = [x.lower() for x in args]
+    if name in WEB_CMDS:  # PowerShell Invoke-WebRequest / Invoke-RestMethod and aliases
+        for i, f in enumerate(low):
+            key = f.split(":", 1)[0]
+            if key in {"-body", "-infile", "-form"}:
+                raise Block(f"{name} {key} uploads data (hard stop b).")
+            if key == "-method":
+                val = f.split(":", 1)[1] if ":" in f else (low[i + 1] if i + 1 < len(low) else "")
+                if val not in {"get", "head"}:
+                    raise Block(f"{name} with a non-GET method (hard stop b).")
     if name == "curl":
         for i, f in enumerate(args):
+            if f.lower().lstrip("-") in PS_WEB_FLAGS:
+                continue
             if f.startswith("--"):
                 key = f.split("=", 1)[0].lower()
                 if key in {"--data", "--data-raw", "--data-binary", "--data-ascii",
@@ -309,7 +419,7 @@ def check_net(name, args):
                     raise Block("curl upload flag (hard stop b).")
                 if key == "--request" and _method_bad(args, i, f):
                     raise Block("curl with a non-GET method (hard stop b).")
-            elif f.startswith("-") and len(f) > 1 and f[1:2].isalpha():
+            elif re.fullmatch(r"-[A-Za-z0-9]{1,8}[^\s]*", f) and f[1:2].isalpha():
                 cluster = f[1:]
                 if re.search(r"[dFT]", cluster.split("X")[0] if "X" in cluster else cluster):
                     raise Block("curl upload flag (hard stop b).")
@@ -340,13 +450,121 @@ def _method_bad(args, i, flag):
 def redirect_targets(tokens):
     out = []
     for i, t in enumerate(tokens):
-        m = re.match(r"^(?:\d*|&)>>?(.*)$", t)
+        m = re.match(r"^(?:\d*|&)(?:>>|>\||>)(.*)$", t)
         if not m:
             continue
         target = m.group(1) or (tokens[i + 1] if i + 1 < len(tokens) else "")
         if target and not target.startswith("&") and target != "/dev/null":
             out.append(target)
     return out
+
+
+def positionals(args, value_flags=()):
+    pos, i = [], 0
+    while i < len(args):
+        t = args[i]
+        if t == "--":
+            pos.extend(args[i + 1:])
+            break
+        if t.startswith("-") and len(t) > 1:
+            if t in value_flags:
+                i += 1
+        else:
+            pos.append(t)
+        i += 1
+    return pos
+
+
+def target_dir_option(args):
+    for i, a in enumerate(args):
+        if a in {"-t", "--target-directory"} and i + 1 < len(args):
+            return args[i + 1]
+        if a.startswith("--target-directory="):
+            return a.split("=", 1)[1]
+    return None
+
+
+def check_move(name, pos, args, cwd, root, is_move):
+    """mv, cp, git mv, install, ln, Move-Item, Copy-Item, Rename-Item.
+    Every destination must be inside the vault. For a move, every source must be
+    inside the vault and none may be (or contain) raw/, archive/, journal/,
+    .claude/, scripts/, CLAUDE.md or the system, hub, index and log pages."""
+    topt = target_dir_option(args)
+    if name.split()[-1] in RENAME_CMDS and len(pos) == 2 and not re.search(r"[\\/]", pos[1]):
+        pos = [pos[0], os.path.join(os.path.dirname(pos[0]), pos[1])]
+    if topt is not None:
+        dest, sources = topt, pos
+    elif len(pos) >= 2:
+        dest, sources = pos[-1], pos[:-1]
+    else:
+        return
+    if is_move:
+        for s in sources:
+            full, fuzzy = lit_rel(s, cwd, root)
+            if full is None:
+                raise Block(f"'{s}' is outside the vault; moves must stay inside it. "
+                            "Archive by moving into archive/ (use git mv).")
+            for prot in MOVE_SOURCE_BLOCKED:
+                if overlaps(full, prot) or (not fuzzy and prot.startswith(full + "/")):
+                    raise Block(f"'{s}' is, or contains, a protected path ({prot}); "
+                                "it is never moved or renamed (rail 2, hard stop c).")
+    dfull, dfuzzy = lit_rel(dest, cwd, root)
+    if dfull is None:
+        raise Block(f"destination '{dest}' is outside the vault.")
+    top = dfull.split("/")[0]
+    if dfuzzy:
+        if top in OWNER_DIRS or top == "raw" or dfull == "claude.md" or any(
+                overlaps(dfull, k) for k in KEEP_PAGES):
+            raise Block(f"destination '{dest}' cannot be checked and may overwrite "
+                        "a protected path; name it exactly.")
+        return
+    dest_abs = os.path.realpath(os.path.join(cwd, os.path.expanduser(dest)))
+    is_dir = os.path.isdir(dest_abs) or dest.endswith(("/", "\\")) or topt is not None
+    targets = []
+    if is_dir:
+        for s in sources:
+            targets.append(os.path.join(dest, os.path.basename(s.rstrip("/\\")) or s))
+    else:
+        targets.append(dest)
+    for t in targets:
+        check_path("Bash", t, {}, cwd, root)
+        tfull, _ = lit_rel(t, cwd, root)
+        treal = os.path.realpath(os.path.join(cwd, os.path.expanduser(t)))
+        if tfull is not None and os.path.exists(treal) and any(
+                overlaps(tfull, k) for k in KEEP_PAGES):
+            raise Block(f"'{t}' is a system, hub, index or log page; it is never "
+                        "overwritten by a move or copy.")
+
+
+def decode_ps(b64):
+    import base64
+    try:
+        return base64.b64decode(b64).decode("utf-16-le")
+    except (ValueError, UnicodeDecodeError):
+        raise Block("could not decode a PowerShell -EncodedCommand; refusing.")
+
+
+def nested_script(name, args):
+    """The script text a shell invocation runs, or None."""
+    low = [a.lower() for a in args]
+    if name == "cmd":
+        for i, a in enumerate(low):
+            if a in {"/c", "/k", "/r"}:
+                return " ".join(args[i + 1:])
+        return None
+    if name in {"pwsh", "powershell"}:
+        for i, a in enumerate(low):
+            if a in {"-e", "-ec", "-enc", "-encodedcommand"} and i + 1 < len(args):
+                return decode_ps(args[i + 1])
+            if a in {"-c", "-command"} and i + 1 < len(args):
+                return " ".join(args[i + 1:])
+        return None
+    for i, a in enumerate(args):
+        if re.fullmatch(r"-[A-Za-z]*c[A-Za-z]*", a):
+            rest = [x for x in args[i + 1:] if x != "--"]
+            if rest:
+                return rest[0]
+    return None
 
 
 def check_segment(tokens, cwd, root, depth):
@@ -359,9 +577,12 @@ def check_segment(tokens, cwd, root, depth):
     args = t[1:]
     pos = paths_in_segment(t)
 
+    if name.startswith("git-") and name[4:] in {"push", "send-pack", "imap-send",
+                                                "send-email", "clean", "rm", "rebase"}:
+        check_git([name[4:]] + args, cwd, root)
     if name in DELETE_CMDS:
         raise Block(f"'{name}' deletes files (hard stop c). Archive instead: "
-                    "move the page to archive/ keeping its path.")
+                    "git mv the page into archive/ keeping its path.")
     if name == "find" and ("-delete" in args or any(
             a in {"-exec", "-execdir", "-ok"} and i + 1 < len(args)
             and os.path.basename(args[i + 1]).lower() in DELETE_CMDS
@@ -371,12 +592,12 @@ def check_segment(tokens, cwd, root, depth):
         raise Block("rsync --delete deletes files (hard stop c).")
     if name == "git":
         check_git(args, cwd, root)
-    if name in {"curl", "wget"}:
+    if name in {"curl", "wget"} | WEB_CMDS:
         check_net(name, args)
-    if name in SHELLS and depth < 3:
-        for i, a in enumerate(args):
-            if a.lower() in {"-c", "-command", "-encodedcommand"} and i + 1 < len(args):
-                check_shell(args[i + 1], cwd, root, depth + 1)
+    if (name in SHELLS or name == "cmd") and depth < 3:
+        script = nested_script(name, args)
+        if script:
+            check_shell(script, cwd, root, depth + 1)
     if name == "eval" and depth < 3:
         check_shell(" ".join(args), cwd, root, depth + 1)
     if name.startswith("python") and "-c" in args:
@@ -384,7 +605,7 @@ def check_segment(tokens, cwd, root, depth):
         if re.search(r"\b(rmtree|os\.remove|os\.unlink|os\.rmdir|\.unlink\(|\.rmdir\()", code):
             raise Block("python one-liner that deletes files (hard stop c).")
     # writes to protected places
-    if name == "tee":
+    if name == "tee" or name in PS_WRITE_CMDS:
         for p in pos:
             check_path("Bash", p, {}, cwd, root)
     elif name in {"sed", "perl", "ruby"} and any(
@@ -392,14 +613,18 @@ def check_segment(tokens, cwd, root, depth):
             for a in args if a.startswith("-")):
         for p in pos:
             check_path("Bash", p, {}, cwd, root)
-    elif name in {"mv", "move", "move-item", "mi", "ren", "rename"}:
-        for p in pos:
-            check_path("Bash", p, {}, cwd, root)
-    elif name in {"cp", "copy", "copy-item", "cpi", "install", "ln"} and pos:
-        check_path("Bash", pos[-1], {}, cwd, root)
+    elif name in MOVE_CMDS:
+        check_move(name, positionals(args, {"-t", "--target-directory", "-S", "--suffix"}),
+                   args, cwd, root, is_move=True)
+    elif name in COPY_CMDS:
+        check_move(name, positionals(args, {"-t", "--target-directory", "-S", "--suffix"}),
+                   args, cwd, root, is_move=False)
     elif name in {"truncate", "dd"}:
         for p in pos:
             check_path("Bash", p.split("=", 1)[-1], {}, cwd, root)
+
+
+CD_CMDS = {"cd", "pushd", "chdir", "set-location", "sl"}
 
 
 def check_shell(cmd, cwd, root, depth=0):
@@ -408,6 +633,11 @@ def check_shell(cmd, cwd, root, depth=0):
             check_shell(inner, cwd, root, depth + 1)
     for seg in split_commands(cmd):
         check_segment(seg, cwd, root, depth)
+        t = strip_prefix(seg)
+        if t and cmd_name(t) in CD_CMDS:
+            p = paths_in_segment(t)
+            if p and not FUZZY.search(p[0]) and p[0] != "-":
+                cwd = os.path.join(cwd, os.path.expanduser(p[0]))
 
 
 # ------------------------------------------------------------------- main
@@ -419,7 +649,7 @@ def pre_tool_use(data):
     root = os.environ.get("CLAUDE_PROJECT_DIR") or cwd
     if tool in WRITE_TOOLS:
         if tool == "MultiEdit" and not tin.get("file_path"):
-            paths = {e.get("file_path") for e in tin.get("edits") or []}
+            paths = {e.get("file_path") or e.get("path") for e in tin.get("edits") or []}
         else:
             paths = {tin.get("file_path") or tin.get("notebook_path")}
         paths.discard(None)
@@ -452,6 +682,9 @@ def main():
         data = json.load(sys.stdin)
     except ValueError:
         sys.stderr.write(BLOCK_MSG + "could not read the hook input.\n")
+        return 2
+    if not isinstance(data, dict):
+        sys.stderr.write(BLOCK_MSG + "the hook input is not a JSON object.\n")
         return 2
     try:
         if data.get("hook_event_name") == "Stop":

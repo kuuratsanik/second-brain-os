@@ -11,6 +11,8 @@
       "Bash(git restore .)",
       "Bash(git rm *)",
       "Bash(git rebase *)",
+      "Bash(git revert --abort*)",
+      "Bash(git commit *--amend*)",
       "Bash(rm *)",
       "Bash(rmdir *)",
       "Bash(unlink *)",
@@ -49,7 +51,10 @@
       "mcp__*__*update_*",
       "mcp__*__*share_*",
       "mcp__*__*update-*",
-      "mcp__*__*share-*"
+      "mcp__*__*share-*",
+      "mcp__*__*append*",
+      "mcp__*__*patch*",
+      "mcp__*__*put*"
     ],
     "ask": [
       "Edit(/CLAUDE.md)",
@@ -78,8 +83,11 @@
       "Bash(git show *)",
       "Bash(git check-ignore *)",
       "Bash(git mv *)",
-      "Bash(mv *)",
-      "Bash(mkdir *)"
+      "Bash(mkdir *)",
+      "Bash(python scripts/*.py)",
+      "Bash(python scripts/*.py *)",
+      "Bash(py scripts/*.py)",
+      "Bash(py scripts/*.py *)"
     ]
   },
   "hooks": {

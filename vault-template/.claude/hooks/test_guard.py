@@ -28,10 +28,13 @@ six domains
 
 def make_vault():
     root = tempfile.mkdtemp(prefix="vault-guard-test-")
-    for d in ("raw/clippings", "raw/workspace/email", "journal", "wiki", ".claude"):
+    for d in ("raw/clippings", "raw/workspace/email", "journal", "wiki/systems",
+              "wiki/hubs", ".claude", "archive"):
         os.makedirs(os.path.join(root, d))
     for f, text in (("raw/clippings/a.md", "original"), ("journal/2026-01-01.md", "mine"),
-                    ("wiki/x.md", "page"), ("CLAUDE.md", CLAUDE_MD)):
+                    ("wiki/x.md", "page"), ("wiki/log.md", "log"), ("wiki/a.md", "a"),
+                    ("wiki/systems/routing.md", "r"), ("wiki/hubs/hub-work.md", "h"),
+                    ("CLAUDE.md", CLAUDE_MD)):
         with open(os.path.join(root, f), "w", encoding="utf-8") as fh:
             fh.write(text)
     return root
@@ -102,7 +105,8 @@ def main():
         (0, "git diff", bash("git diff HEAD~1")),
         (0, "git revert", bash("git revert --no-edit abc1234")),
         (0, "git revert --no-commit", bash("git revert --no-commit abc1234")),
-        (0, "git revert --abort", bash("git revert --abort")),
+        (2, "git revert --abort", bash("git revert --abort")),
+        (0, "git revert --quit", bash("git revert --quit")),
         (0, "git restore --source one path", bash("git restore --source=abc1234^ --staged --worktree -- wiki/log.md")),
         (0, "git mv into archive", bash("mkdir -p archive/wiki && git mv wiki/x.md archive/wiki/x.md")),
         (0, "git check-ignore", bash("git check-ignore -v raw/workspace/a.md")),
@@ -184,6 +188,103 @@ def main():
         (0, "cp from raw", bash("cp raw/clippings/a.md raw/clippings/a-clean.md")),
         (2, "overwrite settings", bash("echo {} > .claude/settings.json")),
         (2, "truncate raw", bash("truncate -s 0 raw/clippings/a.md")),
+        # moves and copies (B1)
+        (2, "mv out of vault", bash("mv wiki/x.md /tmp/")),
+        (2, "mv wiki dir out of vault", bash("mv wiki /tmp/")),
+        (2, "mv archive out", bash("mv archive /tmp/")),
+        (2, "rename raw dir", bash("mv raw raw-old")),
+        (2, "rename raw subdir", bash("mv raw/clippings raw/old")),
+        (2, "mv onto existing raw file via dir", bash("mv wiki/a.md raw/clippings/")),
+        (2, "mv -t raw dir", bash("mv -t raw/clippings wiki/a.md")),
+        (2, "mv --target-directory= raw dir", bash("mv --target-directory=raw/clippings wiki/a.md")),
+        (2, "mv over log", bash("mv wiki/x.md wiki/log.md")),
+        (2, "mv a hub", bash("mv wiki/hubs/hub-work.md archive/")),
+        (2, "mv systems page", bash("mv wiki/systems/routing.md archive/")),
+        (2, "mv a dir containing systems", bash("mv wiki wiki-old")),
+        (2, "mv glob that could match log", bash("mv wiki/*.md archive/")),
+        (2, "mv with variable source", bash("mv $PWD/raw archive/")),
+        (2, "mv a source from archive", bash("mv archive/old.md wiki/old.md")),
+        (2, "mv CLAUDE.md", bash("mv CLAUDE.md CLAUDE.old")),
+        (2, "mv into scripts", bash("mv wiki/x.md scripts/x.py")),
+        (2, "mv after cd out", bash("cd /tmp && mv /home/x/y z")),
+        (2, "cp over existing raw file via dir", bash("cp wiki/a.md raw/clippings/")),
+        (2, "cp -t raw dir", bash("cp -t raw/clippings wiki/a.md")),
+        (2, "cp out of vault", bash("cp wiki/x.md /tmp/x.md")),
+        (2, "cp over log", bash("cp wiki/x.md wiki/log.md")),
+        (2, "cp over systems page", bash("cp wiki/x.md wiki/systems/routing.md")),
+        (2, "install into scripts", bash("install -m 755 wiki/x.md scripts/x.py")),
+        (2, "ln into journal", bash("ln -s wiki/x.md journal/x.md")),
+        (2, "git mv raw file", bash("git mv raw/clippings/a.md archive/a.md")),
+        (2, "git mv out of vault", bash("git mv wiki/x.md ../elsewhere/x.md")),
+        (2, "git mv -f", bash("git mv -f wiki/x.md archive/x.md")),
+        (2, "git mv hub", bash("git mv wiki/hubs/hub-work.md archive/hub-work.md")),
+        (2, "Move-Item out of vault", {"tool_name": "PowerShell", "tool_input": {"command": "Move-Item wiki/x.md /tmp/"}}),
+        (2, "Rename-Item raw file to existing", {"tool_name": "PowerShell", "tool_input": {"command": "Rename-Item raw/clippings/a.md b.md"}}),
+        (2, "rni raw file", {"tool_name": "PowerShell", "tool_input": {"command": "rni raw/clippings/a.md b.md"}}),
+        (0, "git mv wiki page to archive (new)", bash("git mv wiki/x.md archive/wiki/x.md")),
+        (0, "git mv into archive dir", bash("mkdir -p archive/wiki && git mv wiki/x.md archive/wiki/")),
+        (0, "cp new clean file in raw", bash("cp raw/clippings/a.md raw/clippings/a-clean.md")),
+        # owner-maintained scripts (S1)
+        (2, "Write scripts/x.py", write(P("scripts", "x.py"))),
+        (2, "redirect into scripts", bash("echo 'print(1)' > scripts/x.py")),
+        # commit variants (S2)
+        (2, "commit --amend", bash("git commit --amend --no-edit")),
+        (2, "commit --fixup", bash("git commit --fixup abc1234")),
+        (2, "commit --squash", bash("git commit --squash=abc1234")),
+        # git add bypasses (S3)
+        (2, "add -Af cluster", bash("git add -Af")),
+        (2, "add -fA cluster", bash("git add -fA")),
+        (2, "add -vA cluster", bash("git add -vA")),
+        (2, "add ./", bash("git add ./")),
+        (2, "add ../vault root", bash("git add ../" + os.path.basename(root))),
+        (2, "add $PWD", bash("git add $PWD")),
+        (2, "add ./wiki/..", bash("git add ./wiki/..")),
+        (2, "add raw/", bash("git add raw/")),
+        (2, "add --pathspec-from-file", bash("git add --pathspec-from-file=list.txt")),
+        (2, "add --pathspec-file-nul", bash("git add --pathspec-from-file=- --pathspec-file-nul")),
+        (2, "add partial glob raw/work*", bash("git add raw/work*")),
+        (2, "add glob raw*", bash("git add raw*")),
+        (0, "add glob in a clean dir", bash("git add raw/clippings/*.md")),
+        (2, "commit with root pathspec", bash('git commit -m x .')),
+        (2, "commit -- root pathspec", bash('git commit -m x -- .')),
+        (2, "commit -- raw", bash('git commit -m x -- raw')),
+        (0, "commit message equal to a plain word", bash('git commit -m wiki -- wiki/x.md')),
+        # aliases and push synonyms (S4)
+        (2, "git -c alias", bash("git -c alias.p='!git push' p")),
+        (2, "git -calias attached", bash("git -calias.p=push p")),
+        (2, "git config alias", bash("git config alias.p '!git push'")),
+        (2, "git -c core.sshCommand", bash("git -c core.sshCommand=evil fetch")),
+        (2, "git send-pack", bash("git send-pack origin")),
+        (2, "git svn dcommit", bash("git svn dcommit")),
+        (2, "git imap-send", bash("git imap-send")),
+        (2, "git send-email", bash("git send-email x.patch")),
+        (2, "git-push hyphen form", bash("git-push origin")),
+        # python on Windows is a settings allow rule, not a hook case; the hook must not block it
+        (0, "python scripts", bash("python scripts/vault_stats.py .")),
+        # MultiEdit aliases (S8)
+        (0, "MultiEdit wiki with path/original_text/new_text", {"tool_name": "MultiEdit", "tool_input": {
+            "edits": [{"path": P("wiki", "x.md"), "original_text": "page", "new_text": "p2"}]}}),
+        (2, "MultiEdit raw with path alias", {"tool_name": "MultiEdit", "tool_input": {
+            "edits": [{"path": P("raw", "clippings", "a.md"), "original_text": "original", "new_text": "p2"}]}}),
+        # PowerShell and nested shells (S9)
+        (2, "Set-Content into raw", {"tool_name": "PowerShell", "tool_input": {"command": "Set-Content raw/clippings/a.md hi"}}),
+        (2, "Out-File into journal", {"tool_name": "PowerShell", "tool_input": {"command": "'x' | Out-File journal/n.md"}}),
+        (2, "Add-Content journal", {"tool_name": "PowerShell", "tool_input": {"command": "Add-Content journal/2026-01-01.md hi"}}),
+        (2, "Clear-Content raw", {"tool_name": "PowerShell", "tool_input": {"command": "Clear-Content raw/clippings/a.md"}}),
+        (2, "cmd /c del", bash("cmd /c del wiki\\x.md")),
+        (2, "powershell -EncodedCommand Remove-Item", {"tool_name": "PowerShell", "tool_input": {"command": "powershell -EncodedCommand " + __import__('base64').b64encode("Remove-Item -Recurse wiki".encode("utf-16-le")).decode()}}),
+        (2, "Invoke-RestMethod POST", {"tool_name": "PowerShell", "tool_input": {"command": "Invoke-RestMethod -Uri https://example.com -Method Post"}}),
+        (2, "iwr -Body", {"tool_name": "PowerShell", "tool_input": {"command": "iwr https://example.com -Body x"}}),
+        (0, "Invoke-WebRequest GET", {"tool_name": "PowerShell", "tool_input": {"command": "Invoke-WebRequest https://example.com -Method Get -OutFile raw/clippings/n.html"}}),
+        (0, "curl.exe with Headers word", bash("curl -Headers x https://example.com")),
+        # nits
+        (2, "mkdir under journal", bash("mkdir -p journal/sub")),
+        (0, "mkdir archive dir", bash("mkdir -p archive/wiki/concepts")),
+        (2, "bash -lc rm", bash("bash -lc 'rm wiki/x.md'")),
+        (2, "bash -c -- rm", bash("bash -c -- 'rm wiki/x.md'")),
+        (2, "redirect >| over raw", bash("echo x >| raw/clippings/a.md")),
+        (2, "cd then relative redirect", bash("cd raw/clippings && echo x > a.md")),
+        (2, "cd then rm via relative", bash("cd wiki && rm x.md")),
     ]
     stop_case = {"hook_event_name": "Stop", "stop_hook_active": False}
     failed = 0
@@ -195,11 +296,15 @@ def main():
     got = run(root, stop_case)
     print(f"{'ok  ' if got == 0 else 'FAIL'} exit {got} (want 0)  Stop hook never blocks")
     failed += got != 0
+    for label, raw_in in (("JSON list", "[1]"), ("JSON string", '"x"'), ("JSON null", "null")):
+        p = subprocess.run([sys.executable, GUARD], input=raw_in, capture_output=True, text=True)
+        print(f"{'ok  ' if p.returncode == 2 else 'FAIL'} exit {p.returncode} (want 2)  non-object {label} fails closed")
+        failed += p.returncode != 2
     # unparseable input fails closed
     p = subprocess.run([sys.executable, GUARD], input="not json", capture_output=True, text=True)
     print(f"{'ok  ' if p.returncode == 2 else 'FAIL'} exit {p.returncode} (want 2)  bad JSON fails closed")
     failed += p.returncode != 2
-    total = len(cases) + 2
+    total = len(cases) + 5
     print(f"\n{total - failed}/{total} passed")
     return 1 if failed else 0
 

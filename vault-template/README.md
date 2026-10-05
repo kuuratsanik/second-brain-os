@@ -56,33 +56,60 @@ are copied with the template into `.claude/`:
 
 | Hard stop or rail | Enforced by | Still prompt-only |
 |---|---|---|
-| Never push, add a remote, or hard-reset | deny rules and hook | |
+| Never push, send, add a remote, hard-reset or amend | deny rules and hook | Push routes the hook does not know |
 | Never delete (`rm`, `rmdir`, `unlink`, `git rm`, `find -delete`, `git clean`) | deny rules and hook | Deleting from inside a script the agent runs |
-| Writing to connected services (a) | deny rules on MCP tool names | Connectors whose tool names do not match; non-MCP routes |
-| Sending vault content out (b) | deny rules and hook for curl/wget uploads; ask for WebFetch, WebSearch, curl, wget | What goes into a search query or a read |
-| `raw/` is append-only | hook (new files allowed, existing files blocked) | |
-| `journal/` is yours | deny rule and hook | |
+| Moves and copies stay in the vault and never clobber protected paths | hook (`mv`, `cp`, `git mv`, `install`, `ln`, PowerShell equivalents) | |
+| Writing to connected services (a) | deny rules on MCP tool names | Connectors whose tool names do not match, and MCP file tools (Obsidian REST and similar) whose names the patterns miss |
+| Sending vault content out (b) | deny rules and hook for curl, wget and PowerShell web uploads; ask for WebFetch, WebSearch, curl, wget | What goes into a search query or a read |
+| `raw/` is append-only | hook (new files allowed, existing files and folders cannot be changed, moved or renamed) | |
+| `journal/`, `scripts/` and `.claude/` are yours | deny rules and hook | |
 | `CLAUDE.md` only changes in Profile (e) | hook; ask rule | Schedule prompts, which live outside the vault |
-| `raw/workspace/` never staged | hook (also blocks `git add -A`, `.`, `-f`, `commit -a`) | |
+| `raw/workspace/` never staged | hook (also blocks `git add -A`, `.`, the vault root, `raw`, `-f`, `commit -a`) | |
 | Checkpoint, log, report, queue, run commit | | All of it; the Stop hook only warns about uncommitted paths |
 | Secrets (d), merging people (f) | | All of it |
 
 The permission rules cannot express "existing files only", so the `raw/` and
-`CLAUDE.md` checks live in the hook. Both layers run: a command must pass the
-hook and the permission rules. Do not run the vault in `bypassPermissions` mode,
-which skips the permission prompts, including the ask rules.
+`CLAUDE.md` checks live in the hook. Both layers run: a call must pass the hook
+and the permission rules. Deny rules apply in every permission mode, including
+`bypassPermissions`, but that mode skips the ask rules, so do not run the vault
+in it. A hook blocks only by exiting with code 2: a hook that crashes, cannot
+start or times out does not block, and the deny rules are then the only layer.
+`guard.py` itself fails closed on bad input.
 Neither layer is a sandbox. They read the command text, so a script that
 deletes files itself is not seen; for that, turn on Claude Code's sandbox.
+PowerShell coverage is partial: the hook knows the common cmdlets
+(`Remove-Item`, `Move-Item`, `Rename-Item`, `Set-Content`, `Out-File`,
+`Invoke-WebRequest` and friends), `cmd /c` and `-EncodedCommand`, but not every
+way to write a file. `scripts/` is owner-maintained so the agent cannot write a
+script and then run it under the `python3 scripts/*.py` allow rule.
 
 **Connector names.** The MCP deny rules match tool names by pattern
-(`mcp__*__*send*`, `mcp__*__*create*` and so on), because tool names differ by
-connector and server. These patterns are a starting point. Check them against
+(`mcp__*__*send*`, `mcp__*__*create*`, `mcp__*__*append*`, `mcp__*__*patch*`,
+`mcp__*__*put*` and so on), because tool names differ by connector and server.
+These patterns are a starting point. Check them against
 the tool names your connectors expose (the `/mcp` command lists them), then add
 the exact names you want blocked or remove a pattern that catches a read-only
 tool. Patterns can also block reads whose names contain the word, such as a
-tool called `get_updates`.
+tool called `get_updates` or `get_output`.
 
-**Allowed without asking.** `python3 scripts/*.py`, `git add`, `commit`, `status`, `log`, `diff`, `show`, `revert`, `rev-parse`, `check-ignore`, `mv`, `git mv` and `mkdir`, so scheduled archive, commit and rollback steps run. `git restore` and `git checkout` ask first, so a scheduled run cannot use them; rollback is live-only anyway.
+**Allowed without asking.** `python3 scripts/*.py` (and `python`, `py` for
+Windows), `git add`, `commit`, `status`, `log`, `diff`, `show`, `revert`,
+`rev-parse`, `check-ignore`, `git mv` and `mkdir`, so scheduled archive and
+commit steps run. Archive with `git mv`: plain `mv` is not allowed, and git
+refuses to move files out of the vault or over an existing page. `git restore`
+and `git checkout` ask first, so a scheduled run cannot use them; rollback is
+live-only anyway. `git revert --abort` is denied; use `git revert --quit`.
+
+**Scheduled runs.** A headless run (`claude -p`, or a scheduled task) has nobody
+to answer a prompt, so anything that would ask is refused. In the default
+permission mode that includes every page write. Start scheduled runs with
+`--permission-mode acceptEdits` (or set `permissions.defaultMode` to
+`acceptEdits` in `.claude/settings.json`), or add `Edit` and `Write` allow rules
+for `wiki/`, `output/` and `archive/`. `acceptEdits` also auto-approves `mv` and
+`cp` inside the vault; the hook still blocks the harmful forms. The ask rules
+(CLAUDE.md edits, web access, `git checkout`, `git restore`) are refused in a
+scheduled run, which is what you want. See the
+[permission modes](https://code.claude.com/docs/en/permission-modes) page.
 
 **Adjusting.** Edit `.claude/settings.json` yourself. A deny rule beats an ask
 rule, and an ask rule beats an allow rule, at every settings level, so to let
