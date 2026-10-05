@@ -17,7 +17,7 @@ Hub for the owner's ideas and plans for improving how they work and live. TODO(i
 
 ## What belongs here
 
-Ideas, experiments and reviews, in that order of maturity. See the Self-improvement section of `CLAUDE.md` for the lifecycle. Adopted experiments become pages in [[hub-systems|Systems]].
+Ideas, experiments and reviews, in that order of maturity. See [[self-improvement-lifecycle]] for the lifecycle. Adopted experiments become pages in [[hub-systems|Systems]].
 
 ## Open
 

@@ -17,4 +17,4 @@ improve. Without it the agent has no idea whether last month's output worked.
 
 Open a project as its own vault when you are working in it, so the agent sees
 one goal instead of your whole life. See
-[project scoping](../../docs/02-setup/project-scoping.md).
+[project scoping](https://github.com/kuuratsanik/second-brain-os/blob/main/docs/02-setup/project-scoping.md).

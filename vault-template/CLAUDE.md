@@ -10,7 +10,8 @@ the archive you can re-read.
 
 Placeholders, not facts. Do not guess them. In a live session, if a line still
 says `TODO(interview)`, offer the setup interview once (one question at a time)
-and carry on if the owner declines. Never offer it in a scheduled run.
+and carry on if the owner declines. Never offer it in a scheduled run. The interview may also fill the
+`TODO(interview)` lines on the hub pages.
 This block is the only part of this file you may edit, and only with answers
 the owner gave in the current live session.
 
@@ -52,7 +53,9 @@ standing rules for connected services). Do not nest deeper than this.
   delete an existing file.
 - `journal/` and any page with `maintained_by: human`: never change the wording.
   You may add links and fix structure. Files outside `wiki/` with no frontmatter
-  count as human-maintained. Put your writing on separate pages.
+  count as human-maintained; your own pages there (such as `output/` drafts)
+  carry frontmatter with `maintained_by: agent`. Put your writing on separate
+  pages.
 - `wiki/`, `output/`, `archive/`: yours.
 
 ## Page contract
@@ -133,8 +136,10 @@ and wait, do this instead: checkpoint, act, log, report, within the hard stops
 and rails. This covers the skills `second-brain-lint`, `second-brain-merge`,
 `second-brain-backfill`, `second-brain-chat-import`, `second-brain-privacy` and
 `second-brain-transcript`; the agents `curator` and `ingestor`; and the
-commands `/prune`, `/archive`, `/dedupe` and `/orphans`. `/prune` and
-`/archive` archive here. Scheduled runs follow skills, not commands. The
+commands `/ingest` (its old 20-item stop is replaced by rail 7), `/prune`,
+`/archive`, `/dedupe` and `/orphans`. `/prune` and `/archive` archive here. When
+a scheduled run fires a command, the skill it points to and this section govern;
+the command's own propose-or-stop wording does not. The
 `reviewer` agent is read-only: it may draft a review, but you write the page.
 
 **Rails**
@@ -168,7 +173,7 @@ commands `/prune`, `/archive`, `/dedupe` and `/orphans`. `/prune` and
 7. **Backlog.** A scheduled ingest takes the 20 oldest pending raw items (a raw
    file with no source page; a `-clean` file and its original are one item) and
    reports the rest as pending. If more than 100 are pending, use
-   `second-brain-backfill` instead.
+   `second-brain-backfill` instead, one backfill batch (ten items) per scheduled run.
 
 `.gitignore` keeps `raw/workspace/` (email, chat, docs, calendar) and editor
 state out of git by default. To version it, remove that line.
@@ -180,9 +185,12 @@ skip the item and queue it.
   whatever the sensitivity: email, Slack, Notion, Drive, calendar changes,
   sharing, `publish: true`. Reading is fine. These happen only when the owner
   asks for that specific action in a live session, never in a scheduled run.
-- (b) Any web request or API call containing a person's name or email, or
-  content from `private` or `restricted` pages. Build attendee and person pages
-  from vault content only.
+- (b) Sending vault content out in a web request or API call, or looking up
+  people outside the connected services: no person's name or email, and no
+  content from `private` or `restricted` pages, in a search or request. Reads
+  from connected services under the owner's standing rules in
+  `wiki/systems/vault-operating-notes.md` are allowed. Build attendee and person
+  pages from vault content only.
 - (c) Anything irreversible: deleting files, force-push, rewriting history,
   `git clean`, emptying `archive/`, a destructive step with no checkpoint.
 - (d) Credentials, tokens, account or ID numbers in any file: report the file

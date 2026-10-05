@@ -23,7 +23,7 @@ create one and will queue the problem for you instead.
 
 `CLAUDE.md` is the instruction sheet the agent reads every session. Read it
 before your first run. Its Profile block is empty on purpose: fill it with the
-interview from [the CLAUDE.md guide](../docs/02-setup/claude-md.md), in a live
+interview from [the CLAUDE.md guide](https://github.com/kuuratsanik/second-brain-os/blob/main/docs/02-setup/claude-md.md), in a live
 session, before you rely on the agent. The rules are strict about linking and
 about never overwriting a contradiction, because those two are what separate a
 vault that compounds from a folder of summaries.

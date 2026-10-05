@@ -1,7 +1,7 @@
 # raw/
 
 Source material, grouped by where it came from. The grouping tells the agent
-how to ingest each item; see the routing table in `CLAUDE.md`.
+how to ingest each item; see `wiki/systems/routing.md`.
 
 | Folder | What goes in it |
 |---|---|
