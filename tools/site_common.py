@@ -35,7 +35,7 @@ def head(title, description, page, css):
             f'content="width=device-width,initial-scale=1">\n'
             f'{FAVICON}<title>{title}</title>\n'
             f'<meta name="description" content="{description}">\n'
-            f'<link rel="canonical" href="{SITE_URL}{page}">\n'
+            f'<link rel="canonical" href="{SITE_URL}{"" if page == "index.html" else page}">\n'
             f'<style>{css}</style>\n</head><body>')
 
 

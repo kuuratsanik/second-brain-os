@@ -45,5 +45,9 @@ in `docs/` and `README.md`. CI runs it; run it locally before committing docs.
 
 Size: the embedded JSON carries only `id`, `title` and `html` per page. Search
 text, section, source path and heading lists are derived in the browser, and the
-CSS and JS are minified. `index.html` is about 510 KB (168 KB gzipped), down from
-937 KB (208 KB).
+CSS and JS are minified. To measure, run `wc -c index.html` and
+`gzip -9 -c index.html | wc -c` (both in bytes) before and after a change.
+
+CI runs on pushes to `main` and on pull requests, not on pushes to other
+branches. Open a pull request, or run `python3 scripts/build_all.py` and
+`python3 tools/doc_links.py` locally, to get the same checks on a feature branch.

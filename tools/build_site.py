@@ -275,7 +275,8 @@ GUIDE = f"""{head("Second Brain OS - the guide", f"A {s['pages']}-page guide to 
 const D=JSON.parse(document.getElementById('data').textContent);
 const P={{}}; D.pages.forEach(p=>{{P[p.id]=p; p.section=p.id.split('/')[0]; p.section_title=D.sections[p.section].title; p.path='docs/'+p.id+'.md';}});
 const T={{}};
-function plain(p){{return T[p.id]||(T[p.id]=p.html.replace(/<[^>]+>/g,' ').toLowerCase());}}
+const DEC=document.createElement('textarea');
+function plain(p){{if(!T[p.id]){{DEC.innerHTML=p.html.replace(/<[^>]+>/g,' ');T[p.id]=DEC.value.toLowerCase();}}return T[p.id];}}
 const FLAT=[]; Object.keys(D.order).forEach(s=>D.order[s].forEach(id=>FLAT.push(id)));
 const HERO=document.getElementById('hero').innerHTML;
 
