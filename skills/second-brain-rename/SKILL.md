@@ -11,7 +11,8 @@ description: >-
 
 # Rename a page
 
-Writing a file directly does not fix links the way renaming inside Obsidian does, so direct renames are the most common source of broken links.
+Writing a file directly does not fix links the way renaming inside Obsidian
+does, so direct renames are the most common source of broken links.
 
 ## Core rule
 

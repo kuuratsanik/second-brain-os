@@ -11,7 +11,8 @@ description: >-
 
 # Audit privacy
 
-The vault is synced, committed, backed up and sometimes shared. Every copy is another place the content exists.
+The vault is synced, committed, backed up and sometimes shared. Every copy is
+another place the content exists.
 
 ## Core rule
 

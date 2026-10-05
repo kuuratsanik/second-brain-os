@@ -4,17 +4,20 @@ description: >-
   Turn raw source material in a second-brain vault into linked wiki pages:
   read the source, split it into concepts and entities, write or update pages,
   connect them to existing pages, and record the run in the log. Use this skill
-  whenever the user drops a file into raw/, pastes an article or
-  PDF and asks to add it to the vault, says "ingest this", "add this to my
-  second brain", "process raw", or asks to catch up on unprocessed sources,
+  whenever the user drops a file into raw/, pastes an article, PDF or cleaned
+  transcript and asks to add it to the vault, says "ingest this", "add this to
+  my second brain", "process raw", or asks to catch up on unprocessed sources,
   even if they do not name the ingest command. Do NOT use for answering
-  questions from an existing vault, for linting or repairing pages, for cleaning a raw
-  transcript (second-brain-transcript), or for editing notes the user wrote by hand.
+  questions from an existing vault, for linting or repairing pages, for
+  cleaning a raw transcript first (second-brain-transcript), or for editing
+  notes the user wrote by hand.
 ---
 
 # Ingest a source
 
-A summary page alone makes a vault grow without getting smarter. The value is in connecting new material to what exists; an unlinked page is invisible within a week.
+A summary page alone makes a vault grow without getting smarter. The value is
+in connecting new material to what exists; an unlinked page is invisible
+within a week.
 
 ## Core rule
 

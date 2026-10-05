@@ -11,7 +11,8 @@ description: >-
 
 # Clean a transcript
 
-Concept pages built from unpunctuated caption dumps are worse, because the model spends its attention rebuilding sentences.
+Concept pages built from unpunctuated caption dumps are worse, because the
+model spends its attention rebuilding sentences.
 
 ## Core rule
 

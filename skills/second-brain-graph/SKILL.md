@@ -11,7 +11,8 @@ description: >-
 
 # Analyse the graph
 
-The graph's shape decides whether retrieval reaches the relevant material in a few hops or not at all.
+The graph's shape decides whether retrieval reaches the relevant material in a
+few hops or not at all.
 
 ## Core rule
 

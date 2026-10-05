@@ -4,14 +4,17 @@ description: >-
   Import a large archive into the vault in controlled batches: triage what is
   worth ingesting, process oldest first, checkpoint after every batch, and keep
   cost visible. Use this skill whenever the user wants to import years of
-  bookmarks, an export from another notes app, a downloads folder, or says "backfill", "bulk import", "process my archive". Do NOT
-  use for ingesting one or a few new sources, which is second-brain-ingest, or for an exported chat history, which is
-  second-brain-chat-import.
+  bookmarks, an export from another notes app, a downloads folder, or says
+  "backfill", "bulk import", "process my archive". Do NOT use for ingesting one
+  or a few new sources, which is second-brain-ingest, or for an exported chat
+  history, which is second-brain-chat-import.
 ---
 
 # Backfill an archive
 
-Cost and quality both go wrong quietly in a bulk import, and the wrong order inverts the vault's history: later sources should update pages earlier ones created.
+Cost and quality both go wrong quietly in a bulk import, and the wrong order
+inverts the vault's history: later sources should update pages earlier ones
+created.
 
 ## Core rule
 
@@ -20,8 +23,8 @@ Oldest first, ten sources per batch, stop for a go-ahead between batches.
 ## Workflow
 
 1. **Triage before ingesting.** Read titles and first paragraphs. Sort into
-   worth-ingesting, keep-in-raw, and delete. Most archives are half dead links
-   and things saved but never opened.
+   worth-ingesting, keep-in-raw, and skip (leave in `raw/`, do not ingest). Most
+   archives are half dead links and things saved but never opened.
 2. **Order by date, oldest first.** Run it the other way and every old source
    arrives as a contradiction against a page that already has the final answer.
 3. **Batch of ten.** Ingest following `second-brain-ingest`.

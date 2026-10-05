@@ -11,7 +11,8 @@ description: >-
 
 # Merge duplicate pages
 
-After a merge you cannot tell which claim came from which page, and two pages that look identical are often a general case and a specific one.
+After a merge you cannot tell which claim came from which page, and two pages
+that look identical are often a general case and a specific one.
 
 ## Core rule
 
@@ -26,8 +27,10 @@ exactly.
 3. **Merge aliases,** including the dead page's title as an alias on the
    survivor. This is what keeps old links and the user's memory working.
 4. **Redirect inbound links** to the survivor. Check every backlink.
-5. **Delete the old page,** or leave a stub only if it was linked from outside
-   the vault.
+5. **Archive the old page:** move it to `archive/` with `merged_into:
+[[survivor]]`
+   in its frontmatter. Delete it only if the vault's CLAUDE.md allows deletion;
+   leave a stub only if it was linked from outside the vault.
 6. **Record in `log.md`:** both names, the date, and why.
 
 ## Output format

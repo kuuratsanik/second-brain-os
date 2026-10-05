@@ -11,7 +11,8 @@ description: >-
 
 # Set up a project
 
-The knowledge layer holds what you know; the project layer holds what you are doing this week. Merging them fills the wiki with dead task lists.
+The knowledge layer holds what you know; the project layer holds what you are
+doing this week. Merging them fills the wiki with dead task lists.
 
 ## Core rule
 

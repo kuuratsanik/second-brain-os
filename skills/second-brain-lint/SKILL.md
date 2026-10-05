@@ -13,7 +13,8 @@ description: >-
 
 # Lint the vault
 
-Structural rot is silent: the vault stops answering well because pages become unreachable.
+Structural rot is silent: the vault stops answering well because pages become
+unreachable.
 
 ## Core rule
 

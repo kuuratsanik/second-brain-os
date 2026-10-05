@@ -11,7 +11,8 @@ description: >-
 
 # Quiz from your own pages
 
-A vault of pages nobody revisits is a library. Testing is how saved becomes learned.
+A vault of pages nobody revisits is a library. Testing is how saved becomes
+learned.
 
 ## Core rule
 

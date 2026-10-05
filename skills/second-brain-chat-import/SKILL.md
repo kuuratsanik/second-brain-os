@@ -2,7 +2,7 @@
 name: second-brain-chat-import
 description: >-
   Triage an exported chat history into what to ingest, what to archive and what
-  to delete, with a privacy pass first. Use this skill when the user has exported
+  to skip, with a privacy pass first. Use this skill when the user has exported
   their Claude or ChatGPT history, asks to import old conversations, or asks what
   in their chat archive is worth keeping. Do NOT use for ingesting a single
   pasted conversation, or for any material the user has not explicitly asked to
@@ -11,7 +11,8 @@ description: >-
 
 # Import chat history
 
-Chat history records the owner's reasoning, and also things they would not want synced, committed and backed up.
+Chat history records the owner's reasoning, and also things they would not
+want synced, committed and backed up.
 
 ## Core rule
 
@@ -23,11 +24,11 @@ wholesale.
 1. **Convert** with `scripts/chat_export_to_md.py` into one file per
    conversation, filtering out short exchanges.
 2. **Privacy pass.** List conversations touching health, money, other people's
-   private information, or confidential work. The user decides; you delete
+   private information, or confidential work. The user decides; you remove
    nothing on your own.
 3. **Triage the rest** into three piles: worth ingesting (they worked something
    out, decided something, or got an explanation that landed), worth archiving
-   in `raw/`, and delete.
+   in `raw/`, and skip (leave in `raw/`, do not ingest).
 4. **Report the lists.** Move nothing yet.
 5. **On approval, ingest** the first pile, with the instruction that these are
    the user's own thinking: build pages around what they were working out and
@@ -45,7 +46,7 @@ Worth ingesting: <n>
   <title> - <what it worked out>
 
 Archive only: <n>
-Delete suggested: <n>
+Skip: <n>
 ```
 
 ## Calibration
