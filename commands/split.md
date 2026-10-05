@@ -4,6 +4,6 @@ argument-hint: "[page]"
 disable-model-invocation: true
 ---
 
-Read $ARGUMENTS. If it holds more than one idea, propose the split points and the resulting page titles. Split only on approval, preserving inbound links to the original.
+Read $ARGUMENTS. If it holds more than one idea, propose the split points and the resulting page titles. Split only on approval, after a checkpoint, preserving inbound links to the original. To combine pages instead, use `/merge`.
 
-Follow the `second-brain-ingest` skill.
+Follow the `second-brain-structure` skill.

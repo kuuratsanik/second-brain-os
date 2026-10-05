@@ -2,6 +2,6 @@
 description: Find what is safe to remove
 ---
 
-Find concept pages with one source and no inbound links after a year, and stubs that never got filled. Propose removals with reasoning. Delete nothing.
+Find concept pages with one source and no inbound links after a year, and stubs that never got filled. Propose removals with reasoning; removal means archiving, never deleting. Archives them only if CLAUDE.md grants autonomy. Use `/orphans` for unlinked pages of any age and `/archive` for cold material you name.
 
-Follow the `second-brain-lint` skill.
+Follow the `second-brain-archive` skill.
