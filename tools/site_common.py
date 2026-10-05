@@ -42,11 +42,10 @@ THEME_COLOR = "#EAEEE9"
 SITE_NAME = "Second Brain OS"
 
 
-def head(title, description, page, css, base="", robots=""):
+def head(title, description, page, css, robots=""):
     """Everything from the doctype through the opening <body> and skip link.
 
-    `base` is prepended to the page URL and the nav links; the 404 page
-    passes SITE_URL because GitHub Pages serves it from any depth.
+    `robots` adds a robots meta tag (the 404 page passes "noindex").
     """
     url = SITE_URL + ("" if page == "index.html" else page)
     t, d, u = (_html.escape(x, quote=True) for x in (title, description, url))
@@ -59,7 +58,7 @@ def head(title, description, page, css, base="", robots=""):
         f'<meta property="og:title" content="{t}">',
         f'<meta property="og:description" content="{d}">',
         f'<meta property="og:url" content="{u}">',
-        '<meta property="og:locale" content="en">',
+        '<meta property="og:locale" content="en_US">',
         '<meta name="twitter:card" content="summary">',
         f'<meta name="twitter:title" content="{t}">',
         f'<meta name="twitter:description" content="{d}">',

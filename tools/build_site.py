@@ -227,8 +227,7 @@ for i, sec in enumerate(order):
     anchor = "middle" if abs(cos) < 0.35 else ("start" if cos > 0 else "end")
     dx = 0 if anchor == "middle" else (r+9 if cos > 0 else -(r+9))
     dy = (r+18) if math.sin(a) > 0.35 else (-(r+12) if math.sin(a) < -0.35 else 5)
-    nodes_svg += (f'<g class="node" data-sec="{sec}" tabindex="0" role="link" '
-                  f'aria-label="{html.escape(D["sections"][sec]["title"], quote=True)}, {n} pages">'
+    nodes_svg += (f'<g class="node" data-sec="{sec}" tabindex="0" role="link">'
                   f'<circle cx="{x:.0f}" cy="{y:.0f}" r="{r:.1f}"/>'
                   f'<text x="{x+dx:.0f}" y="{y+dy:.0f}" text-anchor="{anchor}">'
                   f'{D["sections"][sec]["title"]}</text>'
@@ -315,8 +314,10 @@ function side(cur){{
   }});
 }}
 
-let first=true;
+let first=true, last=location.pathname+location.search;
 function render(){{
+  if(location.hash==='#main'){{history.replaceState(null,'',last);return;}}
+  last=location.pathname+location.search+location.hash;
   const id=decodeURIComponent(location.hash.slice(1));
   const main=document.getElementById('main'), rail=document.getElementById('rail');
   if(!P[id]){{
@@ -408,6 +409,7 @@ if(toc){{toc.onclick=()=>{{const o=document.getElementById('side').classList.tog
 document.getElementById('side').addEventListener('click',e=>{{
   if(e.target.tagName==='A'&&innerWidth<=860){{ document.getElementById('side').classList.remove('show'); if(toc)toc.setAttribute('aria-expanded','false'); }}
 }});
+document.querySelector('.skip').addEventListener('click',e=>{{e.preventDefault();document.getElementById('main').focus();}});
 addEventListener('hashchange',render); render();
 </script></body></html>"""
 

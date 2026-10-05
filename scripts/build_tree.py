@@ -327,6 +327,7 @@ details>summary::before{content:'\\25B8';color:var(--faint);margin-right:7px;
   display:inline-block;transition:transform .12s}
 details[open]>summary::before{transform:rotate(90deg)}
 .lb{font-weight:700}
+.r a{text-decoration:underline;text-underline-offset:3px}
 .r.go{font-size:12px}
 .kids{margin-left:9px;padding-left:14px;border-left:1px solid var(--rule)}
 .kids details{margin:1px 0}
@@ -346,7 +347,7 @@ TEMPLATE = """{{HEAD}}
 {{HEADER}}
 <main class="wrap" id="main" tabindex="-1">
   <h1>The full component tree</h1>
-  <p class="lede">Everything in the repository on one page, annotated. Every line is a link: pages open on this site, code opens on GitHub. Click a branch to fold it.</p>
+  <p class="lede">Everything in the repository on one page, annotated. Every file is a link: pages open on this site, code opens on GitHub. Each branch opens a folder link as its first row, so reaching the folder itself takes one extra click. Click a branch to fold it.</p>
   <div class="ctl">
     <button onclick="document.querySelectorAll('details').forEach(d=>d.open=true)">expand all</button>
     <button onclick="document.querySelectorAll('details').forEach(d=>d.open=false)">collapse all</button>

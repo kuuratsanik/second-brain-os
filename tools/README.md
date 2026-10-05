@@ -38,7 +38,8 @@ itself holds only the ten numbered sections: `extract_site.py` skips `course-*` 
 `track-*` so step 3 owns them.
 
 `site_common.py` holds what every generator shares: the fork and upstream URLs,
-the favicon, the page head, header and footer, the CSS minifier and the compact
+the favicon, the page head (description, canonical, Open Graph and Twitter
+tags, theme-color), the skip link, header and footer, the CSS minifier and the compact
 JSON writer. Change the repository owner or the credit line there.
 
 `doc_links.py` is a stdlib-only check for relative markdown links and `#anchors`

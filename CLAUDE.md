@@ -15,7 +15,7 @@ template that readers copy into their own vault.
 | `plugins/`, `.claude-plugin/` | The agents-course Claude Code plugin and marketplace | Yes |
 | `tools/` | Site generators, shared helpers, doc link checker, kit checker | No |
 | `tests/` | `unittest` tests for the vault scripts | No |
-| `index.html`, `resources.html`, `tree.html` | Generated site, committed for GitHub Pages | Published |
+| `index.html`, `resources.html`, `tree.html`, `404.html`, `sitemap.xml`, `robots.txt` | Generated site, committed for GitHub Pages | Published |
 | `.claude/agents/` | Agents for working on this repo | No |
 
 `agents/` is product content for users' vaults. Agents for developing this

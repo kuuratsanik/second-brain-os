@@ -57,7 +57,7 @@ def not_found():
     # GitHub Pages serves this from any path depth, so every link is absolute.
     return (head("Page not found - Second Brain OS",
                  "That page does not exist. The Second Brain OS guide is one click away.",
-                 "404.html", min_css(CSS), base=SITE_URL, robots="noindex")
+                 "404.html", min_css(CSS), robots="noindex")
             + "\n" + header("", base=SITE_URL)
             + '\n<main id="main" tabindex="-1">\n  <div class="code">404</div>\n'
               '  <h1>That page is not here</h1>\n'
