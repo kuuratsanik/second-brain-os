@@ -54,7 +54,7 @@ exit 1
 
 Adjust the agent command to whatever CLI the user runs. Keep the three
 brakes visible and named: the checker outside the model (`goal-test.sh`),
-the stop rule (test passes), the budget (`MAX_ATTEMPTS`, with `--max-turns` and `--max-budget-usd` capping each attempt; both apply to `-p` runs only). With `acceptEdits` the agent can edit files but cannot run most shell commands unprompted, and a `-p` run denies prompts. If it needs to run the tests itself, add `--allowedTools "Bash(<the test command>)"`.
+the stop rule (test passes), the budget (`MAX_ATTEMPTS`, with `--max-turns` and `--max-budget-usd` capping each attempt; both apply to `-p` runs only). With `acceptEdits` the agent can edit files and run `mkdir`, `touch`, `rm`, `rmdir`, `mv`, `cp` and `sed` inside the working directory; other shell commands still need an entry, and a `-p` run denies whatever would prompt ([permission modes](https://code.claude.com/docs/en/permission-modes#auto-approve-file-edits-with-acceptedits-mode)). If it needs to run the tests itself, add `--allowedTools "Bash(<the test command>)"`. On Claude Code v2.1.259 or later, `--permission-prompts none` tells the agent nobody can answer, so it does not retry a denied command.
 
 ## Rules
 

@@ -43,7 +43,8 @@ versioned alongside your notes.
 ## Version and updates
 
 [`VERSION`](VERSION) holds the kit version, one line. It covers the skills,
-commands, agents and vault scripts together, and [`CHANGELOG.md`](../CHANGELOG.md)
+commands, agents and vault scripts together (the agents-course plugin is
+versioned separately), and [`CHANGELOG.md`](../CHANGELOG.md)
 at the repository root says what changed in each version. Copying the whole
 `skills/` folder (as the Quickstart does) puts `VERSION` at
 `.claude/skills/VERSION`, which is how a vault records what it was installed
