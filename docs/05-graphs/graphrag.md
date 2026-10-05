@@ -3,7 +3,9 @@
 GraphRAG is the approach of building a graph from a corpus first, then answering
 questions against the graph rather than against raw chunks. Microsoft Research
 published the best-known version, [From Local to Global: A Graph RAG Approach to
-Query-Focused Summarization](https://arxiv.org/abs/2404.16130).
+Query-Focused Summarization](https://arxiv.org/abs/2404.16130), and its
+[graphrag](https://github.com/microsoft/graphrag) repository warns that indexing
+"can be an expensive operation".
 
 In outline: extract entities and relationships from every document, group
 densely connected entities into communities, summarise each community, and
@@ -49,7 +51,8 @@ have not noticed. That is a once-a-quarter exercise, not infrastructure.
 
 ## Related research worth reading
 
-[HippoRAG](https://arxiv.org/abs/2405.14831) applies personalised PageRank over a knowledge graph for multi-hop
+[HippoRAG](https://arxiv.org/abs/2405.14831) (see also its
+[repository](https://github.com/OSU-NLP-Group/HippoRAG)) applies personalised PageRank over a knowledge graph for multi-hop
 questions, which is a more direct analogue of what an agent does walking links
 outward from a starting page.
 
