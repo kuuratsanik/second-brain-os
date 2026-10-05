@@ -1,6 +1,6 @@
 # Resources
 
-A health warning first: "loop engineering" was coined in June 2026 and is three months old as this page is written. The practices underneath are sturdier than the label — Steinberger himself was already asking whether the conversation had moved from loops to graphs by mid-July. Read for the mechanisms, hold the vocabulary loosely.
+A health warning first: "loop engineering" was coined in June 2026 and is three months old as this page is written. The practices underneath are sturdier than the label — Steinberger himself was already asking whether the conversation had moved from loops to graphs by mid-July. Read for the mechanisms, hold the vocabulary loosely. Anthropic, Claude Code docs and GitHub entries were re-checked on 5 October 2026; the X, O'Reilly, Osmani, IBM, Huntley, Willison and arXiv entries are marked as last checked September 2026 and not re-checked on 5 October 2026 because the pages could not be fetched.
 
 ## The naming
 
