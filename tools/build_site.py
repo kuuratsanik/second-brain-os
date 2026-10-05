@@ -316,7 +316,7 @@ function side(cur){{
 
 let first=true, last=location.pathname+location.search;
 function render(){{
-  if(location.hash==='#main'){{history.replaceState(null,'',last);return;}}
+  if(location.hash==='#main'){{history.replaceState(null,'',last);if(!first)return;}}
   last=location.pathname+location.search+location.hash;
   const id=decodeURIComponent(location.hash.slice(1));
   const main=document.getElementById('main'), rail=document.getElementById('rail');
