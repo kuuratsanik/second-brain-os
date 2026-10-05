@@ -18,7 +18,7 @@ TYPE = re.compile(r"^type:\s*(\S+)", re.M)
 # Hidden folders (.claude, .obsidian, .git, .trash), the page templates and
 # the scripts folder hold instructions and tooling, not knowledge, so they are
 # never counted as pages. Same for CLAUDE.md and README.md wherever they sit.
-SKIP_DIRS = {"node_modules", "raw", "templates", "scripts"}
+SKIP_DIRS = {"node_modules", "raw", "templates", "scripts", "archive", "journal", "output"}
 SKIP_FILES = {"CLAUDE.md", "README.md"}
 
 
@@ -31,9 +31,13 @@ def prune(dirnames):
 
 
 def main():
-    if len(sys.argv) != 2:
-        sys.exit("usage: vault_stats.py /path/to/vault")
-    vault = sys.argv[1]
+    argv = sys.argv[1:]
+    if len(argv) == 3 and argv[1] == "--include":
+        SKIP_DIRS.difference_update(x.strip() for x in argv[2].split(","))
+        argv = argv[:1]
+    if len(argv) != 1:
+        sys.exit("usage: vault_stats.py /path/to/vault [--include archive,journal]")
+    vault = argv[0]
 
     pages, types = {}, Counter()
     for dirpath, dirnames, filenames in os.walk(vault):

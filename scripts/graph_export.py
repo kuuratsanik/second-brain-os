@@ -19,7 +19,7 @@ TYPE = re.compile(r"^type:\s*(\S+)", re.M)
 # Hidden folders (.claude, .obsidian, .git, .trash), the page templates and
 # the scripts folder hold instructions and tooling, not knowledge, so they are
 # never counted as pages. Same for CLAUDE.md and README.md wherever they sit.
-SKIP_DIRS = {"node_modules", "raw", "templates", "scripts"}
+SKIP_DIRS = {"node_modules", "raw", "templates", "scripts", "archive", "journal", "output"}
 SKIP_FILES = {"CLAUDE.md", "README.md"}
 
 
@@ -48,7 +48,10 @@ def main():
     ap.add_argument("vault")
     ap.add_argument("out")
     ap.add_argument("--format", choices=["csv", "graphml"], default="csv")
+    ap.add_argument("--include", default="", metavar="DIRS",
+                    help="comma-separated folders to count anyway, e.g. archive,journal")
     args = ap.parse_args()
+    SKIP_DIRS.difference_update(x.strip() for x in args.include.split(","))
 
     pages = load(args.vault)
     stems = {os.path.splitext(os.path.basename(p))[0]: p for p in pages}

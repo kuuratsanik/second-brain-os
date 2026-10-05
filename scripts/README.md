@@ -19,8 +19,10 @@ python3 scripts/graph_export.py ~/brain graph.graphml --format graphml
 Copy the folder into the vault (`cp -r scripts ~/brain/scripts`, the Quickstart
 does this) so the `/metrics`, `/health` and `/graph-export` commands can find
 them. Hidden folders such as `.claude/` and `.obsidian/`, `templates/`,
-`scripts/`, `raw/`, and any `CLAUDE.md` or `README.md` are skipped, so the
-counts describe your wiki, not the tooling around it. On Windows, `python3` is
+`scripts/`, `raw/`, `archive/`, `journal/`, `output/`, and any `CLAUDE.md` or
+`README.md` are skipped, so the counts describe your wiki, not the tooling or
+the cold and generated material around it. Pass `--include archive,journal` to
+count folders anyway (for `vault_stats.py`: `vault_stats.py VAULT --include ...`). On Windows, `python3` is
 usually the Microsoft Store stub; run these with `python` instead.
 
 The agent can do all of this in natural language, but a script gives the same
