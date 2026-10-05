@@ -28,11 +28,11 @@ The gold standard: give the agent a sandboxed environment (a Docker container, a
 
 Public benchmarks are for comparing models and harnesses, not for measuring your product — but they show what good environment-based evals look like:
 
-- [SWE-bench](https://www.swebench.com/) family — real GitHub issues, graded by the repo's tests; SWE-bench Verified (the human-audited 500) remains the headline coding-agent number, with frontier models now in the 80–90s and the family sprouting harder variants as the original saturates.
-- [Terminal-Bench](https://www.tbench.ai/) — 2.0 has 89 hand-audited terminal tasks in real Docker containers, graded by executable tests. The cleanest template to steal from.
+- [SWE-bench](https://www.swebench.com/) family — real GitHub issues, graded by the repo's tests; SWE-bench Verified is, per the [SWE-bench README](https://github.com/SWE-bench/SWE-bench), "a subset of 500 problems that real software engineers have confirmed are solvable". The leaderboard data in the [swe-bench.github.io repository](https://github.com/SWE-bench/swe-bench.github.io) lists 79.2% as its highest Verified score (entries to December 2025); vendors report their own numbers for newer models, so check the model card and the harness behind any figure.
+- [Terminal-Bench](https://www.tbench.ai/) — [2.0](https://github.com/laude-institute/terminal-bench-2) has 89 task directories, each with, in its README's words, "several hours of human and LM-assisted validation", run in containers and graded by executable tests. The cleanest template to steal from.
 - [GAIA](https://arxiv.org/abs/2311.12983) — general assistant tasks needing web, tools and multi-step reasoning.
-- [tau2-bench](https://github.com/sierra-research/tau2-bench) — tool-agent-*user* interaction with a simulated customer; measures conversation under policy constraints.
-- [Inspect Evals](https://github.com/UKGovernmentBEIS/inspect_evals) — 200+ implementations of the above under one framework.
+- [tau2-bench](https://github.com/sierra-research/tau2-bench) — tool-agent-*user* interaction: a simulation framework for customer-service agents in which the agent must follow a domain policy ([README](https://github.com/sierra-research/tau2-bench)).
+- [Inspect Evals](https://github.com/UKGovernmentBEIS/inspect_evals) — roughly 130 evaluation directories (about 250 `@task` definitions) in the repository's `src`, including SWE-bench, GAIA and tau2, under one framework. Since May 2026 new evals are added through an external register rather than to `src`.
 
 ## CI integration
 

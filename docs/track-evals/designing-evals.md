@@ -36,7 +36,7 @@ End-to-end tells you *that* it broke; per-step tells you *where*. Details in [ag
 Small suites lie. With 20 cases, a swing from 70% to 80% is two examples — noise. Rough guidance:
 
 - 20–50 cases: enough to start the flywheel, not enough to compare prompts.
-- 100–200 per failure mode you care about: differences of ~10 points start meaning something.
+- 100–200 per failure mode you care about: at 100 cases the 95% interval on a single pass rate is still about ±10 points at worst (normal approximation, 1.96·√(0.25/100)), so only large or paired differences mean something.
 - Run stochastic systems multiple times per case; report the spread, not one lucky run.
 
 When in doubt, compute a confidence interval before celebrating. If the interval spans both "improved" and "regressed", collect more cases instead of shipping.
