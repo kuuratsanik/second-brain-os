@@ -1,6 +1,6 @@
 # Resources
 
-Curated, not comprehensive. Paper venues, repositories and package versions were checked against the projects' own READMEs and PyPI pages on 5 October 2026. The checking environment could not reach arXiv, Neo4j, DeepLearning.AI, Medium, Microsoft's documentation site or Gephi, so links to those were last confirmed live in September 2026 and their descriptions below are not re-verified.
+Curated, not comprehensive. Paper venues, repositories and package versions were checked against the projects' own READMEs and PyPI pages on 5 October 2026. Links to arXiv, Neo4j, course and article sites were last confirmed in September 2026 and their descriptions were not re-verified.
 
 ## Papers
 

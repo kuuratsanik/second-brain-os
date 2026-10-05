@@ -104,11 +104,11 @@ $ python scripts/graph_query.py neighbors "RAG"
 <- Lost in the Middle (links-to)
 
 $ python scripts/graph_query.py communities
-[4] GraphRAG, Jerry Liu, LlamaIndex, RAG
-[2] Long context replaces RAG, Lost in the Middle
+[4] GraphRAG, Long context replaces RAG, Lost in the Middle, RAG
+[2] Jerry Liu, LlamaIndex
 ```
 
-The sample output above comes from running the script on small CSV files containing those edges (including a `contradicts` edge from `Lost in the Middle` to `Long context replaces RAG`). Label propagation is a heuristic, so the grouping on a real vault can vary with the graph.
+The `neighbors` output (and the `connects` output below) comes from running the script on `edges.csv` containing `RAG,GraphRAG` and `Lost in the Middle,RAG`, and `typed_edges.csv` containing `Jerry Liu,LlamaIndex,built`, `RAG,LlamaIndex,uses`, `GraphRAG,RAG,extends` and `Lost in the Middle,Long context replaces RAG,contradicts`. The `communities` output comes from the same files without the `RAG,LlamaIndex,uses` row; with it, label propagation puts `Jerry Liu` and `LlamaIndex` in the first cluster, because that edge connects them to `RAG`. Label propagation is a heuristic, so on a real vault the grouping can vary with the graph.
 
 `neighbors` is the one-hop view of a page, both directions, with the relationship named. `communities` is the theme layer: each line one cluster, largest first.
 
