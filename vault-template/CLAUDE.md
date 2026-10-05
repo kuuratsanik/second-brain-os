@@ -51,8 +51,10 @@ standing rules for connected services). Do not nest deeper than this.
 - `raw/`: add new files when you pull from a connected service or clean a
   transcript (`<name>-clean.md` beside the original). Never edit, rename or
   delete an existing file.
-- `journal/` and any page with `maintained_by: human`: never change the wording.
-  You may add links and fix structure. Files outside `wiki/` with no frontmatter
+- `journal/`: never write there, not even links (a hook blocks it). Reference
+  entries from wiki pages.
+- Any page with `maintained_by: human`: never change the wording. You may add
+  links and fix structure. Files outside `wiki/` with no frontmatter
   count as human-maintained; your own pages there (such as `output/` drafts)
   carry frontmatter with `maintained_by: agent`. Put your writing on separate
   pages.
@@ -199,3 +201,12 @@ skip the item and queue it.
   schedule prompts. Propose it in the run report.
 - (f) Merging two people, or two pages whose identity you are unsure of.
   Archive nothing you cannot explain in one sentence.
+
+**What is enforced.** Rules written here are preferences, not boundaries. `.claude/settings.json` and `.claude/hooks/guard.py` enforce these:
+`git push`, `git remote add`, `git reset --hard`, `git clean`, `rm` and other
+deletes, curl or wget uploads, connector tools whose names say send, post,
+create, update or delete, edits to existing `raw/` files, any write to
+`journal/` or `.claude/`, edits to this file outside Profile, and staging
+`raw/workspace/`. A blocked call is final: queue the item, do not look for a way
+round. Everything else here is prompt-only,
+including (b), (d) and (f), and deletes done inside a script.

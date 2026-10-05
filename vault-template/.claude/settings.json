@@ -1,0 +1,124 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(git push *)",
+      "Bash(git remote add *)",
+      "Bash(git remote set-url *)",
+      "Bash(git reset --hard *)",
+      "Bash(git clean *)",
+      "Bash(git checkout .)",
+      "Bash(git checkout -- .)",
+      "Bash(git restore .)",
+      "Bash(git rm *)",
+      "Bash(git rebase *)",
+      "Bash(rm *)",
+      "Bash(rmdir *)",
+      "Bash(unlink *)",
+      "Bash(shred *)",
+      "Bash(find * -delete*)",
+      "Bash(find * -exec rm *)",
+      "Bash(curl *-d *)",
+      "Bash(curl *--data*)",
+      "Bash(curl *-F *)",
+      "Bash(curl *--form*)",
+      "Bash(curl *-T *)",
+      "Bash(curl *--upload-file*)",
+      "Bash(curl *--json*)",
+      "Bash(curl *-X POST*)",
+      "Bash(curl *-X PUT*)",
+      "Bash(wget *--post-data*)",
+      "Bash(wget *--post-file*)",
+      "Bash(wget *--body-*)",
+      "Edit(/journal/**)",
+      "Edit(/.claude/**)",
+      "mcp__*__*send*",
+      "mcp__*__*post*",
+      "mcp__*__*reply*",
+      "mcp__*__*forward*",
+      "mcp__*__*upload*",
+      "mcp__*__*write*",
+      "mcp__*__*schedule*",
+      "mcp__*__*respond*",
+      "mcp__*__*manage*",
+      "mcp__*__*edit*",
+      "mcp__*__*move*",
+      "mcp__*__*trash*",
+      "mcp__*__*delete*",
+      "mcp__*__*remove*",
+      "mcp__*__*create*",
+      "mcp__*__*update_*",
+      "mcp__*__*share_*",
+      "mcp__*__*update-*",
+      "mcp__*__*share-*"
+    ],
+    "ask": [
+      "Edit(/CLAUDE.md)",
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "WebFetch",
+      "WebSearch",
+      "Bash(git checkout *)",
+      "Bash(git restore *)",
+      "Bash(git switch *)",
+      "Bash(git merge *)",
+      "Bash(git stash *)",
+      "Bash(git branch *)",
+      "Bash(git tag *)"
+    ],
+    "allow": [
+      "Bash(python3 scripts/*.py)",
+      "Bash(python3 scripts/*.py *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git status *)",
+      "Bash(git log *)",
+      "Bash(git diff *)",
+      "Bash(git revert *)",
+      "Bash(git rev-parse *)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/guard.py"
+            ],
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/guard.py"
+            ],
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/guard.py"
+            ],
+            "timeout": 20
+          }
+        ]
+      }
+    ]
+  }
+}
