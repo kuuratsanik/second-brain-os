@@ -43,7 +43,9 @@ connected to existing pages in both directions.
    or list them under Gaps in `index.md`.
 6. **Update `index.md` and append to `log.md`** in the same run, because an
    index that lags is how a vault starts drifting.
-7. **Report** what changed.
+7. **Commit the run** by path, following `second-brain-commit`, with the
+   subject `run-YYYY-MM-DD-ingest`.
+8. **Report** what changed.
 
 ## Output format
 

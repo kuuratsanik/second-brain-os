@@ -1,14 +1,15 @@
 ---
 name: second-brain-archive
 description: >-
-  Find pages that no longer belong in a second-brain vault's active wiki and
-  move them to archive/ reversibly: orphans with nowhere to link, stale concept
-  pages, pruning candidates (one source, no inbound links after a year, stubs
-  never filled) and cold material. Use this skill whenever the user asks what is
-  safe to remove, to prune, archive or clean out the vault, to list orphaned or
-  stale pages, or when a scheduled archive or prune pass fires. Do NOT use to
-  delete anything, to merge duplicates, which is second-brain-merge, or to fix
-  broken links and frontmatter, which is second-brain-lint.
+  Move pages that no longer belong in a second-brain vault's active wiki to
+  archive/ reversibly: pruning candidates (one source, no inbound links after a
+  year, stubs never filled), orphans the linter found no home for, and cold
+  material the owner names. Use this skill whenever the user asks what is safe
+  to remove, to prune, archive or clean out the vault, or when a scheduled
+  archive or prune pass fires. Do NOT use to delete anything, to merge
+  duplicates, which is second-brain-merge, to find and link orphans or fix
+  broken links, which is second-brain-lint, or to list stale pages, which is
+  second-brain-graph.
 ---
 
 # Archive cold pages
@@ -27,13 +28,14 @@ Archive, never delete. Propose first. Move a page only when the vault's
 
    | Cut | Selects | Result |
    |---|---|---|
-   | Orphans | Pages with no inbound links | Find where each should be linked from; archive only if there is nowhere |
-   | Stale | Concept pages not updated in 90 days, with how many sources arrived on their topic since | Report only. A stale page with new sources needs updating, not archiving |
+   | Orphans | Pages `second-brain-lint` found with no inbound links and nowhere to link them from | Archive candidates |
    | Prune | Concept pages with one source and no inbound links after a year; stubs under about 40 words that never filled | Archive candidates |
    | Archive | Cold material the owner names, or pages untouched for a year that nothing links to | Archive candidates |
 
    Use `scripts/link_check.py` and `scripts/vault_stats.py` for orphans and
-   stubs where they exist.
+   stubs where they exist. Stale pages (not updated in 90 days) are not a cut:
+   listing them is `/stale`, and a stale page with new sources waiting needs
+   updating, not archiving.
 2. **Apply the protections.** Never archive hubs, `index.md`, `log.md`,
    anything in `wiki/systems/`, `journal/`, `raw/` or `output/`. Never archive a
    page with five or more inbound links, a page marked `maintained_by: human`
@@ -52,17 +54,21 @@ Archive, never delete. Propose first. Move a page only when the vault's
    is one.
 5. **Log** one line per page in `log.md`:
    `YYYY-MM-DD archive wiki/concepts/x.md -> archive/wiki/concepts/x.md (reason; checkpoint a1b2c3d)`.
-6. **Report.**
+6. **Commit the run** by path, following `second-brain-commit`, with the subject
+   `run-YYYY-MM-DD-archive` (old and new path of every moved page, plus
+   `index.md` and `log.md`). A proposal-only run changes nothing, so commits
+   nothing.
+7. **Report.**
 
 ## Output format
 
 ```
-Candidates: <n> (<n> orphans, <n> stale, <n> prune, <n> cold)
+Candidates: <n> (<n> orphans, <n> prune, <n> cold)
 Archived: <n> | Proposed only: <n> | Linked instead: <n> | Left alone: <n>
 
 <path> - <reason> - <inbound> in, <sources> sources, updated <date> - <action>
 
-Restore: move the file back and delete the archived* keys.
+Restore: move the file back, delete the archived* keys, add it to index.md again and move its aliases back.
 ```
 
 ## Calibration

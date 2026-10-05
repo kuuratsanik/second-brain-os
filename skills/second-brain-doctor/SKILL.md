@@ -52,7 +52,8 @@ Run every check, then report all of them, including the ones that pass.
    `~/.claude/`. Every `second-brain-*` skill must be a folder holding
    `SKILL.md` whose `name` matches the folder. Every skill named in an installed
    command or agent must be installed. A `README.md` inside `.claude/commands/`
-   or `.claude/agents/` is a defect: it becomes a `/README` command or agent.
+   is a defect: it becomes a `/README` command. Check `.claude/agents/` the same
+   way only if you can confirm in the Claude Code documentation that it applies.
    Report skills present in the kit but not installed.
 7. **Connectors.** Collect the services the vault refers to, from `CLAUDE.md`,
    `wiki/systems/vault-operating-notes.md` and `wiki/systems/routing.md` (mail,

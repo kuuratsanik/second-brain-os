@@ -41,6 +41,8 @@ owner may have written it by hand.
 7. **Index drift.** Pages missing from `index.md`, index entries pointing
    nowhere.
 8. **Repair**, then append the run to `log.md`.
+9. **Commit the run** by path, following `second-brain-commit`, with the subject
+   `run-YYYY-MM-DD-lint`. Nothing changed means no commit.
 
 ## Output format
 

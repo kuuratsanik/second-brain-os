@@ -32,8 +32,9 @@ of this skill.
    is the owner's decision.
 2. **Find the run's paths.** Take them from what this run created, edited,
    moved or archived, and from its `log.md` lines. Then run
-   `git status --porcelain` and compare. Anything modified that this run did
-   not touch is the owner's: leave it unstaged and list it in the report. If you
+   `git status --porcelain` and compare. A path that the owner also edited
+   in the same session is listed in the report as mixed, not hidden. Anything
+   modified that this run did not touch is the owner's: leave it unstaged and list it in the report. If you
    cannot tell whose a change is, leave it out.
 3. **Cut the list.** Remove, whatever the run did:
    - anything under `raw/workspace/`;
@@ -53,7 +54,11 @@ of this skill.
    `git log`, append `-2`. The body is the path list, one path per line, then one
    line of counts (created, updated, archived). Another skill finds a run's
    commit by that subject, so keep it first.
-6. **Commit by path.** `git commit -m "<message>" -- <path> <path> ...`. If it
+6. **Commit the index.** `git commit -m "<message>"`, with no path list and no
+   `-a`. Before it, run `git diff --cached --name-only` and check it is exactly
+   the run's paths: the index must hold nothing else, so unstage anything that
+   is not (`git restore --staged -- <path>`). Committing `-- <path>` would take
+   the working-tree contents and sweep in owner edits made after the run. If it
    fails (no identity, a hook), report the git error and stop. Do not change git
    config, do not use `--no-verify`, do not amend.
 7. **Report.** Commit hash, path count, `git show --stat` summary, and the

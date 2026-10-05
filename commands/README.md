@@ -151,13 +151,13 @@ Most take an optional argument. With none, they default to the sensible whole:
 | `/claude-md` | Build or update your CLAUDE.md |
 | `/install` | Install the skills, commands and agents |
 | `/doctor` | Check the setup is working |
-| `/schedule` | Propose scheduled maintenance |
+| `/maintenance-schedule` | Propose scheduled maintenance |
 
 ## Why so many
 
-Twenty-four skills do the real work and the rest are scoped entry points into
-them, or, for a few such as `/dry-run`, `/audit`, `/index` and `/scope`, short self-contained
-instructions. That is the point: you should not have to remember how to phrase a
+Twenty-four skills do the real work. Most commands are scoped entry points into
+them; a few, such as `/dry-run`, `/audit`, `/index` and `/scope`, carry short
+self-contained instructions instead. That is the point: you should not have to remember how to phrase a
 request for a thing you do every week.
 
 If a command you want is missing, it is usually one line pointing at an existing

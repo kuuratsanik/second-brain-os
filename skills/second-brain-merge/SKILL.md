@@ -32,6 +32,9 @@ exactly.
    CLAUDE.md allows deletion; leave a stub only if it was linked from outside
    the vault.
 6. **Record in `log.md`:** both names, the date, and why.
+7. **Commit the run** by path, following `second-brain-commit`, with the subject
+   `run-YYYY-MM-DD-merge`: the old page's old and new path, the survivor, every
+   page whose links changed, and `log.md`.
 
 ## Output format
 

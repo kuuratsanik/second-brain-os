@@ -61,7 +61,10 @@ Pick the operation the request names.
 7. **Checkpoint first** for retype, split and any tag or alias change across more
    than a few pages: commit the paths you will change, by path, as
    `checkpoint: <op> <run id>`. Without a repository, propose only.
-8. **Log** each operation in `log.md` and report.
+8. **Log** each operation in `log.md`.
+9. **Commit the run** by path, following `second-brain-commit`, with the subject
+   `run-YYYY-MM-DD-<link|structure>`. Nothing changed means no commit.
+10. **Report.**
 
 ## Output format
 

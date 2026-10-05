@@ -31,9 +31,11 @@ Claude Code v2.1.196. For those, write a plain-language prompt.
    whether the vault is a git repository. If you cannot tell whether the owner
    has granted autonomy, they have not: schedule read-only and proposal jobs
    only (step 4).
-2. **Pick where it runs.** Check the current Claude Code documentation first
-   (https://code.claude.com/docs/en/scheduled-tasks and the pages it links);
-   these features change. As of the pages read when this skill was written:
+2. **Pick where it runs.** Check the current Claude Code documentation first;
+   these features change. The table is from
+   https://code.claude.com/docs/en/scheduled-tasks,
+   https://code.claude.com/docs/en/routines and
+   https://code.claude.com/docs/en/desktop-scheduled-tasks, checked 2026-10-05.
 
    | | Cloud (routines) | Desktop | `/loop` |
    |---|---|---|---|
@@ -42,17 +44,23 @@ Claude Code v2.1.196. For those, write a plain-language prompt.
    | Sees local files | No, a fresh clone of GitHub repositories each run | Yes | Yes |
    | Minimum interval | 1 hour | 1 minute | 1 minute |
    | Permission prompts | None, runs autonomously | Set per task | Inherits session |
-   | Missed runs | Not stated | One catch-up run on wake | No catch-up |
+   | Missed runs | Skipped while GitHub access is lapsed (1) | One catch-up run on wake | Fires once when idle, not per missed interval |
 
-   Cloud routines work from a GitHub clone and push to `claude/` branches
-   unless the prompt says otherwise, and `raw/workspace/` is git-ignored, so a
-   cloud run cannot see it. A cloud routine includes all of the account's
-   connectors by default, and can write through them. Use cloud only if the
-   owner already keeps the vault in a GitHub repository and has decided that is
-   acceptable for what is in it. A local vault that should never leave the
-   machine means Desktop, or `cron` or Task Scheduler running Claude Code
-   headless. `/loop` expires recurring tasks after seven days and is for
-   polling inside a session, not for maintenance.
+   (1) Per the routines page, a routine skips runs for up to 72 hours when its
+   GitHub connection is missing or expired, then turns off.
+
+   Say plainly what cloud means for a vault. A cloud routine works on a GitHub
+   clone, so `raw/workspace/` (git-ignored) is not there. It pushes its changes
+   to `claude/` branches unless told otherwise, so the run commit is not in the
+   owner's local history until they merge that branch. It includes all of the
+   account's connectors by default and can write through them without asking.
+   In the vault template, pushing and writing to a connected service are hard
+   stops. Recommend Desktop, or `cron` or Task Scheduler running Claude Code
+   headless, for any vault that follows that template. If the owner still
+   chooses cloud, the prompt must say not to use any connector, the routine's
+   connector list should be emptied, and the owner merges the branch. `/loop`
+   expires recurring tasks after seven days and is for polling inside a
+   session, not for maintenance.
 3. **Choose the jobs and cadence.** Start from these, then adjust to volume:
 
    | Job | Command | Cadence |
@@ -112,7 +120,7 @@ Never write a prompt that tells an unattended run to message, email, post or
 publish. Writing to a connected service, pushing and publishing are for a live
 session when the owner asks.
 
-Claude Code also has a built-in `/schedule` for creating cloud routines. If it
-opens that flow instead of this skill, say so and continue here in plain
-language. Creating or editing a scheduled task is the owner's act: do not do it
-from inside a scheduled run.
+Claude Code's built-in `/schedule` creates cloud routines and is unaffected;
+this skill runs from `/maintenance-schedule` or from asking in plain language.
+Creating or editing a scheduled task is the owner's act: do not do it from
+inside a scheduled run.

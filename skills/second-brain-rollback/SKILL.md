@@ -38,16 +38,22 @@ force or rewrite history.
 3. **Confirm.** Ask before changing anything. Rollback is never part of a
    scheduled run, and nothing in a scheduled run can approve it.
 4. **Checkpoint.** If any of the run's paths have uncommitted changes, ask the
-   owner whether to keep them; commit them by path as
-   `checkpoint: rollback <run id>` so the rollback itself can be undone. If
-   there are none, HEAD is the checkpoint.
-5. **Revert.** `git revert --no-commit <hash>`. If it conflicts on a path, run
-   `git revert --abort` and fall back to the paths that revert cleanly, using
-   `git restore --source=<hash>^ --staged --worktree -- <path>` for each one.
-   Report the paths you could not revert. Keep the run's lines in `log.md`:
-   restore it to its pre-revert state with
-   `git restore --source=HEAD --staged --worktree -- <log path>` so the audit
-   trail survives.
+   owner to let you commit them by path as `checkpoint: rollback <run id>`, so
+   the rollback itself can be undone. If they decline, stop: never discard
+   uncommitted work to make a revert go through. If there are none, HEAD is the
+   checkpoint.
+5. **Revert.** `git revert --no-commit <hash>`, then immediately restore what a
+   rollback must not change, from HEAD:
+   `git restore --source=HEAD --staged --worktree -- <path>` for every path
+   under `raw/`, `journal/` and `output/` that the commit touched, and for the
+   log path (`log.md`), so the audit trail survives. List the `raw/`, `journal/`
+   and `output/` paths for the owner; they decide what to do with them. If the
+   revert conflicts on a path, keep the clean hunks, restore each conflicted
+   path from HEAD the same way, and list it under "Not reverted". If git still
+   reports a revert in progress, run `git revert --quit`. Never use
+   `git revert --abort` or restore from the run's parent, which would discard
+   later changes. `git restore` may prompt for approval in the vault's
+   settings; that is expected, because rollback runs only in a live session.
 6. **Log.** Append one line to `log.md`:
    `YYYY-MM-DD rollback run-... (<n> paths; checkpoint <hash>)`.
 7. **Commit by path** with the second-brain-commit rules:
@@ -60,7 +66,7 @@ force or rewrite history.
 Rolled back: run-2026-10-05-ingest (<hash>)
 Reverted: <n> paths (<n> files removed, <n> restored)
 Checkpoint: <hash | HEAD>
-Not reverted: <path - later change by owner or later run>
+Not reverted: <path - conflict with a later change | raw, journal, output, kept for you>
 Not undoable: <paths git does not track, such as raw/workspace/>
 ```
 
@@ -71,8 +77,9 @@ cannot be rolled back. Say so rather than implying the vault is back to its
 earlier state.
 
 A revert removes pages the run created from the working tree; they stay in git
-history. Never delete anything in `raw/`, `journal/` or `output/` as part of a
-rollback, even if the run commit contains it: list it and ask.
+history. Nothing in `raw/`, `journal/` or `output/` is removed or changed by a
+rollback, even if the run commit contains it: it is restored from HEAD in step 5
+and listed for the owner.
 
 If nothing in the history looks like a run commit, say so. Do not guess a
 commit from its date.
