@@ -19,7 +19,7 @@ mobile. That removes the transfer entirely if you already sync mobile.
 
 ## Transcription
 
-[Whisper](https://github.com/openai/whisper) is open source and runs locally and is good enough for a voice note recorded at arm's
+[Whisper](https://github.com/openai/whisper) is open source, runs locally, and is good enough for a voice note recorded at arm's
 length. Local matters more here than for other sources, because voice notes
 carry half-formed thoughts and meeting audio carries other people's words.
 
