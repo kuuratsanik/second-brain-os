@@ -252,24 +252,24 @@ Full notes: [reading.md](resources/reading.md) and [papers.md](resources/papers.
 
 ## Tools and plugins
 
-Obsidian plugins ranked by installs from the official community stats, September
-2026. The full catalog is in [plugins.md](resources/plugins.md) and
+Obsidian plugins from the official community stats, as of 5 October 2026. The full catalog is in
+[plugins.md](resources/plugins.md) and
 [tools.md](resources/tools.md).
 
 | Purpose | Pick | Installs |
 |---|---|---|
-| Agent in the editor | [Claudian](https://github.com/yishentu/claudian) | 2.0M |
-| Agent in the editor | [Copilot](https://github.com/logancyang/obsidian-copilot) | 1.8M |
+| Agent in the editor | [Claudian](https://github.com/yishentu/claudian) | 2.3M |
+| Agent in the editor | [Copilot](https://github.com/logancyang/obsidian-copilot) | 2.3M |
 | Suggests links | [Smart Connections](https://github.com/brianpetro/obsidian-smart-connections) | 1.2M |
-| MCP access | [Local REST API with MCP](https://github.com/coddingtonbear/obsidian-local-rest-api) | 712K |
-| Queries over frontmatter | [Dataview](https://github.com/blacksmithgu/obsidian-dataview) | 4.9M |
-| Templates | [Templater](https://github.com/SilentVoid13/Templater) | 5.5M |
-| Version control | [Git](https://github.com/Vinzent03/obsidian-git) | 3.1M |
-| Migrating in | [Importer](https://github.com/obsidianmd/obsidian-importer) | 1.6M |
-| Broken links and orphans | [Find unlinked files](https://github.com/Vinzent03/find-unlinked-files) | 225K |
-| Flashcards from notes | [Spaced Repetition](https://github.com/st3v3nmw/obsidian-spaced-repetition) | 592K |
-| Structured mind-map | [ExcaliBrain](https://github.com/zsviczian/excalibrain) | 336K |
-| Interactive graph | [Juggl](https://github.com/HEmile/juggl) | 136K |
+| MCP access | [Local REST API with MCP](https://github.com/coddingtonbear/obsidian-local-rest-api) | 767K |
+| Queries over frontmatter | [Dataview](https://github.com/blacksmithgu/obsidian-dataview) | 5.1M |
+| Templates | [Templater](https://github.com/SilentVoid13/Templater) | 5.8M |
+| Version control | [Git](https://github.com/Vinzent03/obsidian-git) | 3.2M |
+| Migrating in | [Importer](https://github.com/obsidianmd/obsidian-importer) | 1.8M |
+| Broken links and orphans | [Find unlinked files](https://github.com/Vinzent03/find-unlinked-files) | 230K |
+| Flashcards from notes | [Spaced Repetition](https://github.com/st3v3nmw/obsidian-spaced-repetition) | 609K |
+| Structured mind-map | [ExcaliBrain](https://github.com/zsviczian/excalibrain) | 348K |
+| Interactive graph | [Juggl](https://github.com/HEmile/juggl) | 138K |
 
 Outside Obsidian: [Web Clipper](https://obsidian.md/clipper) for capture,
 [Claude Code](https://code.claude.com/docs/en/setup) for maintenance,
@@ -287,17 +287,18 @@ per workflow in the guide, and a command for every scoped version of it you woul
 actually run.
 
 Other implementations, counted the same way. A repo shipping sixteen skills
-counts as sixteen. Stars from the GitHub API, September 2026.
+counts as sixteen. Stars from the GitHub API, as of 5 October 2026. Skill and
+command counts for other repositories are from September 2026.
 
 | Repo | Stars | Ships |
 |---|---|---|
-| [AgriciDaniel/claude-obsidian](https://github.com/AgriciDaniel/claude-obsidian) | 14.7K | 16 skills, 3 subagents, role presets |
-| [Astro-Han/karpathy-llm-wiki](https://github.com/Astro-Han/karpathy-llm-wiki) | 2.2K | 1 skill covering ingest, compile, query, lint |
+| [AgriciDaniel/claude-obsidian](https://github.com/AgriciDaniel/claude-obsidian) | 15.4K | 16 skills, 3 subagents, role presets |
+| [eugeniughelbur/obsidian-second-brain](https://github.com/eugeniughelbur/obsidian-second-brain) | 4.7K | 47 commands, works across three agents |
+| [Astro-Han/karpathy-llm-wiki](https://github.com/Astro-Han/karpathy-llm-wiki) | 2.4K | 1 skill covering ingest, compile, query, lint |
 | [ballred/obsidian-claude-pkm](https://github.com/ballred/obsidian-claude-pkm) | 1.9K | 13 skills, 4 subagents, full starter kit |
-| [coleam00/second-brain-starter](https://github.com/coleam00/second-brain-starter) | 768 | 1 skill that interviews you first |
-| [NicholasSpisak/second-brain](https://github.com/NicholasSpisak/second-brain) | 704 | 4 skills, npm installer |
-| [eugeniughelbur/obsidian-second-brain](https://github.com/eugeniughelbur/obsidian-second-brain) | small | 47 commands, works across three agents |
-| [micuintus/llm-wiki](https://github.com/micuintus/llm-wiki) | small | 1 skill, deliberately minimal |
+| [coleam00/second-brain-starter](https://github.com/coleam00/second-brain-starter) | 795 | 1 skill that interviews you first |
+| [NicholasSpisak/second-brain](https://github.com/NicholasSpisak/second-brain) | 735 | 4 skills, npm installer |
+| [micuintus/llm-wiki](https://github.com/micuintus/llm-wiki) | 28 | 1 skill, deliberately minimal |
 
 Where the format itself is defined:
 [anthropics/skills](https://github.com/anthropics/skills) (20 skills),
@@ -309,16 +310,16 @@ Where the format itself is defined:
 
 | Purpose | Repo | Stars |
 |---|---|---|
-| Build a graph from any folder | [Graphify](https://github.com/Graphify-Labs/graphify) | 116K |
-| Graph RAG, incremental | [LightRAG](https://github.com/HKUDS/LightRAG) | 39K |
+| Build a graph from any folder | [Graphify](https://github.com/Graphify-Labs/graphify) | 124K |
+| Graph RAG, incremental | [LightRAG](https://github.com/HKUDS/LightRAG) | 40K |
 | Graph RAG, reference | [microsoft/graphrag](https://github.com/microsoft/graphrag) | 36K |
 | Graph RAG, readable | [nano-graphrag](https://github.com/gusye1234/nano-graphrag) | 4.0K |
 | Multi-hop retrieval | [HippoRAG](https://github.com/OSU-NLP-Group/HippoRAG) | 4.0K |
-| The landscape | [Awesome-GraphRAG](https://github.com/DEEP-PolyU/Awesome-GraphRAG) | 2.6K |
-| Agent memory | [mem0](https://github.com/mem0ai/mem0) | 65K |
+| The landscape | [Awesome-GraphRAG](https://github.com/DEEP-PolyU/Awesome-GraphRAG) | 2.7K |
+| Agent memory | [mem0](https://github.com/mem0ai/mem0) | 67K |
 | Temporal knowledge graphs | [graphiti](https://github.com/getzep/graphiti) | 31K |
 | Graph plus vector memory | [cognee](https://github.com/topoteretes/cognee) | 31K |
-| MCP server index | [awesome-mcp-servers](https://github.com/punkpeye/awesome-mcp-servers) | 95K |
+| MCP server index | [awesome-mcp-servers](https://github.com/punkpeye/awesome-mcp-servers) | 96K |
 
 Alternative homes for a vault, from Logseq to AFFiNE, plus RAG frameworks and
 AI-native note apps: [repositories.md](resources/repositories.md) and

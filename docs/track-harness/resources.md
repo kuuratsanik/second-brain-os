@@ -1,6 +1,6 @@
 # Resources
 
-Curated, not exhaustive. Everything here was checked in September 2026 and earns its place. Read alongside [what a harness is](what-a-harness-is.md) for the vocabulary.
+Curated, not exhaustive. Everything here was checked in September 2026 and earns its place, except where an entry says it was not re-checked. Read alongside [what a harness is](what-a-harness-is.md) for the vocabulary.
 
 ## Foundational posts
 
@@ -18,9 +18,9 @@ Curated, not exhaustive. Everything here was checked in September 2026 and earns
 - [The lethal trifecta](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/) — Simon Willison. The security frame for every agent that reads untrusted content. His ongoing blog is the best running commentary on agents generally.
 - [The 2026-07-28 MCP specification](https://blog.modelcontextprotocol.io/posts/2026-07-28/) — what changed when MCP went stateless, from the protocol team.
 
-- [Improved token efficiency](https://cursor.com/blog/improved-token-efficiency) — Cursor. A production harness slimmed in six moves: two thirds of the system prompt deleted as models improved, tools loaded on demand (60% of static tool tokens gone), explicit cache breakpoints, sparser line numbers, subagent discipline. The rare post with numbers per change; [this replication prompt](https://x.com/undefinedKi/status/2103219508605555033) applies the same audit to your own setup.
+- [Improved token efficiency](https://cursor.com/blog/improved-token-efficiency) — Cursor. A production harness slimmed in six moves: two thirds of the system prompt deleted as models improved, tools loaded on demand (60% of static tool tokens gone), explicit cache breakpoints, sparser line numbers, subagent discipline. The rare post with numbers per change; [this replication prompt](https://x.com/undefinedKi/status/2103219508605555033) applies the same audit to your own setup. *Not re-checked on 5 October 2026: cursor.com and x.com were blocked from the review environment, so the summary and the figures are from the September check and have not been matched to the post again.*
 
-- [Palantir AIP architecture](https://www.palantir.com/docs/foundry/architecture-center/aip-architecture) — the agent stack of a platform run inside genuinely locked-down organisations, and most of it copies to a small project: an ontology of typed objects and permitted actions instead of raw data access, one gateway in front of every model call (masking, caching, retries, token accounting), swappable models behind config, three triggers (schedule, event, API), evals inside the release cycle, every action traced. [This breakdown](https://x.com/undefinedKi/status/2103883647501652057) maps each piece to what you would use at home.
+- [Palantir AIP architecture](https://www.palantir.com/docs/foundry/architecture-center/aip-architecture) — the agent stack of a platform run inside genuinely locked-down organisations, and most of it copies to a small project: an ontology of typed objects and permitted actions instead of raw data access, one gateway in front of every model call (masking, caching, retries, token accounting), swappable models behind config, three triggers (schedule, event, API), evals inside the release cycle, every action traced. [This breakdown](https://x.com/undefinedKi/status/2103883647501652057) maps each piece to what you would use at home. *Not re-checked on 5 October 2026: palantir.com and x.com were blocked from the review environment, so the summary is from the September check and has not been matched to the page again. The "breakdown" thread is a third-party reading, not Palantir's own description.*
 
 ## Repos worth reading
 
