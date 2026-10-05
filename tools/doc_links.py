@@ -6,6 +6,7 @@ A link is broken when its target file or folder does not exist, or when its
 Links inside code fences and inline code are ignored, as are URLs.
 
     python3 tools/doc_links.py            # from anywhere; exit 1 on any failure
+    python3 tools/doc_links.py --selftest # check the checker itself
 """
 import glob, io, os, re, sys
 from urllib.parse import unquote
@@ -15,8 +16,9 @@ LINK = re.compile(r"!?\[(?:[^\]\\]|\\.)*\]\(\s*<?([^)\s>]+)>?(?:\s+\"[^\"]*\")?\
 SCHEME = re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*:")
 
 
-def strip_code(text):
-    out, fence = [], None
+def fenced_lines(text):
+    """Yield (line, in_code_block); fence lines themselves count as code."""
+    fence = None
     for line in text.split("\n"):
         m = re.match(r"^\s*(`{3,}|~{3,})", line)
         if m:
@@ -24,10 +26,15 @@ def strip_code(text):
                 fence = m.group(1)[0]
             elif m.group(1)[0] == fence:
                 fence = None
-            out.append("")
+            yield line, True
             continue
-        out.append("" if fence else re.sub(r"`+[^`]*`+", "", line))
-    return out
+        yield line, fence is not None
+
+
+def strip_code(text):
+    """Lines with fenced blocks blanked and inline code removed (for links)."""
+    return ["" if code else re.sub(r"`+[^`]*`+", "", line)
+            for line, code in fenced_lines(text)]
 
 
 def slug(heading):
@@ -45,8 +52,8 @@ def anchors(path):
     if path not in _anchors:
         seen, found = {}, set()
         text = io.open(path, encoding="utf-8").read()
-        for line in strip_code(text):
-            m = re.match(r"^#{1,6}\s+(.*?)\s*#*\s*$", line)
+        for line, code in fenced_lines(text):
+            m = None if code else re.match(r"^#{1,6}\s+(.*?)\s*#*\s*$", line)
             if m:
                 s = slug(m.group(1))
                 n = seen.get(s, 0)
@@ -79,7 +86,31 @@ def check(path):
     return errs
 
 
+def selftest():
+    import tempfile
+    body = ("# Title\n\n## The `raw/` folder\n\n## Dup\n\n## Dup\n\n"
+            "## A & B: C.d!\n\n## [Link](x.md) text\n\n```\n## not a heading\n```\n\n"
+            "<a id=\"custom\"></a>\n")
+    src = ("# S\n[ok](t.md#the-raw-folder) [dup](t.md#dup-1) [punct](t.md#a--b-cd) "
+           "[lnk](t.md#link-text) [id](t.md#custom) [self](#s) [url](https://x.y/z) "
+           "`[code](gone.md)`\n```\n[fenced](gone.md)\n```\n"
+           "[bad1](gone.md) [bad2](t.md#nope) [bad3](t.md#not-a-heading)\n")
+    with tempfile.TemporaryDirectory() as d:
+        io.open(os.path.join(d, "t.md"), "w", encoding="utf-8").write(body)
+        io.open(os.path.join(d, "s.md"), "w", encoding="utf-8").write(src)
+        errs = check(os.path.join(d, "s.md"))
+    want = ["missing file gone.md", "no heading for #nope", "no heading for #not-a-heading"]
+    ok = len(errs) == 3 and all(w in e for w, e in zip(want, errs))
+    print("selftest", "ok" if ok else "FAILED")
+    if not ok:
+        for e in errs:
+            print("  ", e)
+    return 0 if ok else 1
+
+
 def main():
+    if "--selftest" in sys.argv:
+        return selftest()
     files = [os.path.join(ROOT, "README.md")] + sorted(
         glob.glob(os.path.join(ROOT, "docs", "**", "*.md"), recursive=True))
     errs = [e for f in files if os.path.exists(f) for e in check(f)]

@@ -29,4 +29,6 @@ jobs:
       - name: Check vault-template links
         run: python3 scripts/link_check.py vault-template
       - name: Check docs links and anchors
-        run: python3 tools/doc_links.py
+        run: |
+          python3 tools/doc_links.py --selftest
+          python3 tools/doc_links.py
