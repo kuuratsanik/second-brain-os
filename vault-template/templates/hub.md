@@ -1,7 +1,6 @@
 ---
 title:
-type: entity
-kind: person | org | product | tool
+type: hub
 domain: []
 lang: en
 sensitivity: normal
@@ -13,8 +12,10 @@ tags: []
 
 # {{title}}
 
-## What it is
+## What belongs here
 
-## Why it appears here
+## Open
 
-## Mentioned in
+## Pages
+
+## Gaps

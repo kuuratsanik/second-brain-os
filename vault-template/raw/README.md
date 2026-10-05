@@ -1,10 +1,30 @@
 # raw/
 
-Drop source material here: clipped articles, transcripts, PDFs, exported chats,
-voice notes, anything.
+Source material, grouped by where it came from. The grouping tells the agent
+how to ingest each item; see the routing table in `CLAUDE.md`.
+
+| Folder | What goes in it |
+|---|---|
+| `clippings/` | Web articles from Obsidian Web Clipper |
+| `youtube/` | Video clips and transcripts |
+| `meetings/` | Granola transcripts and notes |
+| `workspace/email/` | Gmail threads |
+| `workspace/chat/` | Slack threads |
+| `workspace/docs/` | Notion pages and Google Drive files |
+| `workspace/calendar/` | Google Calendar events |
+| `ai-chats/` | Exported AI chat history |
+| `inbox/` | Anything else: PDFs, voice notes, loose files |
+| `assets/` | Images and attachments referenced by raw files |
 
 Nothing in this folder is edited after it lands. The agent reads from here and
-writes to `wiki/`. If a file is wrong, replace it and re-ingest rather than
-patching it in place, so the source stays a faithful record of what you saved.
+writes to `wiki/`. It may add new files when it pulls something from a
+connected service, but never changes or deletes an existing one. If a file is
+wrong, add the corrected one next to it and re-ingest, so the source stays a
+faithful record of what you saved.
 
-`assets/` holds images and attachments referenced by raw files.
+Name files `YYYY-MM-DD-slug.md`, with the slug in lowercase ASCII (õ, ö become
+o; ä becomes a; ü becomes u; š becomes s; ž becomes z). The page's real title
+goes in its frontmatter, not the file name.
+
+Email, chat and meeting files contain other people's words. Keep them out of
+any repository you push or share.

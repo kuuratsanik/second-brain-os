@@ -1,6 +1,9 @@
 ---
 title:
 type: concept
+domain: []
+lang: en
+sensitivity: normal
 created:
 updated:
 aliases: []

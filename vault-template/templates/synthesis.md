@@ -1,6 +1,9 @@
 ---
 title:
 type: synthesis
+domain: []
+lang: en
+sensitivity: normal
 created:
 updated:
 aliases: []
