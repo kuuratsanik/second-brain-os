@@ -26,7 +26,7 @@ Save all twenty as `cases.yaml`. The `expect` line is for humans; the `check` li
 
 ## Step 3: run the checks on traces
 
-Store each run's trace as `traces/<id>.json` — a list of events, tool calls included:
+Store each run's trace as `traces/<id>.json` — a list of events, tool calls included. This is a simplified shape of this course's own; a Claude Code session transcript (JSONL under `~/.claude/projects/`) needs a small conversion script to produce it:
 
 ```json
 [
