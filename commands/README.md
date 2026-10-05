@@ -10,6 +10,12 @@ cp commands/*.md ~/brain/.claude/commands/ && rm ~/brain/.claude/commands/README
 Leave this README out: anything in `.claude/commands/` becomes a slash command,
 and `/README` is not one you want.
 
+To update a vault that already has the kit, run `/install` rather than copying
+by hand. It compares your `.claude/skills/VERSION` with the checkout's, shows
+the [CHANGELOG](../CHANGELOG.md) entries since yours, and lists the copy
+commands. Copying over an old install leaves renamed commands behind (for
+example `/schedule`, now `/maintenance-schedule`), which `/install` points out.
+
 Commands are thin on purpose: each one points at a skill and sets its scope. The
 behaviour lives in the skill, so `/ingest-youtube` and a scheduled task and you
 asking in plain language all produce the same result.
@@ -149,7 +155,7 @@ Most take an optional argument. With none, they default to the sensible whole:
 |---|---|
 | `/init` | Scaffold a new vault |
 | `/claude-md` | Build or update your CLAUDE.md |
-| `/install` | Install the skills, commands and agents |
+| `/install` | Install the skills, commands and agents, or update an installed vault |
 | `/doctor` | Check the setup is working |
 | `/maintenance-schedule` | Propose scheduled maintenance |
 

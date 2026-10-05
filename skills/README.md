@@ -40,6 +40,24 @@ cp -r skills/second-brain-* ~/.claude/skills/
 Or keep them inside the vault at `.claude/skills/` so they travel with it and get
 versioned alongside your notes.
 
+## Version and updates
+
+[`VERSION`](VERSION) holds the kit version, one line. It covers the skills,
+commands, agents and vault scripts together, and [`CHANGELOG.md`](../CHANGELOG.md)
+at the repository root says what changed in each version. Copying the whole
+`skills/` folder (as the Quickstart does) puts `VERSION` at
+`.claude/skills/VERSION`, which is how a vault records what it was installed
+from. A vault without that file predates versioning.
+
+To update a vault, pull the checkout and run `/install` in the vault. It
+compares the two versions, shows the CHANGELOG entries since yours, and lists
+the copy commands for you to run. It never overwrites the vault's `CLAUDE.md`
+or `.claude/settings.json`.
+
+Bump `VERSION` in the same change as any user-facing edit to the kit: a major
+version for a change that breaks an existing vault (a rename, a removed
+command), a minor version for new skills or commands, a patch version for fixes.
+
 ## Which ones matter most
 
 `second-brain-ingest` and `second-brain-query` carry the system. The linking rule
