@@ -30,12 +30,14 @@ and have sat for a year, and stubs that were never filled. They move to
 
 ## Setting one up
 
-In Claude Desktop, Code tab, then Routines, New routine, Local (see the
+In Claude Desktop, Code tab, then Routines, New routine, Local. The form takes a
+name (unique across your tasks), a description, the instructions, and a schedule;
+you pick the working folder, your vault, under the instructions (see the
 [desktop scheduled tasks documentation](https://code.claude.com/docs/en/desktop-scheduled-tasks)):
 
 ```
+Name:          vault-ingest
 Schedule:      Daily, 7:00am
-Folder:        your vault
 Instructions:  File the 20 oldest pending items in raw/ into the wiki
                following CLAUDE.md. Before any merge, archive or batch
                rewrite, commit a checkpoint of the paths you will change.
@@ -106,8 +108,9 @@ features change, so check the documentation before relying on any of it.
 
 ### Permission mode for unattended runs
 
-In the default permission mode, a headless or Desktop run with the template
-refuses every page write, because nobody is there to approve it. Start the run
+In the default permission mode, a headless run with the template refuses every
+page write, because nobody is there to approve it. A Desktop run in Manual mode
+stalls until you approve the action. Start the run
 with `--permission-mode acceptEdits`, set the task's permission mode in the
 Desktop form, or set `permissions.defaultMode` in `.claude/settings.json`. The
 deny rules and the hook still apply. See the "Scheduled runs" paragraph in the

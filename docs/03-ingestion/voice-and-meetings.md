@@ -14,8 +14,9 @@ Simplest reliable setup: record in the phone's default app, share to a cloud
 folder, and have a scheduled task transcribe anything new into `raw/`.
 
 Obsidian's [Audio recorder](https://help.obsidian.md/plugins/audio-recorder)
-core plugin records audio into a note, and its help page marks it as available on
-mobile. That removes the transfer entirely if you already sync mobile.
+core plugin records audio into a note and saves the file in your vault. If you
+sync your vault to your phone, that can remove the transfer; check that the
+plugin works in your mobile app.
 
 ## Transcription
 
