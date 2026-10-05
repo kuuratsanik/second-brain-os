@@ -1,5 +1,5 @@
 ---
 type: regex
-pattern: 'VERDICT|defects'
+pattern: 'VERDICT:\s*(pass|fail)'
 target: trace
 ---

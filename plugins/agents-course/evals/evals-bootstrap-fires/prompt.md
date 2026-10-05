@@ -9,4 +9,5 @@ silently break it. I have no trace logging yet. Three failures I remember:
 1. It refunded order #1042 without asking for approval first.
 2. It replied to a billing question without looking up the order.
 3. It sent a reply that included another customer's email address.
-Set up a first suite for me.
+Set up a first suite for me. Put `cases.yaml` and `check_traces.py` in the
+current directory.

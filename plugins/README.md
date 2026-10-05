@@ -41,10 +41,11 @@ run, the `evals-bootstrap` and `goal-test` cases cannot create their files, and
 the read-only guard on the audit skills passes trivially. The suite never
 grants `Bash`, so no sandbox backend is needed.
 
-Each case runs three times with the plugin and three times without it, which
-is about a dollar or two for the whole suite on list prices (one run of every
-case, both arms, cost $1.72 when this suite was written). For a cheap check
-while editing a skill, run one arm once:
+Each case runs three times with the plugin and three times without it. One run
+of the whole suite with `--runs 1`, both arms, 12 cases, cost $1.72 at list
+prices when this suite was written. The default three runs per case should
+cost about three times that, roughly $5, plus run-to-run variation. For a
+cheap check while editing a skill, run one arm once:
 
 ```bash
 claude plugin eval . --case 'context-audit-*' --runs 1 --ablation none
@@ -68,9 +69,14 @@ The cases paste their inputs into the prompt instead of using fixture projects,
 because fixtures need `--scaffold`, which runs a script as you. Each run starts
 in an empty workspace, so the audit skills read the pasted text.
 
+The `no-edit` and `no-write` graders test the plugin's wiring, not the model:
+they mean something only while `Edit` and `Write` are granted, and the prompts do not ask
+for a change, so they catch a skill that loses its `disallowed-tools` line.
+
 A `Δ` of `0.00` on a case means the plugin did not change the score on that
 case. In a first run on 2026-10-05 the content checks of `context-audit-fires`
-and `gate-check-fires` also passed without the plugin; the trigger graders
+and `gate-check-fires` also passed without the plugin (those cases have since
+gained checks on each skill's own output format, not yet run); the trigger graders
 (`tool_used: Skill`) are excluded from the score in a two-arm run, so only the
 content checks count there. Read those two as regression guards, not as proof
 of lift. Results go to `evals/results/`, which is git-ignored.

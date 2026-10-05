@@ -1,5 +1,5 @@
 ---
-tags: [trigger, gate-check]
+tags: [trigger, behaviour, gate-check]
 max_turns: 12
 allowed_tools: [Read, Glob, Grep, Skill]
 ---

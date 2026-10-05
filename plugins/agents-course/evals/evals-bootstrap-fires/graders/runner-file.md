@@ -1,4 +1,4 @@
 ---
 type: file_exists
-path: '**/check_traces.py'
+path: 'check_traces.py'
 ---

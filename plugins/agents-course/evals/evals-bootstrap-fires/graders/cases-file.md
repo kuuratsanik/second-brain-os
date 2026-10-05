@@ -1,4 +1,4 @@
 ---
 type: file_exists
-path: '**/cases.yaml'
+path: 'cases.yaml'
 ---

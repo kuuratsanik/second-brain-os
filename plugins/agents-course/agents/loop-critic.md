@@ -26,7 +26,10 @@ Procedure:
    handling only the example case, catching and swallowing errors, editing
    the test instead of the code.
 
-Output, always in this shape:
+Output, always in this shape. The first line of your reply is always the
+`VERDICT:` line, even when there is nothing to check (an empty directory, a
+missing goal): then it is `VERDICT: fail` and the first defect says what was
+missing. Never open with prose.
 
 ```
 VERDICT: pass | fail
