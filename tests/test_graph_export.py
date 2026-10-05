@@ -84,6 +84,20 @@ class GraphExport(VaultCase):
         with open(out, encoding="utf-8") as fh:
             self.assertEqual(fh.readline().strip(), "source,target")
 
+    def test_same_name_pages_are_distinct_nodes(self):
+        write(self.vault, "people/Ann.md", f"# Ann\n{BODY}\n")
+        write(self.vault, "wiki/Ann.md", f"# Ann\n{BODY}\n")
+        write(self.vault, "wiki/user2.md", f"# U\n{BODY}\n[[people/Ann]] [[wiki/Ann]]\n")
+        out, _ = self.export("csv")
+        with open(out, newline="", encoding="utf-8") as fh:
+            edges = [tuple(r) for r in csv.reader(fh)]
+        self.assertIn(("user2", "people/Ann"), edges)
+        self.assertIn(("user2", "wiki/Ann"), edges)
+        out, stdout = self.export("graphml")
+        ids = {n.get("id") for n in ET.parse(out).getroot().iter(NS + "node")}
+        self.assertTrue({"people/Ann", "wiki/Ann", "alpha"} <= ids)
+        self.assertNotIn("Ann", ids)
+
 
 if __name__ == "__main__":
     unittest.main()

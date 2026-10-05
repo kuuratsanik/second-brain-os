@@ -102,6 +102,35 @@ class ChatExport(VaultCase):
         self.assertEqual(p.returncode, 0, p.stderr)
         self.assertEqual(os.listdir(out), ["plan-the-week.md"])
 
+    def test_mapping_walks_children_with_null_timestamps(self):
+        def node(role, text, parent, children):
+            return {"parent": parent, "children": children,
+                    "message": {"author": {"role": role}, "create_time": None, "content": {"parts": [text]}}}
+        conv = {"title": "Tree", "mapping": {
+            "c": node("assistant", "THIRD " + LONG, "b", []),
+            "a": node("user", "FIRST " + LONG, "root", ["b"]),
+            "b": node("assistant", "SECOND " + LONG, "a", ["c"]),
+            "root": {"parent": None, "children": ["a"], "message": None},
+        }}
+        out, _ = self.convert([conv])
+        text = self.read(out, "tree.md")
+        self.assertLess(text.index("FIRST"), text.index("SECOND"))
+        self.assertLess(text.index("SECOND"), text.index("THIRD"))
+
+    def test_mapping_follows_current_node_branch(self):
+        def node(text, parent, children):
+            return {"parent": parent, "children": children,
+                    "message": {"author": {"role": "user"}, "content": {"parts": [text]}}}
+        conv = {"title": "Branch", "current_node": "new", "mapping": {
+            "root": {"parent": None, "children": ["old", "new"], "message": None},
+            "old": node("OLDBRANCH " + LONG, "root", []),
+            "new": node("NEWBRANCH " + LONG, "root", []),
+        }}
+        out, _ = self.convert([conv])
+        text = self.read(out, "branch.md")
+        self.assertIn("NEWBRANCH", text)
+        self.assertNotIn("OLDBRANCH", text)
+
 
 if __name__ == "__main__":
     unittest.main()

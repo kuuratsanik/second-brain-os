@@ -62,6 +62,14 @@ class VaultStats(VaultCase):
         write(self.vault, "wiki/bomtyped.md", f"---\ntype: source\n---\n{BODY}\n", bom=True)
         self.assertRegex(self.stats(), r"source\s+1")
 
+    def test_path_link_picks_the_named_folder(self):
+        write(self.vault, "people/Ann.md", f"# Ann\n{BODY}\n")
+        write(self.vault, "wiki/Ann.md", f"# Ann\n{BODY}\n")
+        write(self.vault, "wiki/user2.md", f"# U\n{BODY}\n[[people/Ann]] [[people/Ann]]\n")
+        out = self.stats()
+        self.assertRegex(out, r"\s2\s+" + re.escape(os.path.join("people", "Ann.md")))
+        self.assertRegex(out, r"\s0\s+" + re.escape(os.path.join("wiki", "Ann.md")))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -84,6 +84,31 @@ class LinkCheck(VaultCase):
         p = run_script("link_check.py", empty, "--json")
         self.assertEqual(json.loads(p.stdout)["pages"], 0)
 
+    def dup_pages(self):
+        write(self.vault, "people/Ann.md", f"# Ann\n{BODY}\n")
+        write(self.vault, "wiki/Ann.md", f"# Ann\n{BODY}\n")
+        write(self.vault, "wiki/user2.md", f"# U\n{BODY}\n[[people/Ann]]\n[[wiki/ann.md]]\n")
+
+    def test_path_link_picks_the_named_folder(self):
+        self.dup_pages()
+        r = self.result()
+        self.assertEqual(r["broken"][0]["target"], "Missing Page")
+        self.assertEqual(r["orphans"].count(os.path.join("wiki", "Ann.md")), 0)
+        self.assertEqual(r["orphans"].count(os.path.join("people", "Ann.md")), 0)
+
+    def test_path_link_does_not_fall_to_the_other_folder(self):
+        write(self.vault, "people/Ann.md", f"# Ann\n{BODY}\n")
+        write(self.vault, "wiki/Ann.md", f"# Ann\n{BODY}\n")
+        write(self.vault, "wiki/user2.md", f"# U\n{BODY}\n[[people/Ann]]\n")
+        r = self.result()
+        # only people/Ann is linked, so wiki/Ann is the orphan (not people/Ann)
+        self.assertIn(os.path.join("wiki", "Ann.md"), r["orphans"])
+        self.assertNotIn(os.path.join("people", "Ann.md"), r["orphans"])
+
+    def test_unknown_folder_falls_back_to_name(self):
+        write(self.vault, "wiki/user2.md", f"# U\n{BODY}\n[[elsewhere/Orphan]]\n")
+        self.assertNotIn(os.path.join("wiki", "orphan.md"), self.result()["orphans"])
+
 
 if __name__ == "__main__":
     unittest.main()
