@@ -16,14 +16,16 @@ Jev is not a general-purpose model. It answers typed questions about a blob of c
 - Open-ended reasoning where you cannot enumerate the answers up front.
 - Tasks needing an explanation. Jev gives you a probability, not a rationale — a real problem for audits in regulated settings.
 - Careful reading. Early users report Jev reads literally: negations and scoping words trip it, it cannot count reliably, and it does not treat dates as ordered quantities.
-- Raw accuracy at the frontier. On TypeSafe's own eval, Claude Opus 5 scored 73.1% against Jev's 67.8%.
+- Raw accuracy at the frontier. On TypeSafe's own eval, Claude Opus 5 (since superseded in Anthropic's lineup by Opus 5.5) scored 73.1% against Jev's 67.8%. These figures could not be re-checked. The eval's [code](https://github.com/typesafe-ai/WorkflowEvals) says its scores measure agreement with reference answers from OpenAI and Anthropic models and a consensus of them, not with human labels, so read "accuracy" as agreement.
 
 ## The latency and cost maths
 
-All figures are TypeSafe's published claims, not independent measurements:
+All figures below are TypeSafe's published claims, which could not be re-checked on 5 October 2026, not independent measurements. The four-workflow eval is real and public: [WorkflowEvals](https://github.com/typesafe-ai/WorkflowEvals) lists four workflows (invoice processing, customer service, agent-trace observability, security incidents) with 705 cases between them.
 
 - End-to-end latency of 70–500ms, versus 3–329s quoted for frontier LLM workflows — the "40–200x faster" range.
 - Pricing of $0.042 per million input tokens, output tokens free. On their four-workflow eval that works out to about $0.0004 per case, against $0.0304 for GPT-5.6 Terra (67.9% accuracy, 10.1s) and $0.1761 for Claude Opus 5 (37.8s).
 - Peak claims of 193.6x faster and 444.6x cheaper come from workflows built by TypeSafe's own capabilities team, run from their own machines. They concede these are high-end numbers, and they cannot yet prove pricing is not subsidised.
+
+An independent benchmark gives one data point against the latency claim: [Jevals](https://github.com/Jevals/jevals-data) reports p95 latencies of 653 to 693 ms for Jev, called through Vercel AI Gateway, which adds a hop of its own and is a different workload from TypeSafe's. The same release reports costs of $0.029 to $0.043 per thousand decisions. Its findings are mixed on quality: Jev tied the best of six LLMs on one yes/no task, tied for second on an intent task, and no model beat guessing on a helpfulness-scoring task.
 
 The steel-manned version: for a million classify-or-route decisions a day, even a 10x real-world saving changes what is economical to build. Whether the saving is 10x or 400x is exactly what independent testing has not yet established. To wire it into an agent, see [Jev in an agent stack](jev-in-an-agent-stack.md); to try a first project, see [getting started](getting-started.md).

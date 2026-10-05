@@ -8,11 +8,11 @@ One function, `decide(schema, question, state)`, returning `{"value": ..., "conf
 
 ## Why self-consistency, not logprobs
 
-Two honest routes to a confidence number from an LLM. Token logprobs would be the direct one, but it is closed today: the Claude API does not expose logprobs at all, and on OpenAI's current models developers report the logprobs array coming back empty whenever structured outputs (`json_schema`) are enabled — the one mode this pattern depends on. The route that works is self-consistency: sample the same question several times, take the majority answer, and use the agreement fraction as confidence. Cruder, but it measures something real — how stable the model's judgement is on your input.
+Two honest routes to a confidence number from an LLM. Token logprobs would be the direct one, but it is closed here: the [Claude Messages API](https://platform.claude.com/docs/en/api/messages) has no parameter or response field for token log probabilities. Other providers offer logprobs on some models; whether they work alongside structured outputs varies by model, so check the provider's current documentation before relying on them. The route that works on Claude is self-consistency: sample the same question several times, take the majority answer, and use the agreement fraction as confidence. Cruder, but it measures something real — how stable the model's judgement is on your input.
 
 ## The code
 
-Constrained output via the Claude API's structured outputs (`output_config`, generally available, no beta header), five parallel samples on the small fast model. Needs `pip install anthropic` and an `ANTHROPIC_API_KEY`.
+Constrained output via the Claude API's [structured outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs) (`output_config.format`, generally available, no beta header, supported on Haiku 4.5), five parallel samples on the small fast model. Needs `pip install anthropic` (tested against 1.11.0) and an `ANTHROPIC_API_KEY`. Claude Haiku 4.5 is listed at $1 per million input tokens and $5 per million output tokens, and its [model page](https://platform.claude.com/docs/en/models/haiku-4-5/overview) lists retirement as "not sooner than October 15, 2026", so check the deprecations page before pinning it in anything long-lived.
 
 ```python
 # decision.py
@@ -27,10 +27,11 @@ MODEL = "claude-haiku-4-5"      # small and fast: this seat is System One work
 SAMPLES = 5
 
 def _ask_once(schema: dict, question: str, state: str) -> str:
+    # No temperature argument: the Python SDK (1.11.0) does not accept one,
+    # and the samples must vary, so sampling stays at the API default.
     response = client.messages.create(
         model=MODEL,
         max_tokens=256,
-        temperature=1.0,  # the default, stated on purpose: samples must vary
         messages=[{"role": "user", "content": f"{question}\n\nState:\n{state}"}],
         output_config={
             "format": {
@@ -64,4 +65,4 @@ if __name__ == "__main__":
 
 ## How this differs from a real System One model
 
-Be clear-eyed about the gap. Jev is non-autoregressive and answers a whole battery of questions in one parallel pass; this makes five generation calls per question. Its confidence is a calibrated probability trained with RLCD; ours is a vote count that can only take six values and says nothing about calibration. Latency is a second or two against a claimed 70–500ms, and each decision costs five Haiku calls against $0.042 per million tokens. What survives the swap is the contract — and that is the part your code depends on. Next: [the confidence-gated router](build-router.md).
+Be clear-eyed about the gap. Jev is non-autoregressive and answers a whole battery of questions in one parallel pass; this makes five generation calls per question. Its confidence is a calibrated probability trained with RLCD; ours is a vote count that can only take six values and says nothing about calibration. Latency is a second or two against a claimed 70–500ms, and each decision costs five Haiku calls, which carry both input and output tokens at Anthropic's rates, against TypeSafe's stated $0.042 per million input tokens with free output. What survives the swap is the contract — and that is the part your code depends on. Next: [the confidence-gated router](build-router.md).
