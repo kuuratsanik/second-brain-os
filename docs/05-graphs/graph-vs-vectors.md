@@ -60,7 +60,8 @@ entry points, the graph to expand from them.
 That way recall comes from search and structure comes from the graph, each doing
 what it is good at. See [adding RAG when you need
 it](../07-retrieval/rag-on-top.md) for the threshold where it starts to be worth
-the maintenance.
+the maintenance. For graphs as agent memory outside a vault, see the handbook's
+[why knowledge graphs](../track-graph/why-graphs.md).
 
 ## Next
 

@@ -1,6 +1,6 @@
 # GraphRAG
 
-GraphRAG is retrieval-augmented generation where the index is a graph built from the corpus, not a pile of embedded chunks. The canonical version is Microsoft Research's 2024 paper [From Local to Global](https://arxiv.org/abs/2404.16130), which targeted the question vector RAG answers worst: queries about the corpus as a whole.
+GraphRAG is retrieval-augmented generation where the index is a graph built from the corpus, not a pile of embedded chunks. The canonical version is Microsoft Research's 2024 paper [From Local to Global](https://arxiv.org/abs/2404.16130). This page is the implementation view: stages, costs and tools. For why the idea exists and how it compares with a curated vault, read the guide's [GraphRAG and where it fits](../05-graphs/graphrag.md) first.
 
 ## The pattern
 
@@ -27,4 +27,4 @@ The quieter trade-off is fidelity. Extraction flattens nuance into triples; a he
 
 ## When it earns its keep
 
-Large, uncurated corpora with genuine multi-hop and thematic questions — see [why graphs](why-graphs.md) for the threshold test. For a curated personal vault, you have already done the extraction by hand; what remains useful is the pipeline's shape, covered in [building graphs with LLMs](building-graphs-with-llms.md).
+Large, uncurated corpora with genuine multi-hop and thematic questions — see [why graphs](why-graphs.md) for the threshold test. For a curated personal vault, you have already done the extraction by hand; the guide's [what your vault already has](../05-graphs/graphrag.md#what-your-vault-already-has) maps each stage onto it. What remains useful is the pipeline's shape, covered in [building graphs with LLMs](building-graphs-with-llms.md).
