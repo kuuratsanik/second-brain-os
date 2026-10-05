@@ -7,6 +7,9 @@ Usage:
 
 CSV loads into NetworkX, Kuzu, Neo4j or a spreadsheet. GraphML opens in Gephi.
 No dependencies.
+
+Links: `[[Page]]` matches a file name or an alias; `[[folder/Page]]` matches the
+vault-relative path first and falls back to the file name.
 """
 import argparse
 import csv
@@ -53,11 +56,33 @@ def aliases_of(text):
 
 
 def link_key(target):
-    """Normalise a wikilink target: folder/Page.md and Page both mean `page`."""
-    t = target.strip().replace("\\", "/").rsplit("/", 1)[-1]
+    """Normalise a wikilink target: backslashes become '/', `.md` and case go."""
+    t = target.strip().replace("\\", "/").strip("/")
     if t.lower().endswith(".md"):
         t = t[:-3]
     return t.lower()
+
+
+def rel_key(vault, path):
+    """Vault-relative path without `.md`, lower case, with '/' on every OS."""
+    return os.path.relpath(path, vault).replace(os.sep, "/")[:-3].lower()
+
+
+def resolve(target, by_path, by_name):
+    """Find the page a wikilink points at.
+
+    A target with a '/' (`[[people/Ann]]`) is matched against the vault-relative
+    path first, so two pages named Ann in different folders stay distinct. If no
+    path matches, or the target has no '/', it matches the file name or an
+    alias. When several pages share a name, a bare `[[Ann]]` goes to the first
+    in path order.
+    """
+    key = link_key(target)
+    if "/" in key:
+        if key in by_path:
+            return by_path[key]
+        key = key.rsplit("/", 1)[-1]
+    return by_name.get(key)
 
 
 def main():
@@ -71,24 +96,34 @@ def main():
     SKIP_DIRS.difference_update(x.strip() for x in args.include.split(","))
 
     pages = load(args.vault)
-    stems = {os.path.splitext(os.path.basename(p))[0]: p for p in pages}
-    lower = {}
-    for stem, path in stems.items():
-        for a in aliases_of(pages[path]):
-            lower.setdefault(a.lower(), stem)
-    lower.update({k.lower(): k for k in stems})
+    order = sorted(pages)
+    by_path = {rel_key(args.vault, p): p for p in order}
+    stem_of = {p: os.path.splitext(os.path.basename(p))[0] for p in order}
+    counts = {}
+    for st in stem_of.values():
+        counts[st.lower()] = counts.get(st.lower(), 0) + 1
+    # A node is its file name, or its vault-relative path when two pages share a name.
+    node_id = {p: stem_of[p] if counts[stem_of[p].lower()] == 1
+               else os.path.relpath(p, args.vault).replace(os.sep, "/")[:-3] for p in order}
+
+    names = {}
+    for p in order:
+        names.setdefault(stem_of[p].lower(), p)
+    for p in order:
+        for a in aliases_of(pages[p]):
+            names.setdefault(a.lower(), p)
 
     nodes = {}
-    for stem, path in stems.items():
-        m = TYPE.search(pages[path])
-        nodes[stem] = m.group(1) if m else "untyped"
+    for p in order:
+        m = TYPE.search(pages[p])
+        nodes[node_id[p]] = m.group(1) if m else "untyped"
 
     edges = []
-    for stem, path in stems.items():
-        for target in LINK.findall(pages[path]):
-            key = lower.get(link_key(target))
-            if key and key != stem:
-                edges.append((stem, key))
+    for p in order:
+        for target in LINK.findall(pages[p]):
+            dest = resolve(target, by_path, names)
+            if dest and dest != p:
+                edges.append((node_id[p], node_id[dest]))
 
     if args.format == "csv":
         with open(args.out, "w", newline="", encoding="utf-8") as fh:

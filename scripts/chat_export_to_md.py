@@ -52,13 +52,37 @@ def date_of(value):
     return str(value or "")[:10]
 
 
-def mapping_messages(mapping):
-    """ChatGPT's conversations.json keeps messages in a `mapping` of nodes."""
-    nodes = [n.get("message") for n in mapping.values() if isinstance(n, dict)]
-    nodes = [m for m in nodes if isinstance(m, dict)]
-    nodes.sort(key=lambda m: m.get("create_time") or 0)
+def mapping_messages(mapping, current=None):
+    """ChatGPT's conversations.json keeps messages in a `mapping` of nodes, each
+    with `parent` and `children`. Walk the tree rather than trusting timestamps,
+    which can be null. With `current_node` we follow the branch the user last saw;
+    otherwise every branch is walked from the root, depth first."""
+    order = []
+    if current in mapping:
+        node = current
+        while node in mapping and node not in order:
+            order.append(node)
+            node = (mapping[node] or {}).get("parent")
+        order.reverse()
+    else:
+        seen = set()
+        stack = [k for k, n in reversed(list(mapping.items()))
+                 if isinstance(n, dict) and n.get("parent") not in mapping]
+        while stack:
+            k = stack.pop()
+            if k in seen or k not in mapping:
+                continue
+            seen.add(k)
+            order.append(k)
+            kids = (mapping[k] or {}).get("children") or []
+            stack.extend(reversed(kids))
+        order += [k for k in mapping if k not in seen]  # detached nodes, file order
     out = []
-    for m in nodes:
+    for k in order:
+        node = mapping.get(k)
+        m = node.get("message") if isinstance(node, dict) else None
+        if not isinstance(m, dict):
+            continue
         author = m.get("author")
         role = author.get("role") if isinstance(author, dict) else None
         if role == "system":
@@ -93,7 +117,7 @@ def main():
         created = date_of(conv.get("created_at") or conv.get("create_time"))
         messages = conv.get("chat_messages") or conv.get("messages") or []
         if not messages and isinstance(conv.get("mapping"), dict):
-            messages = mapping_messages(conv["mapping"])
+            messages = mapping_messages(conv["mapping"], conv.get("current_node"))
         if isinstance(messages, dict):
             messages = list(messages.values())
 

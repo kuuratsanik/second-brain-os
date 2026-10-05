@@ -7,6 +7,9 @@ Usage:
 Reports page counts by type, link density, orphan rate and the most connected
 pages. Track these over time: a rising orphan rate means ingestion is running
 without linking, which is the usual way a vault stops being useful.
+
+Links: `[[Page]]` matches a file name or an alias; `[[folder/Page]]` matches the
+vault-relative path first and falls back to the file name.
 """
 import argparse
 import os
@@ -41,11 +44,33 @@ def aliases_of(text):
 
 
 def link_key(target):
-    """Normalise a wikilink target: folder/Page.md and Page both mean `page`."""
-    t = target.strip().replace("\\", "/").rsplit("/", 1)[-1]
+    """Normalise a wikilink target: backslashes become '/', `.md` and case go."""
+    t = target.strip().replace("\\", "/").strip("/")
     if t.lower().endswith(".md"):
         t = t[:-3]
     return t.lower()
+
+
+def rel_key(vault, path):
+    """Vault-relative path without `.md`, lower case, with '/' on every OS."""
+    return os.path.relpath(path, vault).replace(os.sep, "/")[:-3].lower()
+
+
+def resolve(target, by_path, by_name):
+    """Find the page a wikilink points at.
+
+    A target with a '/' (`[[people/Ann]]`) is matched against the vault-relative
+    path first, so two pages named Ann in different folders stay distinct. If no
+    path matches, or the target has no '/', it matches the file name or an
+    alias. When several pages share a name, a bare `[[Ann]]` goes to the first
+    in path order.
+    """
+    key = link_key(target)
+    if "/" in key:
+        if key in by_path:
+            return by_path[key]
+        key = key.rsplit("/", 1)[-1]
+    return by_name.get(key)
 
 
 def main():
@@ -72,16 +97,18 @@ def main():
     if not pages:
         sys.exit("no markdown files found")
 
+    by_path = {rel_key(vault, p): p for p in pages}
     stems = {}
-    for p, t in pages.items():
-        for a in aliases_of(t):
+    for p in sorted(pages):
+        stems.setdefault(os.path.splitext(os.path.basename(p))[0].lower(), p)
+    for p in sorted(pages):
+        for a in aliases_of(pages[p]):
             stems.setdefault(a.lower(), p)
-    stems.update({os.path.splitext(os.path.basename(p))[0].lower(): p for p in pages})
     indeg = defaultdict(int)
     total = 0
     for path, text in pages.items():
         for target in LINK.findall(text):
-            dest = stems.get(link_key(target))
+            dest = resolve(target, by_path, stems)
             if dest and dest != path:
                 indeg[dest] += 1
                 total += 1

@@ -5,6 +5,9 @@ Usage:
     python3 link_check.py /path/to/vault [--json]
 
 No dependencies. Reads only; never modifies the vault.
+
+Links: `[[Page]]` matches a file name or an alias; `[[folder/Page]]` matches the
+vault-relative path first and falls back to the file name.
 """
 import argparse
 import json
@@ -60,11 +63,33 @@ def aliases_of(text):
 
 
 def link_key(target):
-    """Normalise a wikilink target: folder/Page.md and Page both mean `page`."""
-    t = target.strip().replace("\\", "/").rsplit("/", 1)[-1]
+    """Normalise a wikilink target: backslashes become '/', `.md` and case go."""
+    t = target.strip().replace("\\", "/").strip("/")
     if t.lower().endswith(".md"):
         t = t[:-3]
     return t.lower()
+
+
+def rel_key(vault, path):
+    """Vault-relative path without `.md`, lower case, with '/' on every OS."""
+    return os.path.relpath(path, vault).replace(os.sep, "/")[:-3].lower()
+
+
+def resolve(target, by_path, by_name):
+    """Find the page a wikilink points at.
+
+    A target with a '/' (`[[people/Ann]]`) is matched against the vault-relative
+    path first, so two pages named Ann in different folders stay distinct. If no
+    path matches, or the target has no '/', it matches the file name or an
+    alias. When several pages share a name, a bare `[[Ann]]` goes to the first
+    in path order.
+    """
+    key = link_key(target)
+    if "/" in key:
+        if key in by_path:
+            return by_path[key]
+        key = key.rsplit("/", 1)[-1]
+    return by_name.get(key)
 
 
 def main():
@@ -80,10 +105,12 @@ def main():
         sys.exit(f"not a directory: {args.vault}")
 
     pages = collect(args.vault)
+    by_path = {rel_key(args.vault, p): p for p in pages}
     names = {}
-    for path, text in pages.items():
-        names[title_of(path, text).lower()] = path
-        for a in aliases_of(text):
+    for path in sorted(pages):
+        names.setdefault(title_of(path, pages[path]).lower(), path)
+    for path in sorted(pages):
+        for a in aliases_of(pages[path]):
             names.setdefault(a.lower(), path)
 
     outbound = {p: set() for p in pages}
@@ -92,9 +119,8 @@ def main():
 
     for path, text in pages.items():
         for target in LINK.findall(text):
-            key = link_key(target)
-            if key in names:
-                dest = names[key]
+            dest = resolve(target, by_path, names)
+            if dest:
                 if dest != path:
                     outbound[path].add(dest)
                     inbound[dest].add(path)
