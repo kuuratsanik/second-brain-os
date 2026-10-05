@@ -8,6 +8,7 @@ on:
 permissions:
   contents: read
 
+# A newer push to the same branch or PR cancels the run still in progress.
 concurrency:
   group: site-${{ github.ref }}
   cancel-in-progress: true
