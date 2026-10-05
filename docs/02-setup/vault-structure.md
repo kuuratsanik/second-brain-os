@@ -12,16 +12,26 @@ pipeline and most of it goes cold when the project ships.
 
 ```
 brain/
-  CLAUDE.md            who you are, how the vault works
-  raw/                 source material, never edited after it lands
-    assets/
+  CLAUDE.md            who you are, how the vault works, the agent's rails
+  raw/                 source material by origin; the agent adds, never edits
+    clippings/         web articles from the Web Clipper
+    youtube/           video transcripts
+    meetings/          meeting transcripts and notes
+    workspace/         email, chat, docs, calendar (git-ignored by default)
+    ai-chats/          exported AI chat history
+    inbox/             PDFs, voice notes, anything else
+    assets/            images and attachments
   wiki/                the knowledge layer
     sources/           one page per ingested item
     entities/          people, organisations, products, tools
     concepts/          ideas, methods, frameworks
     synthesis/         comparisons, themes, open questions
+    hubs/              one entry page per domain
+    self-improvement/  ideas/, experiments/, reviews/
+    systems/           routing, lifecycle, queue for the owner, operating notes
     index.md           catalog of every page
     log.md             what the agent did, chronologically
+  journal/             your own entries; the agent never rewrites them
   projects/            the project layer
     youtube-channel/
       CLAUDE.md        this project only
@@ -30,7 +40,15 @@ brain/
       Outputs/         finished work
       Feedback/        results, metrics, what happened
   output/              generated reports and drafts
+  archive/             retired pages, never deleted
+  templates/           page templates
 ```
+
+The tree is the one in [`vault-template/`](../../vault-template/), which is an
+opinionated starter: several domains, mixed languages, an agent that works
+without asking first. The guide teaches the general method. Where the template
+makes a stricter or more specific choice, this page says so. Delete the domains
+and folders you do not use.
 
 ## Why the split
 
@@ -59,8 +77,15 @@ serves none of them.
 
 ## Rules that keep it working
 
-- **Never edit `raw/`.** It is the archive. If a source is wrong, replace the
-  file and re-ingest, so it stays a faithful record of what you actually saved.
+- **Never edit an existing file in `raw/`.** It is the archive. If a source is
+  wrong, add the corrected file beside it and re-ingest, so it stays a faithful
+  record of what you actually saved. The template lets the agent add new files
+  there, for example when it pulls from a connected service or writes a
+  cleaned transcript as `<name>-clean.md` beside the original, but never change,
+  rename or delete one that is already there.
+- **Never hard-delete.** The template moves retired pages to `archive/`, keeping
+  their path, instead of deleting them. See [safety and
+  guardrails](../06-agents/safety-and-guardrails.md).
 - **Do not nest deeply.** Folders four levels down stop getting opened. The
   graph is the navigation, not the tree.
 - **Everything the agent generates for outside use goes to `output/` or the

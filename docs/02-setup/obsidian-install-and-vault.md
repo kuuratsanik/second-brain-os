@@ -16,10 +16,20 @@ click **Open folder as vault** and pick it.
 If you are starting from nothing, click **Create new vault** instead. Name it
 something short you will type often, `brain` works. Pick a folder on your
 machine and click **Create**, then copy the contents of
-[`vault-template/`](../../vault-template/) into it.
+[`vault-template/`](../../vault-template/) into it, including the hidden
+`.gitignore`.
 
 Either way, that folder is now your second brain. Everything the agent writes
 lands there as markdown files.
+
+The template is an opinionated starter, not a blank vault: it assumes an agent
+that works without asking first, six domains and notes in more than one
+language, and it ships with no personal facts. The [CLAUDE.md
+interview](claude-md.md) fills in your profile. If you did not run the
+Quickstart's git step, do it once now with the commands in the
+[template README](../../vault-template/README.md): the vault has to be its own
+git repository, not a folder inside another one, because the agent's rails
+commit a checkpoint before any destructive step.
 
 ## Make one note by hand
 

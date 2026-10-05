@@ -46,8 +46,21 @@ cp -r second-brain-os/scripts  ~/brain/scripts
 # the folder READMEs are for reading on GitHub, not for the agent
 rm ~/brain/.claude/*/README.md ~/brain/scripts/README.md
 
-cd ~/brain && claude
+# make the vault its own git repository, once, and commit the template
+cd ~/brain
+git init
+git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw/README.md
+git commit -m "Initial vault"
+
+claude
 ```
+
+The vault must be its own git repository, not a folder inside another one. The
+template's safety rails commit a checkpoint before any destructive step and one
+commit per run, and the agent will not run `git init` for you or touch a parent
+repository. The `.gitignore` in the template already keeps `raw/workspace/`
+(email, chat, docs, calendar) and editor state out of git, and the first commit
+names its paths instead of using `git add .` so nothing unreviewed goes in.
 
 The `scripts/` copy is what lets `/metrics`, `/health` and `/graph-export` run
 `scripts/vault_stats.py` and friends from inside the vault. On Windows, use
@@ -67,7 +80,7 @@ the Microsoft Store stub and does nothing.
 6. [Scope down to one project](docs/02-setup/project-scoping.md) when you want
    to ship something
 7. Install the [Web Clipper](https://obsidian.md/clipper), clip an article to
-   `raw/`, run `/ingest`
+   `raw/clippings/`, run `/ingest`
 8. [Connect live data](docs/02-setup/live-data.md): calendar, email, chat
 9. [Put maintenance on a schedule](docs/06-agents/scheduled-maintenance.md) and
    wake up to a vault that filed itself
@@ -110,7 +123,7 @@ them separate matters more than it sounds.
 | [`docs/`](docs/README.md) | The guide. Ten sections, from the concept to troubleshooting |
 | [`docs/course-*/`](docs/course-0-map/README.md) | The agents course: seven modules, prompt to production |
 | [`docs/track-*/`](docs/track-graph/README.md) | Five handbooks on the wider craft: graphs, Jev, harnesses, loops, evals |
-| [`vault-template/`](vault-template/) | A starter vault: wiki structure, project pipeline, `CLAUDE.md` and page templates |
+| [`vault-template/`](vault-template/) | An opinionated starter vault, tuned for an agent that works without asking first, for several domains (work, learning, personal, creative, self-improvement, systems) and for notes in more than one language. It ships with no personal facts: the [CLAUDE.md interview](docs/02-setup/claude-md.md) fills in your profile |
 | [`skills/`](skills/README.md) | 18 agent skills, one per workflow in the guide |
 | [`commands/`](commands/README.md) | 72 slash commands, scoped entry points into those skills |
 | [`agents/`](agents/README.md) | 6 subagents, four of them read-only by design |

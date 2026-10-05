@@ -9,9 +9,17 @@ made is a diff you can read and revert in one command.
 ```bash
 cd ~/brain
 git init
-git add .
-git commit -m "initial vault"
+git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw/README.md
+git commit -m "Initial vault"
 ```
+
+The vault must be its own repository, not a folder inside another one. The
+[vault template](../../vault-template/README.md) uses the explicit-path first
+commit above instead of `git add .`, so nothing you have not looked at is
+committed, and its `.gitignore` already covers the list below plus
+`raw/workspace/`, where email, chat, docs and calendar pulls land. Its agent will
+not run `git init` for you; if the vault is nested in another repository it
+queues the problem for you instead.
 
 ## What to ignore
 
@@ -31,10 +39,11 @@ one of the highest-signal documents about a person that exists.
 
 ## Commit around agent runs
 
-Commit before a big ingest and after it. Then a bad batch is
-`git checkout .` rather than an afternoon of manual repair. Scheduled tasks
-should commit their own work with a message naming the run, so the history stays
-readable months later.
+Commit before a big ingest and after it. Then a bad batch is a revert of one
+commit rather than an afternoon of manual repair. Scheduled tasks should commit
+their own work, by path and not with `git add -A`, with a message naming the
+run, so the history stays readable months later and a revert leaves your own
+edits alone.
 
 ## Sync across machines
 
