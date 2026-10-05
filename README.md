@@ -1,5 +1,7 @@
 # AI Second Brain
 
+Forked from [undefined-ui/second-brain-os](https://github.com/undefined-ui/second-brain-os), MIT licensed.
+
 A knowledge base that an AI agent builds and maintains for you, in plain
 markdown files you own. Everything you read, watch and save gets turned into
 linked wiki pages, connected to everything already there, and you can ask it
@@ -9,7 +11,7 @@ This repo is the full version of the guide: the concepts, the setup, the vault
 template, the agent skills, the scripts, and the resources. Free, no signup,
 nothing to install beyond Obsidian and an agent.
 
-**Read it on the web:** [undefined-ui.github.io/second-brain-os](https://undefined-ui.github.io/second-brain-os/) — the full guide with search and navigation, plus [every vetted link](https://undefined-ui.github.io/second-brain-os/resources.html) in one filterable page.
+**Read it on the web:** [kuuratsanik.github.io/second-brain-os](https://kuuratsanik.github.io/second-brain-os/) — the full guide with search and navigation, plus [every vetted link](https://kuuratsanik.github.io/second-brain-os/resources.html) in one filterable page.
 
 Three things live here — pick your entrance:
 
@@ -32,7 +34,7 @@ One evening. Nine steps, each with a full page behind it.
 
 ```bash
 # copy the starter vault, skills, commands and agents
-git clone https://github.com/undefined-ui/second-brain-os.git
+git clone https://github.com/kuuratsanik/second-brain-os.git
 cp -r second-brain-os/vault-template ~/brain
 
 mkdir -p ~/brain/.claude
@@ -160,7 +162,7 @@ an evals bootstrapper and a loop critic, each doing one module's practice
 page in your repo:
 
 ```bash
-claude plugin marketplace add undefined-ui/second-brain-os
+claude plugin marketplace add kuuratsanik/second-brain-os
 claude plugin install agents-course@second-brain-os
 ```
 
@@ -179,7 +181,7 @@ build you can finish in an evening.
 | [Loop engineering](docs/track-loop/README.md) | stop conditions, critics, context hygiene, unattended runs | an overnight loop with a ratchet and a morning report |
 | [Eval engineering](docs/track-evals/README.md) | golden sets, LLM judges, agent trajectories, CI gates | your first eval suite, wired into CI |
 
-Read them on the site: [handbooks on undefined-ui.github.io](https://undefined-ui.github.io/second-brain-os/).
+Read them on the site: [handbooks on kuuratsanik.github.io](https://kuuratsanik.github.io/second-brain-os/).
 
 ## Design decisions
 
