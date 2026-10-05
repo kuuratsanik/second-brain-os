@@ -47,7 +47,8 @@ Pick the operation the request names.
 4. **Retype.** Check the page against its type's contract in `CLAUDE.md`. A
    source page that explains an idea is a concept page in the wrong folder.
    Propose the new type, folder and the sections to rewrite; keep every claim
-   and its source.
+   and its source. Move the file with `git mv`, naming both paths exactly, after
+   `mkdir -p` on the destination folder.
 5. **Split.** If a page holds more than one idea (unrelated section headings,
    claims that cannot be explained together), propose the split points and the
    titles of the resulting pages. On approval, create the new pages with their

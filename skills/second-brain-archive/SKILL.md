@@ -46,9 +46,12 @@ Archive, never delete. Propose first. Move a page only when the vault's
    updated, recommended action (link it, update it, archive it, leave it).
 4. **Checkpoint, then move** only if allowed. Commit exactly the paths you will
    change as `checkpoint: archive <run id>` (the second-brain-commit rules; if
-   they are already committed, HEAD is the checkpoint). Move each page under
-   `archive/` keeping its path below it (`wiki/concepts/x.md` becomes
-   `archive/wiki/concepts/x.md`). Add `archived: YYYY-MM-DD`,
+   they are already committed, HEAD is the checkpoint). Move each page with
+   `git mv`, never plain `mv`, under `archive/` keeping its path below it. Create
+   the folder first: for `wiki/concepts/x.md`, run `mkdir -p archive/wiki/concepts`,
+   then `git mv wiki/concepts/x.md archive/wiki/concepts/x.md`. Name every file
+   exactly, one `git mv` per page: no globs, since the vault's guard hook blocks
+   a destination it cannot check. Add `archived: YYYY-MM-DD`,
    `archived_reason` and `archived_from` to its frontmatter. Remove it from
    `index.md`. Move its aliases to the page that now covers the topic, if there
    is one.
@@ -68,7 +71,7 @@ Archived: <n> | Proposed only: <n> | Linked instead: <n> | Left alone: <n>
 
 <path> - <reason> - <inbound> in, <sources> sources, updated <date> - <action>
 
-Restore: move the file back, delete the archived* keys, add it to index.md again and move its aliases back.
+Restore (owner step): <exact commands, below>
 ```
 
 ## Calibration
@@ -80,6 +83,13 @@ the path. If a cut finds nothing, say so in one line.
 
 Thin is not the same as unneeded. A one-source page that three live pages link
 to is doing its job. The test is whether anything would notice it gone.
+
+Restoring is the owner's step. The vault's guard hook blocks moves out of
+`archive/`, so never run a restore yourself and never in a scheduled run. When
+asked, list the exact commands for the owner to run or approve in a live
+session: `git mv archive/wiki/concepts/x.md wiki/concepts/x.md`, remove the
+`archived`, `archived_reason` and `archived_from` keys, add the page to
+`index.md` again, and move its aliases back from the page that took them.
 
 If the checkpoint cannot be made (no git, nested repository, no identity), do
 not move pages: propose only and say why.

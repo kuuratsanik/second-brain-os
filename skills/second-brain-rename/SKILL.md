@@ -22,7 +22,9 @@ A rename is four operations, not one. All four, or none.
 
 1. **Check the new name** against existing pages and aliases. A rename that
    collides with an existing alias creates ambiguity the graph cannot resolve.
-2. **Rename the file** and update the `title` in frontmatter.
+2. **Rename the file** with `git mv`, naming old and new path exactly, and
+   update the `title` in frontmatter. Hubs, `index.md`, `log.md` and anything in
+   `wiki/systems/` are never renamed; propose it to the owner instead.
 3. **Add the old title to `aliases`.** This keeps external references, the
    user's memory, and any link you miss working.
 4. **Update every inbound link.** Search the whole vault, including `index.md`.

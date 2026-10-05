@@ -27,8 +27,9 @@ exactly.
 3. **Merge aliases,** including the dead page's title as an alias on the
    survivor. This is what keeps old links and the user's memory working.
 4. **Redirect inbound links** to the survivor. Check every backlink.
-5. **Archive the old page:** move it to `archive/` with
-   `merged_into: [[survivor]]` in its frontmatter. Delete it only if the vault's
+5. **Archive the old page:** move it with `git mv` (not plain `mv`) to `archive/`, keeping its path
+   below it, after `mkdir -p` on the destination folder and naming the file
+   exactly, with `merged_into: [[survivor]]` in its frontmatter. Delete it only if the vault's
    CLAUDE.md allows deletion; leave a stub only if it was linked from outside
    the vault.
 6. **Record in `log.md`:** both names, the date, and why.
