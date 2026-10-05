@@ -1,0 +1,2 @@
+# Site build dependencies. The vault scripts in scripts/ need none of these.
+markdown==3.11

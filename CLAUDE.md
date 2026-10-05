@@ -25,12 +25,19 @@ repo go in `.claude/agents/`, never in `agents/`.
 The HTML files are generated. Never edit them by hand.
 
 ```bash
-pip install markdown
-python3 tools/extract_site.py   # docs + resources -> site_data.json
-python3 tools/build_site.py     # -> index.html, resources.html
-python3 scripts/build_tracks.py # course + handbooks -> index.html
-python3 scripts/build_tree.py   # -> tree.html
+pip install -r requirements.txt   # pins markdown
+python3 scripts/build_all.py      # the whole pipeline, in order
 ```
+
+`build_all.py` runs, in this order: `tools/extract_site.py` (docs and
+resources to `site_data.json`), `tools/build_site.py` (guide and resources
+pages, with empty marker blocks for the course and handbooks),
+`scripts/build_tracks.py` (fills the markers, rewrites the
+`docs/course-*/` and `docs/track-*/` READMEs) and `scripts/build_tree.py`
+(`tree.html`, which reads `index.html`). The order matters: each step reads
+the previous step's output. The build is deterministic, and CI
+(`.github/workflows/site.yml`) fails if the committed HTML differs from a
+fresh build.
 
 Rebuild after any change to `docs/`, `resources/`, `skills/`, `commands/`,
 `agents/`, `scripts/` or `plugins/`, and commit the result in the same change.
