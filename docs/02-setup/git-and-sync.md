@@ -9,7 +9,7 @@ made is a diff you can read and revert in one command.
 ```bash
 cd ~/brain
 git init
-git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw/README.md
+git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw
 git commit -m "Initial vault"
 ```
 

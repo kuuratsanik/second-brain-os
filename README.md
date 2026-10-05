@@ -49,7 +49,8 @@ rm ~/brain/.claude/*/README.md ~/brain/scripts/README.md
 # make the vault its own git repository, once, and commit the template
 cd ~/brain
 git init
-git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw/README.md
+git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw \
+  .claude/skills .claude/commands .claude/agents scripts
 git commit -m "Initial vault"
 
 claude
@@ -60,7 +61,10 @@ template's safety rails commit a checkpoint before any destructive step and one
 commit per run, and the agent will not run `git init` for you or touch a parent
 repository. The `.gitignore` in the template already keeps `raw/workspace/`
 (email, chat, docs, calendar) and editor state out of git, and the first commit
-names its paths instead of using `git add .` so nothing unreviewed goes in.
+names its paths instead of using `git add .` so nothing unreviewed goes in. It
+includes `.claude/` (skills, commands, agents) and `scripts/`: the vault's agent
+setup is worth versioning, and a revert then covers it too. `raw` is included so
+the empty subfolders are tracked; `raw/workspace/` stays ignored.
 
 The `scripts/` copy is what lets `/metrics`, `/health` and `/graph-export` run
 `scripts/vault_stats.py` and friends from inside the vault. On Windows, use
