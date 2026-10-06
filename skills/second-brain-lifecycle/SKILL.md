@@ -66,8 +66,8 @@ Do the steps the request names; a scheduled run does all of them in this order.
    vault holds evidence against the idea. Set `status: new`, link it to the
    self-improvement hub and the concepts it touches. Do not judge it at capture.
 2. **Consider.** An idea that has a next step written moves from `new` to
-   `considering`. An idea at `considering` for 30 days or more (a default; the
-   owner may change it on the lifecycle page) gets a proposal in the run report:
+   `considering`. An idea at `considering` for 30 days or more (a default that
+   the lifecycle page states; the owner may change it there) gets a proposal in the run report:
    promote, keep, or drop, with the reason. You may drop it yourself only when
    the vault holds clear evidence against it or the owner has said no; otherwise
    queue the question in `wiki/systems/needs-owner.md`.
@@ -104,13 +104,25 @@ Do the steps the request names; a scheduled run does all of them in this order.
    - **No decision** when there is too little evidence to judge. Do not read
      silence as failure. Queue what evidence is missing and leave the status at
      `reviewing`.
-7. **Drop an idea.** When an idea is dropped, record the reason on the page,
-   then archive it. Take a checkpoint (the vault `CLAUDE.md` rail 1), then run
-   the `second-brain-archive` steps for that one page: `mkdir -p` the folder
-   under `archive/`, one `git mv`, add `archived`, `archived_reason` and
-   `archived_from`, remove it from `index.md` and the hub, repoint inbound links
-   to the archived path, and log it as `archive`. If the page is
-   `maintained_by: human`, do not move it; set the status and queue the move.
+7. **Drop an idea.** When an idea is dropped, set `status: dropped` and record
+   the reason on the page. Archiving it follows `second-brain-archive`, so the
+   same gate applies: propose it and queue it in `wiki/systems/needs-owner.md`
+   unless the vault `CLAUDE.md` grants that autonomy or the owner approved in
+   this session. Where it is allowed:
+   1. Take a checkpoint (rail 1 in the vault `CLAUDE.md`).
+   2. Clear the live inbound links first. `second-brain-archive` does not move a
+      page that a live page still links to, and `link_check` skips `archive/`,
+      so a link into it would show as broken. In each live page, turn the
+      wikilink into plain text with the reason (`Morning flashcards, dropped
+      2026-10-06: <reason>`), or link the experiment or review that replaced the
+      idea. Never repoint a link at the archive path. If five or more live pages
+      link to the idea, or any of them is `maintained_by: human`, do not move
+      it: leave `status: dropped`, queue the move and say why.
+   3. Move it as `second-brain-archive` describes: `mkdir -p` the folder under
+      `archive/`, one `git mv`, add `archived`, `archived_reason` and
+      `archived_from`, remove it from `index.md`, log it as `archive`.
+   4. In the hub, move the entry from the idea lists to a "Dropped" list that
+      gives the reason and the archive path as plain text, not a link.
 8. **Keep the hub current.** Update the self-improvement hub with active
    experiments, ideas waiting for a decision and the next review due.
 9. **Commit the run** by path, following `second-brain-commit`, with the subject

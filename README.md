@@ -192,7 +192,7 @@ them separate matters more than it sounds.
 | [`docs/course-*/`](docs/course-0-map/README.md) | The agents course: seven modules, prompt to production |
 | [`docs/track-*/`](docs/track-graph/README.md) | Five handbooks on the wider craft: graphs, Jev, harnesses, loops, evals |
 | [`vault-template/`](vault-template/) | An opinionated starter vault, tuned for an agent that works without asking first, for several domains (work, learning, personal, creative, self-improvement, systems) and for notes in more than one language. It ships with no personal facts: the [CLAUDE.md interview](docs/02-setup/claude-md.md) fills in your profile |
-| [`skills/`](skills/README.md) | 24 agent skills, one per workflow in the guide |
+| [`skills/`](skills/README.md) | 25 agent skills, one per workflow in the guide |
 | [`commands/`](commands/README.md) | 75 slash commands, scoped entry points into those skills. The scheduling command is `/maintenance-schedule`, so it does not shadow Claude Code's built-in `/schedule` |
 | [`agents/`](agents/README.md) | 6 subagents, four of them read-only by design |
 | [`plugins/`](plugins/README.md) | Claude Code plugins — the course's tools, installable in two commands |

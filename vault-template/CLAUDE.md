@@ -137,8 +137,8 @@ that reversible. They apply to scheduled runs too.
 and wait, do this instead: checkpoint, act, log, report, within the hard stops
 and rails. This covers the skills `second-brain-lint`, `second-brain-merge`,
 `second-brain-backfill`, `second-brain-chat-import`, `second-brain-privacy`,
-`second-brain-transcript`, `second-brain-archive`, `second-brain-structure` and
-`second-brain-commit`; the agents `curator` and `ingestor`; and the commands
+`second-brain-transcript`, `second-brain-archive`, `second-brain-structure`,
+`second-brain-lifecycle` and `second-brain-commit`; the agents `curator` and `ingestor`; and the commands
 `/ingest` (its old 20-item stop is replaced by rail 7), `/prune`, `/archive`,
 `/dedupe`, `/orphans` and `/link`. `/prune` and `/archive` archive here. When a
 scheduled run fires a command, the skill it points to and this section govern;

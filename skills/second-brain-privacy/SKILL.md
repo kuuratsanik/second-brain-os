@@ -36,8 +36,9 @@ remove.
 ## Sensitivity labels
 
 Each page carries `sensitivity: normal | private | restricted` in its
-frontmatter, as the vault `CLAUDE.md` defines it. A missing field means
-`normal`. Treat the label as an instruction about what may leave the page:
+frontmatter. The values come from the vault `CLAUDE.md`; what each one blocks
+is this skill's rule. A missing field means `normal`. Treat the label as an
+instruction about what may leave the page:
 
 | Value | Holds | What it blocks |
 |---|---|---|
@@ -47,13 +48,14 @@ frontmatter, as the vault `CLAUDE.md` defines it. A missing field means
 
 Rules for applying it:
 
-- Raising a label is mechanical: do it, log it, report it. Lowering one is the
+- Raising a label is mechanical: do it, log it as `lint` in `wiki/log.md`, report it. Lowering one is the
   owner's decision; never lower a label yourself. A page you cannot place gets
   the higher level.
 - A page that quotes or summarises a `private` or `restricted` page takes at
   least that page's level. Check pages that link to one.
-- A page with `maintained_by: human` keeps its wording; change only the
-  frontmatter label, and report it.
+- A page with `maintained_by: human` is not edited at all, not even its
+  frontmatter. Queue the label change in `wiki/systems/needs-owner.md` (page,
+  current and proposed label, why) and name it in the report.
 - In a report, name the file and the label, never the content.
 - Labels are advice to you and to the skills, not a lock. A label stops nothing
   the vault's guard hook does not already block, so a page that must never

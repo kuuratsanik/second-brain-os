@@ -57,8 +57,10 @@ removed, which is how `scripts/link_check.py --duplicates` compares file names,
 
 - Before creating a page, compute the key of the proposed file name and title
   and look for it among every page's file name, title and aliases. A match means
-  update that page. A match you are unsure about is not a reason to create a
-  second page: add the new name as an alias and flag it in the report.
+  update that page. When you are unsure whether two names are one page, create
+  nothing and add no alias: queue the pair in `wiki/systems/needs-owner.md` and
+  name both pages in the report (merging people or uncertain identities is a
+  hard stop in the vault `CLAUDE.md`).
 - The key keeps diacritics, so `Õppimine` and `Oppimine` differ under it.
   Search both spellings by hand, as the vault `CLAUDE.md` says, before you
   create.
@@ -70,8 +72,10 @@ removed, which is how `scripts/link_check.py --duplicates` compares file names,
   short form people use in text. Include the title as it appears in the source.
   An alias that already belongs to another page is a duplicate, not an alias:
   stop and update or merge instead (`second-brain-merge`).
-- Alias changes to existing pages are mechanical: add and log them. A page
-  marked `maintained_by: human` keeps its wording; frontmatter only.
+- Alias changes to existing pages are mechanical: add them and log each as
+  `lint` in `wiki/log.md`. A page marked `maintained_by: human` is not edited,
+  not even its frontmatter: queue the alias in `wiki/systems/needs-owner.md`
+  and name the page in the report.
 
 ## Output format
 
