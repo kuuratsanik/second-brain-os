@@ -26,3 +26,33 @@ Write plainly. No marketing language, no emoji, no filler.
 
 One topic per PR. If you are adding a docs page, follow the shape of the
 existing pages in that section and update the section `README.md` index.
+
+### Before you open a PR
+
+CI (`.github/workflows/site.yml`) runs these on every pull request. Run them
+locally first, from the repository root:
+
+```bash
+pip install -r requirements.txt          # pins markdown; needs Python 3.11+
+python3 tools/check_kit.py --selftest && python3 tools/check_kit.py
+python3 -m unittest discover -s tests -t .
+python3 tools/doc_links.py --selftest && python3 tools/doc_links.py
+python3 vault-template/.claude/hooks/test_guard.py
+python3 scripts/build_all.py             # rebuild the site, then commit the result
+python3 scripts/link_check.py vault-template
+```
+
+- Commit the regenerated HTML (`index.html`, `resources.html`, `tree.html`,
+  `404.html`, `sitemap.xml`, `robots.txt`, `site_data.json` and any changed
+  `docs/*/README.md`) in the same change. CI rebuilds the site and fails if
+  `git status` shows anything different from what you committed. Never edit
+  the generated files by hand.
+- The vault scripts also run on Python 3.9 and on Windows in CI, so keep
+  `scripts/*.py` to the standard library and avoid newer syntax there.
+- Every factual claim cites its primary source, and a source you could not
+  fetch is marked "not re-checked on <date> because the page could not be
+  fetched".
+- One topic per change.
+- A new docs page updates its section `README.md` index in the same change.
+  For the course and handbooks the index is generated from the page order in
+  `scripts/build_tracks.py`, so add the page there.
