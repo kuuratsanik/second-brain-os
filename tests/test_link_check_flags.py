@@ -40,7 +40,8 @@ class Flags(VaultCase):
         self.page("wiki/fresh.md", f"updated: {self.days_ago(10)}")
         rows = self.run_flag("--stale", "90")
         self.assertEqual([r[0] for r in rows], ["wiki/old.md", "wiki/created.md", "wiki/mid.md"])
-        self.assertEqual(rows[0], ["wiki/old.md", self.days_ago(400), "400"])
+        self.assertEqual(rows[0][:2], ["wiki/old.md", self.days_ago(400)])
+        self.assertIn(rows[0][2], ("400", "401"))  # a run that crosses midnight is one day older
 
     def test_stale_bad_and_empty_dates_fall_back(self):
         self.page("wiki/bad.md", "updated: not-a-date\ncreated: 2001-02-03")
@@ -57,7 +58,35 @@ class Flags(VaultCase):
         t = datetime.datetime.combine(old, datetime.time(12)).timestamp()
         os.utime(path, (t, t))
         rows = self.run_flag("--stale", "30")
-        self.assertEqual(rows, [["wiki/plain.md", old.isoformat(), "60"]])
+        self.assertEqual(rows[0][:2], ["wiki/plain.md", old.isoformat()])
+        self.assertIn(rows[0][2], ("60", "61"))
+
+    def test_stale_odd_date_forms(self):
+        self.page("wiki/link.md", "updated: [[2001-01-05]]")
+        self.page("wiki/short.md", "updated: 2002-1-5")
+        self.page("wiki/time.md", "updated: 2003-01-05T10:00:00Z")
+        self.page("wiki/junk.md", "updated: 2004-01-055\ncreated: 2005-01-05")
+        rows = {r[0]: r[1] for r in self.run_flag("--stale", "30")}
+        self.assertEqual(rows, {"wiki/link.md": "2001-01-05", "wiki/short.md": "2002-01-05",
+                                "wiki/time.md": "2003-01-05", "wiki/junk.md": "2005-01-05"})
+
+    def test_stale_warns_on_unparseable_date(self):
+        self.page("wiki/bad.md", "updated: sometime\ncreated: 2001-02-03")
+        self.page("wiki/blank.md", "updated:")
+        p = run_script("link_check.py", self.v, "--stale", "30")
+        self.assertEqual(p.returncode, 0)
+        self.assertEqual(p.stderr.strip().splitlines(), ["unparseable date: wiki/bad.md"])
+
+    def test_json_output(self):
+        import json
+        self.page("wiki/old.md", "updated: 2001-01-01\naliases: [Same]")
+        self.page("wiki/same.md", None)
+        p = run_script("link_check.py", self.v, "--stale", "30", "--duplicates", "--json")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        doc = json.loads(p.stdout)
+        self.assertEqual(doc["stale"][0]["page"], "wiki/old.md")
+        self.assertEqual(doc["duplicates"],
+                         [{"kind": "alias", "key": "same", "pages": ["wiki/old.md", "wiki/same.md"]}])
 
     def test_stale_skips_tooling_folders(self):
         self.page("templates/t.md", "updated: 2001-01-01")
@@ -94,6 +123,15 @@ class Flags(VaultCase):
         self.page("wiki/same-name.md", None)
         self.assertEqual(self.run_flag("--duplicates"),
                          [["title", "samename", "wiki/same-name.md", "wiki/x.md"]])
+
+    def test_alias_equal_to_another_pages_name(self):
+        self.page("wiki/postgres.md", "aliases: [PG]")
+        self.page("wiki/pg.md", None)
+        self.page("wiki/unicode-cafe.md", 'title: "Caf\u00e9"')
+        self.page("wiki/cafe-composed.md", 'title: "Cafe\u0301"')
+        rows = self.run_flag("--duplicates")
+        self.assertIn(["alias", "pg", "wiki/pg.md", "wiki/postgres.md"], rows)
+        self.assertIn(["title", "caf\u00e9", "wiki/cafe-composed.md", "wiki/unicode-cafe.md"], rows)
 
     def test_duplicates_by_shared_alias(self):
         self.page("wiki/one.md", "aliases: [LLM Wiki, one-thing]")

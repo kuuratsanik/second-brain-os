@@ -6,4 +6,4 @@ List concept pages whose `updated` date is older than ninety days, sorted oldest
 
 Follow the `second-brain-graph` skill.
 
-For a plain list, `python3 scripts/link_check.py ~/brain --stale 90` prints each page's path, date and age in days, oldest first.
+For a plain list, run `scripts/link_check.py . --stale 90`, which prints each page's path, date and age in days, oldest first. The date is `updated`, then `created`, then the file's modification time. If the vault has no `scripts/` folder (the kit is installed as the `second-brain` plugin), run `${CLAUDE_PLUGIN_ROOT}/scripts/link_check.py` instead; Claude Code fills in that path only for a plugin install.

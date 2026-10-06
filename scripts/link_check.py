@@ -17,6 +17,7 @@ import json
 import os
 import re
 import sys
+import unicodedata
 
 LINK = re.compile(r"\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|[^\]]+)?\]\]")
 # Hidden folders (.claude, .obsidian, .git, .trash), the page templates and
@@ -183,30 +184,45 @@ def _field(text, key):
     return _scalar(m.group(1)) if m else ""
 
 
+_DAY = re.compile(r"(\d{4})-(\d{1,2})-(\d{1,2})(?:$|[T\s])", re.ASCII)
+
+
 def _day(value):
-    """A YYYY-MM-DD date (a time after it is ignored), or None."""
+    """A YYYY-MM-DD date, or None. `[[2020-01-05]]` brackets are stripped, `2020-1-5`
+    is accepted, and a time after the date is ignored. Checked by hand rather than
+    with fromisoformat, whose accepted forms differ between 3.9 and 3.11."""
+    v = value.strip()
+    if v.startswith("[[") and v.endswith("]]"):
+        v = v[2:-2].strip()
+    m = _DAY.match(v)
+    if not m:
+        return None
     try:
-        return datetime.date.fromisoformat(value.strip()[:10])
+        return datetime.date(*(int(x) for x in m.groups()))
     except ValueError:
         return None
 
 
-def page_date(path, text):
+def page_date(path, text, warn=None):
     """`updated:`, else `created:`, else the file's mtime. A missing, empty or
-    unparseable value falls through to the next source."""
+    unparseable value falls through to the next source; an unparseable one is
+    passed to `warn(path)`."""
     for key in ("updated", "created"):
-        d = _day(_field(text, key))
+        value = _field(text, key)
+        d = _day(value)
         if d:
             return d
+        if value and warn:
+            warn(path)
     return datetime.date.fromtimestamp(os.path.getmtime(path))
 
 
-def stale_pages(pages, days, today=None):
+def stale_pages(pages, days, today=None, warn=None):
     """[(path, date, age_days)] for pages older than `days`, oldest first."""
     today = today or datetime.date.today()
     out = []
     for path, text in pages.items():
-        d = page_date(path, text)
+        d = page_date(path, text, warn)
         age = (today - d).days
         if age > days:
             out.append((path, d, age))
@@ -215,30 +231,30 @@ def stale_pages(pages, days, today=None):
 
 
 def norm_name(s):
-    """Lower case with everything but letters and digits removed."""
-    return re.sub(r"[\W_]+", "", s.lower())
+    """Names compare equal when they match after Unicode composition and case
+    folding and with everything but letters and digits removed."""
+    return re.sub(r"[\W_]+", "", unicodedata.normalize("NFC", s).casefold())
 
 
 def duplicate_groups(pages):
-    """[(kind, key, [paths])]. 'title': file names or `title:` values that match
-    once case and punctuation are ignored. 'alias': pages that share an alias."""
-    titles, aliases = {}, {}
+    """[(kind, key, [paths])]. One table holds every page's file name, `title:`
+    and aliases under the normalised name; two or more pages on one key is a
+    group. The kind is 'alias' if any alias contributed to it, else 'title'."""
+    table = {}
     for path in sorted(pages):
         text = pages[path]
         stem = os.path.splitext(os.path.basename(path))[0]
-        for name in (stem, _field(text, "title")):
+        names = [(stem, "title"), (_field(text, "title"), "title")]
+        names += [(a, "alias") for a in aliases_of(text)]
+        for name, kind in names:
             k = norm_name(name)
             if k:
-                titles.setdefault(k, set()).add(path)
-        for a in aliases_of(text):
-            k = norm_name(a)
-            if k:
-                aliases.setdefault(k, set()).add(path)
+                table.setdefault(k, {}).setdefault(path, set()).add(kind)
     out = []
-    for kind, table in (("title", titles), ("alias", aliases)):
-        for k in sorted(table):
-            if len(table[k]) > 1:
-                out.append((kind, k, sorted(table[k])))
+    for k in sorted(table):
+        if len(table[k]) > 1:
+            kinds = set().union(*table[k].values())
+            out.append(("alias" if "alias" in kinds else "title", k, sorted(table[k])))
     return out
 
 
@@ -261,13 +277,39 @@ def main():
     pages = collect(args.vault)
     if args.stale is not None or args.duplicates:
         rel = lambda p: os.path.relpath(p, args.vault).replace(os.sep, "/")
+        warn = lambda p: print(f"unparseable date: {rel(p)}", file=sys.stderr)
+        stale = dup = None
         if args.stale is not None:
-            for path, d, age in stale_pages(pages, args.stale):
-                print(f"{rel(path)}\t{d.isoformat()}\t{age}")
+            stale = stale_pages(pages, args.stale, warn=warn)
         if args.duplicates:
-            for kind, key, paths in duplicate_groups(pages):
-                print("\t".join([kind, key] + [rel(p) for p in paths]))
+            dup = duplicate_groups(pages)
+        lines = []
+        if args.json:
+            doc = {}
+            if stale is not None:
+                doc["stale"] = [{"page": rel(p), "date": d.isoformat(), "age_days": a}
+                                for p, d, a in stale]
+            if dup is not None:
+                doc["duplicates"] = [{"kind": k, "key": key, "pages": [rel(p) for p in ps]}
+                                     for k, key, ps in dup]
+            lines.append(json.dumps(doc, indent=2))
+        else:
+            for p, d, a in stale or []:
+                lines.append(f"{rel(p)}\t{d.isoformat()}\t{a}")
+            for k, key, ps in dup or []:
+                lines.append("\t".join([k, key] + [rel(p) for p in ps]))
+        try:
+            for line in lines:
+                print(line)
+            sys.stdout.flush()
+        except BrokenPipeError:
+            # the reader (head, a closed pager) went away; stop quietly
+            try:
+                os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
+            except (OSError, ValueError):
+                pass
         return
+
     by_path = {rel_key(args.vault, p): p for p in pages}
     names = {}
     for path in sorted(pages):
