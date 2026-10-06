@@ -28,6 +28,12 @@ class GraphExport(VaultCase):
         self.assertEqual(p.returncode, 1)
         self.assertIn("not a directory", p.stderr)
 
+    def test_unwritable_output(self):
+        p = run_script("graph_export.py", self.vault, os.path.join(self.tmp, "no", "dir", "o.csv"))
+        self.assertEqual(p.returncode, 1)
+        self.assertIn("cannot write", p.stderr)
+        self.assertNotIn("Traceback", p.stderr)
+
     def test_csv_shape(self):
         out, stdout = self.export("csv")
         with open(out, newline="", encoding="utf-8") as fh:

@@ -5,8 +5,8 @@ Usage:
     python3 chat_export_to_md.py conversations.json ./raw --min-words 150
 
 Works with the common export shape used by Claude and ChatGPT: a JSON array of
-conversations, each with a name/title and a list of messages. Unknown shapes are
-skipped with a warning rather than guessed at.
+conversations, each with a name/title and a list of messages. An unrecognised
+shape is reported on stderr and the script exits 1 rather than guessing.
 
 Read the privacy page before running this on a real export. Chat history is the
 single most sensitive thing most people would put in a vault.
@@ -111,14 +111,20 @@ def main():
         sys.exit(f"{args.export} is not a valid JSON export: {e}")
 
     if isinstance(data, dict):
-        data = data.get("conversations", [])
+        data = data.get("conversations")
+    if isinstance(data, list) and not data:
+        print(f"0 conversations in {args.export}, nothing to do")
+        return
     if not isinstance(data, list) or not any(isinstance(c, dict) for c in data):
         print("no conversations found: unrecognised export shape "
               "(expected a list of conversations, or an object with a "
               "\"conversations\" list)", file=sys.stderr)
         sys.exit(1)
 
-    os.makedirs(args.outdir, exist_ok=True)
+    try:
+        os.makedirs(args.outdir, exist_ok=True)
+    except OSError as e:
+        sys.exit(f"cannot write {args.outdir}: {e.strerror or e}")
     written = skipped = 0
 
     for conv in data:
@@ -154,8 +160,11 @@ def main():
         while os.path.exists(path):
             path = os.path.join(args.outdir, f"{slug(str(title))}-{n}.md")
             n += 1
-        with open(path, "w", encoding="utf-8") as fh:
-            fh.write(front + joined)
+        try:
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(front + joined)
+        except OSError as e:
+            sys.exit(f"cannot write {path}: {e.strerror or e}")
         written += 1
 
     print(f"wrote {written} files to {args.outdir}, skipped {skipped} short conversations")

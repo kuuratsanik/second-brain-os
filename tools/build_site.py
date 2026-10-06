@@ -3,7 +3,7 @@
 import io, json, os, html, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from site_common import (REPO, GHT, FOOTER, head, header, min_css, min_js, dumps,
+from site_common import (RESOURCES_DATE, REPO, GHT, FOOTER, head, header, min_css, min_js, dumps,
                          slim_page, word)
 
 D = json.load(io.open("site_data.json", encoding="utf-8"))
@@ -436,7 +436,7 @@ RES = f"""{head("Second Brain OS - resources", f"{len(R)} checked links: Obsidia
 {page_header('res')}
 <main class="rwrap" id="main" tabindex="-1">
   <h1>Everything worth opening</h1>
-  <p class="lede">{len(R)} links, each one checked. Plugins are ranked by installs from Obsidian's own community stats rather than by stars, because in this ecosystem the two disagree by an order of magnitude. Figures are from 5 October 2026 and will drift.</p>
+  <p class="lede">{len(R)} links, each one checked. Plugins are ranked by installs from Obsidian's own community stats rather than by stars, because in this ecosystem the two disagree by an order of magnitude. Figures are from {RESOURCES_DATE} and will drift.</p>
   <div class="controls" id="ctl">
     <button class="chip on" data-k="all" aria-pressed="true">All</button>
     {"".join(f'<button class="chip" data-k="{html.escape(k)}" aria-pressed="false">{html.escape(k)}</button>' for k in kinds)}

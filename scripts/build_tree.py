@@ -12,7 +12,7 @@ import io, json, os, re, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, os.path.join(ROOT, "tools"))
-from site_common import GH, GHT, FOOTER, head, header, min_css, word
+from site_common import RESOURCES_DATE, GH, GHT, FOOTER, head, header, min_css, word
 
 COMMAND_GROUPS = {
     "ingestion": ["ingest", "ingest-url", "ingest-youtube", "ingest-pdf",
@@ -276,7 +276,7 @@ def main():
                  .read().count("](http") for f in res)
     out.append('<div class="sec">' + branch(
         "resources/", "resources.html",
-        f"{nlinks} vetted links, checked 5 October 2026",
+        f"{nlinks} vetted links, checked {RESOURCES_DATE}",
         [row(f, "resources.html", RESOURCES_DESC.get(f, "")) for f in res])
         + "</div>")
 

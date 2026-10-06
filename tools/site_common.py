@@ -4,8 +4,19 @@ Imported by tools/build_site.py, scripts/build_tracks.py and
 scripts/build_tree.py, so the fork URL, the favicon, the header and the
 footer exist in exactly one place.
 """
-import html as _html, json, re
+import html as _html, json, os, re
 
+def _resources_date():
+    """The 'Figures are from **...**' date in resources/README.md, the one place it is kept."""
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    with open(os.path.join(root, "resources", "README.md"), encoding="utf-8") as fh:
+        m = re.search(r"Figures are from \*\*([^*]+)\*\*", fh.read())
+    if not m:
+        raise SystemExit("resources/README.md: no 'Figures are from **date**' line")
+    return m.group(1).strip()
+
+
+RESOURCES_DATE = _resources_date()
 OWNER = "kuuratsanik"
 REPO = f"https://github.com/{OWNER}/second-brain-os"
 GH = REPO + "/blob/main/"
@@ -71,10 +82,10 @@ img[src$=".svg"]{background:var(--fig);border-radius:4px}
 @media print{
   :root:root:root{color-scheme:light;""" + _vars(LIGHT) + """}
   body{background:#fff;color:#000}
-  .skip,.theme,header,.search,.hits,.toc-btn{display:none!important}
-  img[src$=".svg"]{padding:0;background:#fff}
+  .skip,.theme,header,.search,.hits,.toc-btn,button,.controls,#rq{display:none!important}
+  html:root img[src$=".svg"]{padding:0;background:#fff}
   pre,table,figure,img,blockquote{break-inside:avoid;page-break-inside:avoid}
-  pre{white-space:pre-wrap;overflow:visible}
+  pre,article.page pre{white-space:pre-wrap;overflow:visible}
   thead{display:table-header-group}
   h1,h2,h3,h4{break-after:avoid;page-break-after:avoid}
 }
