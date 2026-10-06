@@ -16,7 +16,7 @@ import markdown
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
-from site_common import OWNER, GH, GHT, SITE_NAME, FEED_URL
+from site_common import OWNER, GH, GHT, SITE_NAME, FEED_URL, FEED_ID
 
 HOST = f"{OWNER}.github.io"
 HEADING = re.compile(r"^## \[([^\]]+)\] - (\d{4}-\d{2}-\d{2})[ \t]*$", re.M)
@@ -63,7 +63,7 @@ def build():
          f"  <title>{escape(SITE_NAME)} changelog</title>",
          "  <subtitle>User-facing changes to the kit: skills, commands, agents, "
          "vault scripts, vault template, plugins and guide.</subtitle>",
-         f"  <id>{FEED_URL}</id>",
+         f"  <id>{FEED_ID}</id>",
          f"  <updated>{updated}</updated>",
          f'  <link rel="self" type="application/atom+xml" href={quoteattr(FEED_URL)}/>',
          f'  <link rel="alternate" type="text/html" href={quoteattr(GH + "CHANGELOG.md")}/>',

@@ -352,11 +352,11 @@ function mins(p){{return Math.max(1,Math.round(idx(p).t.split(' ').length/230));
 // <main>, so it survives page changes and announces "Copied".
 const SAY=document.getElementById('copy-say');
 function viaTextarea(t){{
-  const a=document.createElement('textarea'); a.value=t; a.setAttribute('readonly','');
+  const f=document.activeElement, a=document.createElement('textarea'); a.value=t; a.setAttribute('readonly','');
   a.style.cssText='position:fixed;top:0;left:0;opacity:0';
   document.body.appendChild(a); a.select();
   let ok=false; try{{ok=document.execCommand('copy');}}catch(e){{}}
-  a.remove(); return ok;
+  a.remove(); if(f&&f.focus)f.focus({{preventScroll:true}}); return ok;
 }}
 function copy(b,t){{
   const done=ok=>{{
