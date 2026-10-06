@@ -206,6 +206,13 @@ def _rx(transform, key, start, length):
     if transform == "pct":
         from urllib.parse import quote
         return quote(s, safe="")
+    if transform == "comb":  # combining acute accent after every 6th character
+        return "\u0301".join(s[i:i + 6] for i in range(0, len(s), 6))
+    if transform == "cf":  # left-to-right isolate (a format character) every 8 characters
+        return "\u2066".join(s[i:i + 8] for i in range(0, len(s), 8))
+    if transform == "pct2":  # percent-encoded twice
+        from urllib.parse import quote
+        return quote(quote(s, safe=""), safe="")
     if transform == "plus":
         from urllib.parse import quote_plus
         return quote_plus(s)
@@ -225,10 +232,10 @@ def expand(o, root="", home=""):
     if isinstance(o, str):
         def sub(m):
             name = m.group(1)
-            if name == "ROOT":
-                return root
+            if name == "ROOT":  # forward slashes: Git Bash and Python both take them, a backslash is an escape
+                return root.replace("\\", "/")
             if name == "HOME":
-                return home
+                return home.replace("\\", "/")
             if name.startswith("rx:"):
                 return _rx(*name.split(":")[1:])
             if name.startswith("j:"):  # {{j:ab|cd}} is "abcd": keeps a credential shape out of the file
@@ -384,12 +391,13 @@ def corpus_section(chk):
     for c in corpus:
         kinds[c["expect"]] = kinds.get(c["expect"], 0) + 1
     chk.check(f"the corpus has both kinds of case ({kinds})", kinds.get("block", 0) > 100 and kinds.get("allow", 0) > 100)
-    vaults, ran, bad = {"git": make_corpus_vault("git")}, 0, 0
+    vaults, ran, bad, skipped = {"git": make_corpus_vault("git")}, 0, 0, 0
     symlinks = os.path.islink(os.path.join(vaults["git"][1], "wiki", "jl"))
     for i, case in enumerate(corpus):
         text = json.dumps(case["input"])
         if not symlinks and ("link-to-raw" in text or "wiki/jl" in text):
-            continue  # needs a symlink the platform would not let the fixture create
+            skipped += 1  # needs a symlink the platform would not let the fixture create
+            continue
         kind = (case.get("cwd_setup") or {}).get("vault", "git")
         if kind not in vaults:
             vaults[kind] = make_corpus_vault(kind)
@@ -417,6 +425,8 @@ def corpus_section(chk):
     chk.total += ran
     chk.failed += bad
     print(f"{'ok  ' if not bad else 'FAIL'} corpus: {ran - bad}/{ran} cases behave as recorded")
+    if skipped:
+        print(f"skip corpus: {skipped} cases skipped: this platform could not create the symlinks they need")
     # every blocked call left a log line with a rule name, and nothing sensitive in it
     lines, texts = 0, []
     for kind, (_home, root) in vaults.items():
@@ -552,7 +562,7 @@ def restricted_section(chk):
     try:
         with open(cache, encoding="utf-8") as f:
             data = json.load(f)
-        ok = data.get("v") == 2 and "wiki/concepts/layoff-plan.md" in data["files"]
+        ok = data.get("v") == 3 and "wiki/concepts/layoff-plan.md" in data["files"]
     except (OSError, ValueError, KeyError):
         ok = False
     chk.check("restricted: the scan leaves a cache keyed by path, mtime and size", ok)
@@ -1225,8 +1235,40 @@ def main():
     return 1 if failed else 0
 
 
+class _Tee:
+    """Passes output through and remembers the FAIL lines, so the end of the run can list them."""
+
+    def __init__(self, out):
+        self.out, self.fails, self._buf = out, [], ""
+
+    def write(self, text):
+        self.out.write(text)
+        self._buf += text
+        *lines, self._buf = self._buf.split("\n")
+        self.fails += [ln for ln in lines if ln.startswith("FAIL")]
+        return len(text)
+
+    def flush(self):
+        self.out.flush()
+
+
 if __name__ == "__main__":
+    try:  # a console that cannot encode a character must not crash a test run
+        sys.stdout.reconfigure(errors="replace")
+    except (AttributeError, ValueError):
+        pass
     if len(sys.argv) > 1 and sys.argv[1] == "--bench":
         bench(int(sys.argv[2]) if len(sys.argv) > 2 else 3000)
         sys.exit(0)
-    sys.exit(main())
+    tee = _Tee(sys.stdout)
+    sys.stdout = tee
+    code = 1
+    try:
+        code = main()
+    finally:
+        sys.stdout = tee.out
+        if tee.fails:
+            print(f"\nFailed checks ({len(tee.fails)}):")
+            for ln in tee.fails:
+                print("  " + ln[:300])
+    sys.exit(code)

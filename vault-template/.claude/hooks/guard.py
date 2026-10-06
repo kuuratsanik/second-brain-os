@@ -161,9 +161,14 @@ def norm(p):
     return os.path.normcase(os.path.realpath(p))
 
 
+def fwd(p):
+    """PowerShell commands use backslashes as separators on any OS; Bash commands do not."""
+    return p if _POSIX[0] else p.replace("\\", "/")
+
+
 def rel_to_root(path, cwd, root):
     """Path relative to the vault root with '/' separators, or None if outside."""
-    p = os.path.expanduser(path)
+    p = os.path.expanduser(fwd(path))
     if not os.path.isabs(p):
         if cwd is None:
             raise Block(f"cannot tell where '{path}' points: an earlier cd could not be "
@@ -278,7 +283,7 @@ def check_path(tool, path, tool_input, cwd, root):
     if r is None:
         return
     first = r.split("/")[0].lower()
-    real = os.path.realpath(jp(cwd, os.path.expanduser(path)))
+    real = os.path.realpath(jp(cwd, os.path.expanduser(fwd(path))))
     if r.lower() == ".gitignore":
         raise Block(".gitignore is owner-maintained (it decides what is versioned).")
     if r.lower().startswith(".claude/guard"):
@@ -306,7 +311,9 @@ def check_path(tool, path, tool_input, cwd, root):
 
 # ----------------------------------------------------------- shell parsing
 
-_POSIX = [os.name != "nt"]  # shell-escape decoding applies to sh-like shells, not PowerShell or cmd
+# Shell-escape decoding applies to the Bash tool (on Windows that is Git Bash, per
+# https://code.claude.com/docs/en/setup, read 2026-10-06), never to the PowerShell tool.
+_POSIX = [True]
 _ANSI = {"a": "\a", "b": "\b", "e": "\x1b", "E": "\x1b", "f": "\f", "n": "\n", "r": "\r", "t": "\t",
          "v": "\v", "\\": "\\", "'": "'", '"': '"', "?": "?"}
 
@@ -522,7 +529,7 @@ def lit_rel(tok, cwd, root):
     """(lowercase vault-relative path, fuzzy). For a token with a glob or a
     variable, the path is the literal prefix, so callers test prefix overlap.
     None when the path is outside the vault."""
-    t = tok.replace("\\", "/") if os.sep == "\\" else tok
+    t = tok.replace("\\", "/") if os.sep == "\\" or not _POSIX[0] else tok
     m = FUZZY.search(t)
     if not m:
         r = rel_to_root(t, cwd, root)
@@ -738,6 +745,17 @@ def check_git(args, cwd, root):
         check_move("git mv", pos, [], cwd, root, is_move=True)
 
 
+def git_pathspec(s, cwd, root):
+    """A literal pathspec for git, relative to the vault root with forward slashes (git
+    runs there), so Windows drive letters and backslashes never reach git."""
+    p = os.path.realpath(os.path.join(cwd or "", os.path.expanduser(fwd(s))))
+    try:
+        rel = os.path.relpath(p, os.path.realpath(root)).replace(os.sep, "/")
+    except ValueError:  # another drive
+        return ":(literal)" + p
+    return ":(literal)" + rel
+
+
 def check_archive_checkpoint(sources, dest, cwd, root):
     """Rail 1: a page moved into archive/ must be committed first. Fails closed
     when git cannot answer. The timeout stays under the hook's own 10 seconds."""
@@ -745,7 +763,7 @@ def check_archive_checkpoint(sources, dest, cwd, root):
     if dfull is None or dfull.split("/")[0] != "archive":
         return
     for s in sources:
-        spec = s if FUZZY.search(s) else ":(literal)" + os.path.join(cwd or "", os.path.expanduser(s))
+        spec = s if FUZZY.search(s) else git_pathspec(s, cwd, root)
         try:
             p = subprocess.run(["git", "status", "--porcelain", "--", spec], cwd=root,
                                capture_output=True, text=True, timeout=5)
@@ -903,7 +921,7 @@ def check_move(name, pos, args, cwd, root, is_move):
         return
     if is_move:
         check_archive_checkpoint(sources, dest, cwd, root)
-    dest_abs = os.path.realpath(jp(cwd, os.path.expanduser(dest)))
+    dest_abs = os.path.realpath(jp(cwd, os.path.expanduser(fwd(dest))))
     is_dir = os.path.isdir(dest_abs) or dest.endswith(("/", "\\")) or topt is not None
     targets = []
     if is_dir:
@@ -914,7 +932,7 @@ def check_move(name, pos, args, cwd, root, is_move):
     for t in targets:
         check_path("Bash", t, {}, cwd, root)
         tfull, _ = lit_rel(t, cwd, root)
-        treal = os.path.realpath(jp(cwd, os.path.expanduser(t)))
+        treal = os.path.realpath(jp(cwd, os.path.expanduser(fwd(t))))
         if tfull is not None and os.path.exists(treal) and any(
                 overlaps(tfull, k) for k in KEEP_PAGES):
             raise Block(f"'{t}' is a system, hub, index or log page; it is never "
@@ -1255,7 +1273,7 @@ _PAGES = {}
 
 def reset_ctx():
     _CTX.clear()
-    _CTX.update({"dests": [], "tokens": [], "net": False, "all": False, "cmd": ""})
+    _CTX.update({"dests": [], "tokens": [], "net": False, "all": False, "cmd": "", "exec": False, "listpipe": False})
     _PAGES.clear()
 
 
@@ -1263,10 +1281,14 @@ _INVISIBLE = re.compile("[\u00ad\u034f\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2
 
 
 def normalise(text):
-    """NFKC, drop zero-width characters and soft hyphens, fold case, then collapse every
-    run of spaces and punctuation to one space. Homoglyphs from another script and
-    encodings (base64, rot13) are not undone."""
-    text = _INVISIBLE.sub("", unicodedata.normalize("NFKC", text))
+    """Unicode compatibility-decompose (full-width letters fold to plain ones, accents come
+    apart), drop combining marks (category M*), format characters (Cf), zero-width characters
+    and soft hyphens, fold case, then collapse every run of spaces and punctuation to one
+    space. Homoglyphs from another script and encodings (base64, rot13) are not undone."""
+    if not text.isascii():
+        text = "".join(ch for ch in unicodedata.normalize("NFKD", text)
+                       if unicodedata.category(ch)[0] != "M" and unicodedata.category(ch) != "Cf")
+        text = _INVISIBLE.sub("", text)
     return re.sub(r"[\W_]+", " ", text.casefold()).strip()
 
 
@@ -1304,7 +1326,7 @@ def restricted_pages(root):
     try:
         with open(cache_path, encoding="utf-8") as f:
             cache = json.load(f)
-        old = cache["files"] if cache.get("v") == 2 and isinstance(cache.get("files"), dict) else {}
+        old = cache["files"] if cache.get("v") == 3 and isinstance(cache.get("files"), dict) else {}
     except (OSError, ValueError, KeyError, TypeError):
         old = {}
     files, changed = {}, False
@@ -1348,7 +1370,7 @@ def restricted_pages(root):
             if os.path.isdir(os.path.dirname(cache_path)):
                 tmp = cache_path + f".{os.getpid()}.tmp"
                 with open(tmp, "w", encoding="utf-8") as f:
-                    json.dump({"v": 2, "files": files}, f, separators=(",", ":"))
+                    json.dump({"v": 3, "files": files}, f, separators=(",", ":"))
                 os.replace(tmp, cache_path)
         except OSError:
             pass
@@ -1466,7 +1488,8 @@ def check_restricted_net(tool, tin, root):
         return
     for t in _strings(tin):
         if len(t) >= RESTRICTED_MIN:
-            page = find_excerpt(t, root) or find_excerpt(unquote_plus(t), root)
+            once = unquote_plus(t)
+            page = find_excerpt(t, root) or find_excerpt(once, root) or find_excerpt(unquote_plus(once), root)
             if page:
                 raise Block(f"the input of {tool} holds a verbatim excerpt of {RESTRICTED_MIN} or "
                             f"more characters from '{page}', which is marked sensitivity: "
@@ -1540,6 +1563,14 @@ def export_dests(name, args):
     if name == "compress-archive":
         d = ps_value(args, "destinationpath", 2)
         return [d] if d else (p[1:2] if len(p) > 1 else [])
+    if name in {"pax", "cpio"}:
+        out = []
+        for i, a in enumerate(args):
+            if a in {"-f", "-O", "--file"} and i + 1 < len(args):
+                out.append(args[i + 1])
+            elif a.startswith("--file="):
+                out.append(a.split("=", 1)[1])
+        return out
     if name == "pandoc":
         out = []
         for i, a in enumerate(args):
@@ -1592,11 +1623,51 @@ def note_segment(tokens, name, args, pos, cwd, root):
     if name in SEND_CMDS or name in NETCAT_CMDS:
         _CTX["net"] = True
     dirs_ok = name in DIR_REF_CMDS
+    # find hands its matches to -exec or, through a pipe, to xargs, cpio, pax, zip -@ or tar -T -:
+    # its starting folders then count as read, as they would for cp -r
+    starts = []
+    if name == "find":
+        for x in args:
+            if x.startswith(("-", "(", "!")):
+                break
+            starts.append(x)
+        if any(a in {"-exec", "-execdir", "-ok", "-okdir"} for a in args) and not find_exec_readonly(args):
+            _CTX["exec"] = True
+    if any(os.path.basename(t).lower().removesuffix(".exe") == "xargs" for t in tokens):
+        _CTX["listpipe"] = True
+    if (name in {"cpio", "pax"} and any(a in {"-o", "-w", "-ov", "-ow"} or re.fullmatch(r"-[A-Za-z]*[ow][A-Za-z]*", a)
+                                       for a in args)) or (name == "zip" and "-@" in args) or (
+            name in {"tar", "bsdtar"} and any(a == "-T" or a.startswith("--files-from") or
+                                              re.fullmatch(r"-[A-Za-z]*T[A-Za-z]*", a) for a in args)):
+        _CTX["listpipe"] = True
+    if name == "cpio" and any(re.fullmatch(r"-[A-Za-z]*p[A-Za-z]*", a) for a in args):
+        p = positionals(args)
+        if p:
+            if is_export_path(p[-1], cwd, root):
+                _CTX["dests"].append(p[-1])
+            dests.append(p[-1])
+        _CTX["listpipe"] = True
     skip = set(dests)
     for tok in tokens:
         if tok in skip or re.match(r"^(\d*|&)>", tok):
             continue  # the place a command writes is not something it reads
-        _CTX["tokens"].append((cwd, tok, dirs_ok))
+        _CTX["tokens"].append((cwd, tok, "find" if tok in starts else dirs_ok))
+
+
+def find_exec_readonly(args):
+    """True when every command that find -exec runs only reads and prints names or counts."""
+    ran = False
+    for i, a in enumerate(args):
+        if a in {"-exec", "-execdir", "-ok", "-okdir"} and i + 1 < len(args):
+            ran = True
+            prog = os.path.basename(args[i + 1]).lower()
+            rest = args[i + 2:]
+            if prog in {"wc", "ls", "stat"}:
+                continue
+            if prog == "grep" and any(x in {"-l", "-L", "-c", "-q"} for x in rest[:4]):
+                continue
+            return False
+    return ran
 
 
 def _glob_match(pat, path):
@@ -1631,6 +1702,7 @@ def restricted_ref(tok, cwd, root, pages, dirs_ok):
     for c in cands:
         if not c or (c.startswith("-") and "=" not in c):
             continue
+        c = fwd(c)
         try:
             m = FUZZY.search(c)
             if not m:
@@ -1680,6 +1752,8 @@ def check_restricted_shell(cmd, root):
         hit = next(iter(pages))
     if hit is None:
         for cwd, tok, dirs_ok in _CTX["tokens"]:
+            if dirs_ok == "find":
+                dirs_ok = _CTX["exec"] or _CTX["listpipe"]
             hit = restricted_ref(tok, cwd, root, pages, dirs_ok)
             if hit:
                 break
@@ -1688,7 +1762,8 @@ def check_restricted_shell(cmd, root):
                     "Restricted pages are not copied, piped or sent anywhere: name the page "
                     "and link it (privacy skill, hard stop b).",
                     rule="restricted-path", target=hit)
-    page = find_excerpt(cmd, root) or find_excerpt(unquote_plus(cmd), root)
+    once = unquote_plus(cmd)
+    page = find_excerpt(cmd, root) or find_excerpt(once, root) or find_excerpt(unquote_plus(once), root)
     if page:
         raise Block(f"this command {what} a verbatim excerpt of {RESTRICTED_MIN} or more "
                     f"characters from '{page}', which is marked sensitivity: restricted "
@@ -1709,7 +1784,7 @@ def pre_tool_use(data):
     cwd = data.get("cwd") or os.getcwd()
     root = os.environ.get("CLAUDE_PROJECT_DIR") or cwd
     reset_ctx()
-    _POSIX[0] = os.name != "nt" and tool != "PowerShell"
+    _POSIX[0] = tool != "PowerShell"
     _CTX["cmd"] = tin.get("command") if isinstance(tin.get("command"), str) else ""
     if tool in WRITE_TOOLS:
         if tool == "MultiEdit" and not tin.get("file_path"):

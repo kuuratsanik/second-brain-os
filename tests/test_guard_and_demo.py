@@ -14,8 +14,11 @@ DEMO = os.path.join(ROOT, "examples", "demo-vault")
 class GuardSuite(unittest.TestCase):
     def test_guard_test_file_passes(self):
         p = subprocess.run([sys.executable, GUARD_TESTS], capture_output=True,
-                           text=True, encoding="utf-8", errors="replace", timeout=300)
-        self.assertEqual(p.returncode, 0, p.stdout[-2000:] + p.stderr[-2000:])
+                           text=True, encoding="utf-8", errors="replace", timeout=900)
+        # every line that is not an "ok" line (the FAIL lines and the closing list), not the tail
+        # of the output, so a failure on one platform shows its case names in the CI log
+        not_ok = "\n".join(ln for ln in p.stdout.splitlines() if not ln.startswith("ok  "))
+        self.assertEqual(p.returncode, 0, not_ok[-20000:] + p.stderr[-4000:])
         self.assertRegex(p.stdout, r"(\d+)/\1 passed")
 
 
