@@ -147,6 +147,15 @@ article.page a.wiki::after{content:"]]";color:var(--faint)}
   padding-top:18px;border-top:1px solid var(--rule);font-size:14px}
 .pager a{max-width:46%}
 .pager .lbl{display:block;font:11px ui-monospace,Menlo,monospace;color:var(--faint)}
+.pmeta{font:12.5px ui-monospace,Menlo,monospace;color:var(--faint);margin:-12px 0 22px}
+.pmeta a{color:var(--faint);text-decoration:underline;text-underline-offset:3px}
+.pmeta a:hover{color:var(--accent)}
+.cwrap{display:flex;flex-direction:column;margin-bottom:17px}
+.cwrap pre{margin-bottom:0}
+.copy{align-self:flex-end;font:12px/1 ui-monospace,Menlo,monospace;color:var(--soft);
+  background:var(--card);border:1px solid var(--rule);border-bottom:0;border-radius:3px 3px 0 0;
+  padding:6px 10px;margin-bottom:-1px;cursor:pointer}
+.copy:hover{border-color:var(--accent);color:var(--ink)}
 .src{margin-top:34px;font:12px ui-monospace,Menlo,monospace;color:var(--faint)}
 
 /* resources */
@@ -288,6 +297,7 @@ GUIDE = f"""{head("Second Brain OS - the guide", f"A {s['pages']}-page guide to 
   <div class="rail" id="rail" role="complementary" aria-label="On this page"></div>
 </div>
 {FOOTER}
+<span class="sr" id="copy-say" role="status" aria-live="polite"></span>
 <script id="data" type="application/json">{dumps({'pages': [slim_page(p) for p in D['pages']], 'sections': D['sections'], 'order': D['order']})}</script>
 <script>
 const D=JSON.parse(document.getElementById('data').textContent);
@@ -336,6 +346,29 @@ function side(cur){{
   }});
 }}
 
+// reading time: words in the rendered text at 230 a minute, at least one
+function mins(p){{return Math.max(1,Math.round(idx(p).t.split(' ').length/230));}}
+// copy buttons exist only with JavaScript. The status region sits outside
+// <main>, so it survives page changes and announces "Copied".
+const SAY=document.getElementById('copy-say');
+function viaTextarea(t){{
+  const a=document.createElement('textarea'); a.value=t; a.setAttribute('readonly','');
+  a.style.cssText='position:fixed;top:0;left:0;opacity:0';
+  document.body.appendChild(a); a.select();
+  let ok=false; try{{ok=document.execCommand('copy');}}catch(e){{}}
+  a.remove(); return ok;
+}}
+function copy(b,t){{
+  const done=ok=>{{
+    clearTimeout(b._t); b.textContent=ok?'Copied':'Copy failed';
+    SAY.textContent=''; setTimeout(()=>{{SAY.textContent=ok?'Copied':'Copy failed';}},50);
+    b._t=setTimeout(()=>{{b.textContent='Copy';SAY.textContent='';}},2000);
+  }};
+  if(navigator.clipboard&&navigator.clipboard.writeText)
+    navigator.clipboard.writeText(t).then(()=>done(true),()=>done(viaTextarea(t)));
+  else done(viaTextarea(t));
+}}
+
 let first=true, last=location.pathname+location.search;
 function render(){{
   if(location.hash==='#main'){{history.replaceState(null,'',last);if(!first)return;}}
@@ -355,7 +388,8 @@ function render(){{
   const p=P[id], i=FLAT.indexOf(id), prev=FLAT[i-1], next=FLAT[i+1];
   main.innerHTML=`<article class="page">
     <div class="crumb">${{p.section_title}} / page ${{D.order[p.section].indexOf(id)+1}} of ${{D.order[p.section].length}}</div>
-    <h1>${{p.title}}</h1>${{p.html}}
+    <h1>${{p.title}}</h1>
+    <p class="pmeta">${{mins(p)}} min read &middot; <a href="{REPO}/edit/main/${{p.path}}">Edit on GitHub</a></p>${{p.html}}
     <div class="pager">
       ${{prev?`<a href="#${{prev}}"><span class="lbl">previous</span>${{P[prev].title}}</a>`:'<span></span>'}}
       ${{next?`<a href="#${{next}}" style="text-align:right"><span class="lbl">next</span>${{P[next].title}}</a>`:'<span></span>'}}
@@ -387,7 +421,16 @@ function render(){{
     const kind=(path===''||path.endsWith('/')||last.indexOf('.')<0)?'tree':'blob';
     a.setAttribute('href','{REPO}/'+kind+'/main/'+out.join('/')+tail);
   }});
-  main.querySelectorAll('pre').forEach(e=>e.tabIndex=0);
+  const pres=main.querySelectorAll('pre');
+  pres.forEach((pre,n)=>{{
+    pre.tabIndex=0;
+    const w=document.createElement('div'); w.className='cwrap';
+    pre.parentNode.insertBefore(w,pre);
+    const b=document.createElement('button'); b.type='button'; b.className='copy'; b.textContent='Copy';
+    b.setAttribute('aria-label',pres.length>1?'Copy code block '+(n+1)+' of '+pres.length:'Copy code');
+    b.onclick=()=>copy(b,pre.textContent);
+    w.appendChild(b); w.appendChild(pre);
+  }});
   main.querySelectorAll('th').forEach(h=>{{if(!h.textContent.trim())h.innerHTML='<span class="vh">Row label</span>';}});
   const heads=[...main.querySelectorAll('h2')];
   const outs=[...main.querySelectorAll('a.wiki')].slice(0,8);

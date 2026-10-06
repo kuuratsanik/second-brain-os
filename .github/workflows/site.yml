@@ -43,6 +43,9 @@ jobs:
         run: python3 vault-template/.claude/hooks/test_guard.py
       - name: Rebuild the site
         run: python3 scripts/build_all.py
+      # Covers every generated file: index.html, resources.html, tree.html, 404.html,
+      # sitemap.xml, robots.txt, llms.txt, llms-full.txt, feed.xml and og.png. A
+      # generated file that was never committed shows up in `git status --porcelain`.
       - name: Fail if the committed output is stale
         run: |
           git status --short
