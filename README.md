@@ -9,7 +9,7 @@ questions.
 
 This repo is the full version of the guide: the concepts, the setup, the vault
 template, the agent skills, the scripts, and the resources. Free, no signup,
-nothing to install beyond Obsidian and an agent.
+nothing to install beyond Obsidian, an agent and Python 3 (the template's safety hook is a Python script).
 
 **Read it on the web:** [kuuratsanik.github.io/second-brain-os](https://kuuratsanik.github.io/second-brain-os/) — the full guide with search and navigation, plus [every vetted link](https://kuuratsanik.github.io/second-brain-os/resources.html) in one filterable page.
 
@@ -32,6 +32,11 @@ Hand that work to an agent and the system stays alive. That is the whole idea.
 
 One evening. Nine steps, each with a full page behind it.
 
+You need git, Python 3, Obsidian and an agent such as Claude Code. Check that
+`python3 --version` prints a version. On macOS without the Command Line Tools,
+`python3` is a stub that opens an installer prompt instead. The vault's guard
+hook runs `python3`, and a hook that cannot start blocks nothing.
+
 ```bash
 # copy the starter vault, skills, commands and agents
 git clone https://github.com/kuuratsanik/second-brain-os.git
@@ -41,10 +46,11 @@ mkdir -p ~/brain/.claude
 cp -r second-brain-os/skills   ~/brain/.claude/skills
 cp -r second-brain-os/commands ~/brain/.claude/commands
 cp -r second-brain-os/agents   ~/brain/.claude/agents
-cp -r second-brain-os/scripts  ~/brain/scripts
+mkdir -p ~/brain/scripts
+cp second-brain-os/scripts/{chat_export_to_md,graph_export,link_check,vault_stats}.py ~/brain/scripts/
 
 # the folder READMEs are for reading on GitHub, not for the agent
-rm ~/brain/.claude/*/README.md ~/brain/scripts/README.md
+rm ~/brain/.claude/*/README.md
 
 # make the vault its own git repository, once, and commit the template
 cd ~/brain
@@ -53,7 +59,43 @@ git add .gitignore CLAUDE.md README.md templates wiki projects output journal ar
   .claude/settings.json .claude/hooks .claude/skills .claude/commands .claude/agents scripts
 git commit -m "Initial vault"
 
+# check that the guard hook runs: it should end with "N/N passed"
+python3 .claude/hooks/test_guard.py
+
 claude
+```
+
+Do not trust the safety rails until the last check prints "N/N passed". On
+Windows, see the next section.
+
+### Windows
+
+The block above is bash. Run it in Git Bash (installed with [Git for
+Windows](https://git-scm.com/download/win)) and it works unchanged, except that
+`python3` may be the Microsoft Store stub: use `python` or `py` for the check,
+and change `python3` to `python` or `py` in the three hook entries of
+`.claude/settings.json` as the [template README](vault-template/README.md#what-is-enforced-and-what-is-not)
+describes. In PowerShell, use these equivalents:
+
+```powershell
+git clone https://github.com/kuuratsanik/second-brain-os.git
+Copy-Item -Recurse second-brain-os\vault-template $HOME\brain
+
+New-Item -ItemType Directory -Force $HOME\brain\.claude, $HOME\brain\scripts | Out-Null
+Copy-Item -Recurse second-brain-os\skills   $HOME\brain\.claude\skills
+Copy-Item -Recurse second-brain-os\commands $HOME\brain\.claude\commands
+Copy-Item -Recurse second-brain-os\agents   $HOME\brain\.claude\agents
+foreach ($f in 'chat_export_to_md','graph_export','link_check','vault_stats') {
+  Copy-Item "second-brain-os\scripts\$f.py" $HOME\brain\scripts\
+}
+Remove-Item $HOME\brain\.claude\skills\README.md, $HOME\brain\.claude\commands\README.md, $HOME\brain\.claude\agents\README.md
+
+Set-Location $HOME\brain
+git init
+git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw .obsidian `
+  .claude/settings.json .claude/hooks .claude/skills .claude/commands .claude/agents scripts
+git commit -m "Initial vault"
+python .claude\hooks\test_guard.py
 ```
 
 The vault must be its own git repository, not a folder inside another one. The
@@ -71,15 +113,17 @@ some of the rules in `CLAUDE.md` into enforced ones. They arrive with the
 replacing them. See [what is enforced](vault-template/README.md#what-is-enforced-and-what-is-not). `raw` is included so
 the empty subfolders are tracked; `raw/workspace/` stays ignored.
 
-The `scripts/` copy is what lets `/metrics`, `/health` and `/graph-export` run
+The `scripts/` copy is only the four vault scripts, not the site builders
+(`build_*.py`), and it is what lets `/metrics`, `/health` and `/graph-export` run
 `scripts/vault_stats.py` and friends from inside the vault. On Windows, use
 `python` where this guide says `python3`: the `python3` name usually resolves to
 the Microsoft Store stub and does nothing.
 
 **Or install the kit as a plugin.** Instead of the `cp -r` lines for `skills/`,
 `commands/` and `agents/`, add this repo as a plugin marketplace. Still copy
-`vault-template` (the rules and the guard live there), and copy `scripts/` so the
-scripts run without a permission prompt:
+`vault-template` (the rules and the guard live there), and copy the four vault
+scripts (the `scripts/` lines of the block above) so they run without a
+permission prompt:
 
 ```bash
 claude plugin marketplace add kuuratsanik/second-brain-os
@@ -157,7 +201,7 @@ them separate matters more than it sounds.
 
 ## The guide
 
-Ten sections, 77 pages, written to be followed rather than skimmed. From the
+Ten sections, 65 pages, written to be followed rather than skimmed. From the
 concept through setup, capture, structure, the graph, automation, retrieval,
 publishing, and what to do when each of them breaks.
 

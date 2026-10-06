@@ -53,6 +53,15 @@ The bad case is a blocking hook that fails for an unrelated reason and silently
 stops your scheduled ingest for a week. Whatever blocks must be simple enough
 that it only fails for the reason it exists.
 
+## The guard in the vault template
+
+The [vault template](../../vault-template/README.md) ships a working example: a
+`PreToolUse` hook, [`guard.py`](../../vault-template/.claude/hooks/guard.py),
+wired up in [`settings.json`](../../vault-template/.claude/settings.json). It is
+written in Python, so Python 3 must be installed, and `test_guard.py` beside it
+checks it. The template README section [what is enforced and what is not](../../vault-template/README.md#what-is-enforced-and-what-is-not)
+lists which rules the hook enforces and which stay instructions in `CLAUDE.md`.
+
 ## Next
 
 [Skills and slash commands](skills-and-commands.md)

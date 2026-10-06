@@ -17,7 +17,8 @@ git commit -m "Initial vault"
 The vault must be its own repository, not a folder inside another one. The
 [vault template](../../vault-template/README.md) uses the explicit-path first
 commit above instead of `git add .`, so nothing you have not looked at is
-committed. It includes `.claude/` (settings, hooks, skills, commands, agents) and `scripts/`, the
+committed. It includes `.claude/` (settings, hooks, skills, commands, agents) and `scripts/`
+(the four vault scripts the Quickstart copies, not the site builders), the
 vault's agent setup, which is worth versioning so a revert covers it too. `raw`
 is included so the empty subfolders are tracked.
 

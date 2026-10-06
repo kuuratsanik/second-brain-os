@@ -4,7 +4,7 @@ A catalog, not a link dump. Every entry was checked, and every number comes from
 the source itself: GitHub stars from the API, Obsidian plugin installs from the
 official community stats file that the app itself is built on.
 
-Figures are from **September 2026** and will drift. The relative picture holds
+Figures are from **5 October 2026** and will drift. The relative picture holds
 much longer than the absolute numbers.
 
 - [Plugins](plugins.md). Obsidian plugins, ranked by installs

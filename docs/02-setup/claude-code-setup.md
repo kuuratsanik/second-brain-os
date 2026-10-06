@@ -26,6 +26,33 @@ and retrieval sections of this guide.
 Installation instructions for each platform are in the [official setup
 docs](https://code.claude.com/docs/en/setup).
 
+### Before the first run: Python 3
+
+The vault template's safety rails include a hook, `.claude/hooks/guard.py`,
+that Claude Code starts with `python3`. A hook that cannot start blocks
+nothing, so Python 3 is a prerequisite, not an option. Check that
+`python3 --version` prints a version. On macOS without the Command Line Tools,
+`python3` is a stub that opens an installer prompt instead. After copying the
+template into the vault (see the [Quickstart](../../README.md#quickstart)), run:
+
+```bash
+cd ~/brain
+python3 .claude/hooks/test_guard.py
+```
+
+It should end with "N/N passed". Do not rely on the rails until it does.
+
+### Windows
+
+The Quickstart commands are bash. Run them in Git Bash, which comes with [Git
+for Windows](https://git-scm.com/download/win), and they work unchanged. In
+PowerShell, `mkdir -p`, `cp -r`, the `rm` glob and `\` line continuations fail;
+the [Quickstart](../../README.md#windows) has PowerShell equivalents. On Windows
+`python3` is often the Microsoft Store stub: use `python` or `py` for the check
+above, and change `python3` to `python` or `py` in the three hook entries of
+`.claude/settings.json`, as the [template README](../../vault-template/README.md#what-is-enforced-and-what-is-not)
+describes.
+
 ## Option C: inside Obsidian
 
 Community plugins now embed the agent in the editor, and they are heavily used.
