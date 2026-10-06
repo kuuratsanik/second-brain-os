@@ -14,14 +14,14 @@ If the owner installed the kit as the `second-brain` plugin (`~/.claude/plugins/
 
 ## First install
 
-If the vault has no `.claude/skills/` folder, copy the skills, commands and agents into `.claude/`, and the scripts into `scripts/`, so they are versioned with the notes. Report what was installed and what already existed. These commands match the Quickstart, except that they drop the folder README files and copy only the four vault scripts:
+If the vault has no `.claude/skills/` folder, copy the skills, commands and agents into `.claude/`, and the scripts into `scripts/`, so they are versioned with the notes. Report what was installed and what already existed. These commands match the Quickstart, except that they drop the folder README files and copy only the six vault scripts:
 
 ```bash
 mkdir -p .claude scripts
 cp -r "$KIT"/skills   .claude/skills   && rm .claude/skills/README.md
 cp -r "$KIT"/commands .claude/commands && rm .claude/commands/README.md
 cp -r "$KIT"/agents   .claude/agents   && rm .claude/agents/README.md
-cp "$KIT"/scripts/{chat_export_to_md,graph_export,link_check,vault_stats}.py scripts/
+cp "$KIT"/scripts/{chat_export_to_md,dashboard,graph_export,link_check,vault_search,vault_stats}.py scripts/
 ```
 
 `.claude/skills/VERSION` comes with the skills folder. It records the kit version this vault was installed from.
@@ -38,7 +38,7 @@ Use this when `.claude/skills/` exists. Change nothing until step 5.
 
    If the vault's version is the newest (equal or higher), say the vault is current, or that the checkout is older and needs `git -C "$KIT" pull`; stop.
 2. **Show what changed.** Read `$KIT/CHANGELOG.md`. Quote, in full, every `## [x.y.z]` section whose version is newer than the vault's (use `sort -V` to compare), newest first, and `## [Unreleased]` if it has entries. Lead with the entries marked **Breaking** and say what each asks the owner to do. If there is no CHANGELOG, say so and rely on step 3.
-3. **Show what would be copied.** Run `diff -rq "$KIT"/skills .claude/skills`, the same for `commands` and `agents`, and for `scripts` limit it to the four vault scripts (`chat_export_to_md.py`, `graph_export.py`, `link_check.py`, `vault_stats.py`; the `build_*.py` files are site builders). Ignore the folder README.md files. List new files, changed files and vault-only files.
+3. **Show what would be copied.** Run `diff -rq "$KIT"/skills .claude/skills`, the same for `commands` and `agents`, and for `scripts` limit it to the six vault scripts (`chat_export_to_md.py`, `dashboard.py`, `graph_export.py`, `link_check.py`, `vault_search.py`, `vault_stats.py`; the `build_*.py` files are site builders). Ignore the folder README.md files. List new files, changed files and vault-only files.
    - **Flag customised files.** For each changed file, run `git log --oneline -1 -- <path>` in the vault and `git status --short -- <path>`. A file that has been committed or edited since the install commit, or that has uncommitted changes, is probably the owner's own edit: mark it **customised** and offer a `diff -u` of it against the checkout. A file with no history of its own (copied in once) is stock.
    - **Vault-only files** are the owner's own or were removed upstream. Never delete them; name any the CHANGELOG says to remove (for example `.claude/commands/schedule.md`, or `review.md` renamed to `vault-review.md`).
 4. **Compare the protected files, read-only.** Run `diff -u "$KIT"/vault-template/.claude/settings.json .claude/settings.json`, and the same for `.claude/hooks/guard.py` and `CLAUDE.md`. Summarise the differences and say which CHANGELOG entries explain them. These files hold the owner's own rules and boundaries, so the update never copies over them: the owner merges any wanted change by hand.
@@ -49,7 +49,7 @@ Use this when `.claude/skills/` exists. Change nothing until step 5.
    cp -r "$KIT"/skills/second-brain-* .claude/skills/
    cp "$KIT"/commands/*.md .claude/commands/ && rm .claude/commands/README.md
    cp "$KIT"/agents/*.md .claude/agents/ && rm .claude/agents/README.md
-   cp "$KIT"/scripts/{chat_export_to_md,graph_export,link_check,vault_stats}.py scripts/
+   cp "$KIT"/scripts/{chat_export_to_md,dashboard,graph_export,link_check,vault_search,vault_stats}.py scripts/
    rm -f .claude/commands/schedule.md      # renamed to /maintenance-schedule in 1.0.0
    rm -f .claude/commands/{review,export,init,rename,doctor}.md   # renamed to /vault-* in 1.2.0
    cp "$KIT"/skills/VERSION .claude/skills/VERSION

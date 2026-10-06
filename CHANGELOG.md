@@ -14,6 +14,59 @@ without that file predates 1.0.0.
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-06
+
+### Added
+
+- Skill `second-brain-ask`: `/ask` now searches the vault with the new
+  `scripts/vault_search.py` (BM25, title and aliases above headings above body;
+  optional embeddings from a local llama.cpp server), reads the top pages and
+  cites every claim as `[[page]]` plus `path:line`. It says "the vault doesn't
+  say" where the pages are silent, labels general knowledge only when you ask
+  for it, never quotes `restricted` pages, searches Estonian and English and
+  answers in the language of the question, and offers to file a good answer as
+  a synthesis page. `/trace` uses it too; `second-brain-query` keeps `/know`.
+- Skill `second-brain-brief` and command `/brief`: one page, written to
+  `output/brief-<date>.md`, listing raw sources added since the last brief, the
+  needs-owner queue, experiments and ideas due, stale pages
+  (`link_check.py --stale`), likely duplicates (`--duplicates`) and the path of
+  the new `scripts/dashboard.py` health dashboard. It reports and changes
+  nothing else, and it does not set `disable-model-invocation`, so a scheduled
+  task can fire it: the schedulable set is now 17 commands. Per the
+  [skills documentation](https://code.claude.com/docs/en/skills) and the
+  [scheduled tasks documentation](https://code.claude.com/docs/en/scheduled-tasks),
+  read on 6 October 2026, a scheduled fire does not run a skill with
+  `disable-model-invocation: true`.
+- Skill `second-brain-flashcards` and command `/flashcards`: question and
+  answer cards from concept pages in the Obsidian Spaced Repetition plugin's
+  syntax (`question::answer`, `?` between multi-line sides, a `#flashcards`
+  deck tag). Cards go in `output/flashcards/<concept>.md`, not in the concept
+  page, because the plugin writes review state into the file that holds the
+  cards. Pages with `maintained_by: human` are queued, and `restricted` pages
+  are skipped.
+- Skill `second-brain-capture` and command `/capture`: save Gmail threads,
+  Granola meeting notes and transcripts and Notion pages that you name into
+  `raw/` as new files with source frontmatter, strictly read-only on the
+  service. Email and meetings default to `private` (`restricted` when leaking
+  them would hurt someone), it asks before taking in other people's personal
+  data, and it stops at `raw/`; `/ingest` does the rest.
+- Two vault scripts, `vault_search.py` and `dashboard.py`, so the Quickstart,
+  `/install` and the plugin README copy six scripts, not four. The vault
+  template's `.gitignore` now ignores `.cache/`, where `vault_search.py` keeps
+  its embedding cache.
+- `second-brain-ingest`: for an owner who writes in two languages, add the
+  other-language title as an alias and set `lang:` to the page's own language.
+  The `lang` field already existed in the schema (ISO 639-1, `et` or `en`), so
+  no new field was added; the schema page now says what to do with `aliases`
+  when you write in two languages.
+- Handbook page
+  [Local models for cheap maintenance](docs/track-harness/local-models-for-maintenance.md):
+  running tagging, summaries and lint triage on a local llama.cpp server on a
+  CPU, saving the vault's `CLAUDE.md` as a prompt-cache slot, pointing
+  `vault_search.py --embed-url` at a local embedding server, and what a small
+  model cannot do. Linked from the KV-cache page. It reports no quality or
+  speed measurements; none were run.
+
 ## [1.2.0] - 2026-10-06
 
 ### Added

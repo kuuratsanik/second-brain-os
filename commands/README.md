@@ -1,6 +1,6 @@
 # commands
 
-Seventy-five slash commands for Claude Code, grouped by what you are doing.
+Seventy-eight slash commands for Claude Code, grouped by what you are doing.
 
 ```bash
 mkdir -p ~/brain/.claude/commands
@@ -34,7 +34,7 @@ Except for the maintenance set, every command sets `disable-model-invocation:
 true`: it runs only when you type it, and the skills handle automatic
 triggering. This also keeps those descriptions out of every session's context.
 The maintenance set can be scheduled and run without you: `/ingest`, `/link`,
-`/lint`, `/vault-review`, `/weekly`, `/monthly`, `/metrics`, `/health`, `/commit`,
+`/lint`, `/vault-review`, `/weekly`, `/monthly`, `/metrics`, `/health`, `/brief`, `/commit`,
 `/stale`, `/orphans`, `/prune`, `/archive`, `/dedupe`, `/backfill` and
 `/index`. A scheduled task can fire only these.
 
@@ -66,6 +66,7 @@ Most take an optional argument. With none, they default to the sensible whole:
 | `/ingest-newsletter` | Ingest newsletters without duplicating |
 | `/ingest-highlights` | Ingest book or article highlights |
 | `/backfill` | Bulk import an archive in batches |
+| `/capture` | Save a Gmail thread, Granola meeting or Notion page into raw/ |
 
 ### Structuring
 
@@ -100,7 +101,7 @@ Most take an optional argument. With none, they default to the sensible whole:
 
 | Command | What it does |
 |---|---|
-| `/ask` | Answer a specific question from the vault |
+| `/ask` | Answer a specific question from the vault, with a citation for every claim |
 | `/know` | Inventory what the vault holds on a topic |
 | `/connect` | Find the path between two ideas |
 | `/compare` | Compare two things from your own sources |
@@ -123,6 +124,7 @@ Most take an optional argument. With none, they default to the sensible whole:
 | `/monthly` | The monthly structural review |
 | `/prune` | Propose what is safe to remove; archives only if CLAUDE.md grants autonomy |
 | `/archive` | Propose cold material to move out of the wiki; moves only if CLAUDE.md grants autonomy |
+| `/brief` | Brief of what needs your attention: queue, due experiments, new sources, stale pages |
 | `/commit` | Commit what this run wrote, by path |
 
 ### Self-improvement
@@ -143,6 +145,7 @@ Most take an optional argument. With none, they default to the sensible whole:
 | `/publish` | Check what is safe to publish |
 | `/vault-export` | Export a page or set of pages |
 | `/quiz` | Test yourself on your own pages |
+| `/flashcards` | Make spaced-repetition flashcards from concept pages |
 | `/explain` | Explain it back and find the gaps |
 | `/ingest-mine` | Ingest your own finished work |
 
@@ -179,7 +182,7 @@ Most take an optional argument. With none, they default to the sensible whole:
 
 ## Why so many
 
-Twenty-five skills do the real work. Most commands are scoped entry points into
+Twenty-nine skills do the real work. Most commands are scoped entry points into
 them; a few, such as `/dry-run`, `/audit`, `/index` and `/scope`, carry short
 self-contained instructions instead. That is the point: you should not have to remember how to phrase a
 request for a thing you do every week.
