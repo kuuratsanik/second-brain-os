@@ -39,7 +39,7 @@ nav a{color:var(--soft)} nav a.on{color:var(--ink);font-weight:600}
   background:var(--card);border:1px solid var(--rule);border-radius:3px;display:none}
 .hits.open{display:block}
 .hit .sn{display:block;font-size:13px;line-height:1.45;color:var(--soft);margin-top:4px}
-.hit mark{background:rgba(255,196,0,.4);color:inherit;border-radius:2px;padding:0 1px}
+.hit mark{background:rgba(255,196,0,.4);color:var(--ink);border-radius:2px;padding:0 1px}
 .hit{display:block;padding:10px 13px;border-bottom:1px solid var(--rule);color:var(--ink)}
 .hit:last-child{border:0}
 .hit:hover{background:var(--accent-bg);text-decoration:none}
@@ -199,8 +199,8 @@ article.page img{max-width:100%;height:auto;display:block;margin:20px auto}
 SEARCHBOX = ('<div class="search"><input id="q" type="search" '
              'placeholder="search the guide" aria-label="Search the guide" '
              'autocomplete="off">'
-             '<div class="hits" id="hits" role="region" aria-label="Search results" '
-             'aria-live="polite"></div></div>')
+             '<div class="hits" id="hits" role="region" aria-label="Search results"></div>'
+             '<div class="sr" id="hitcount" role="status"></div></div>')
 
 def page_header(active):
     extra = ""
@@ -400,10 +400,10 @@ function render(){{
 function done(){{ if(first){{first=false;return;}} document.getElementById('main').focus({{preventScroll:true}}); }}
 
 // search
-const q=document.getElementById('q'), hits=document.getElementById('hits');
+const q=document.getElementById('q'), hits=document.getElementById('hits'), hitcount=document.getElementById('hitcount');
 q.addEventListener('input',()=>{{
-  const v=q.value.trim().toLowerCase();
-  if(v.length<2){{hits.classList.remove('open');return;}}
+  const v=q.value.trim().replace(/\s+/g,' ').toLowerCase();
+  if(v.length<2){{hits.classList.remove('open');hitcount.textContent='';return;}}
   // title 10 (+6 at the start) > an h2 8 > body at most 3
   const r=D.pages.map(p=>{{
     const x=idx(p); let sc=0; const t=p.title.toLowerCase();
@@ -415,15 +415,17 @@ q.addEventListener('input',()=>{{
   hits.innerHTML=r.length?r.map(x=>`<a class="hit" href="#${{x.p.id}}"><b>${{mark(x.p.title,v)}}</b><i>${{esc(x.p.section_title)}}</i><span class="sn">${{snippet(x.x,v)}}</span></a>`).join('')
     :'<div class="hit"><i>nothing in the guide matches that</i></div>';
   hits.classList.add('open');
+  hitcount.textContent=r.length?r.length+(r.length===1?' result':' results'):'no results';
 }});
 q.addEventListener('keydown',e=>{{
   const f=hits.querySelector('a.hit');
   if(e.key==='ArrowDown'&&f&&hits.classList.contains('open')){{e.preventDefault();f.focus();}}
-  if(e.key==='Enter'&&f&&hits.classList.contains('open')){{e.preventDefault();f.click();location.hash=f.getAttribute('href').slice(1);}}
+  if(e.key==='Enter'&&f&&hits.classList.contains('open')){{e.preventDefault();f.click();}}
 }});
 hits.addEventListener('keydown',e=>{{
   const a=[...hits.querySelectorAll('a.hit')], i=a.indexOf(document.activeElement);
   if(i<0)return;
+  if(e.key==='Escape'){{e.preventDefault();hits.classList.remove('open');q.focus();}}
   if(e.key==='ArrowDown'){{e.preventDefault();(a[i+1]||a[i]).focus();}}
   if(e.key==='ArrowUp'){{e.preventDefault();(i?a[i-1]:q).focus();}}
 }});

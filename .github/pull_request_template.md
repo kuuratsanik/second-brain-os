@@ -21,4 +21,4 @@ the page could not be fetched". Write "none" if there are no factual claims.>
 ## Generated HTML
 
 - [ ] Rebuilt with `pip install -r requirements.txt && python3 scripts/build_all.py` and the result is committed
-- [ ] Not needed: nothing under `docs/`, `resources/`, `skills/`, `commands/`, `agents/`, `scripts/` or `plugins/` changed
+- [ ] Not needed: nothing under `docs/`, `resources/`, `tools/`, `skills/`, `commands/`, `agents/`, `scripts/` or `plugins/` changed
