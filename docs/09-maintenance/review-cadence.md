@@ -9,7 +9,7 @@ that happens.
 The agent prepares it; you read it.
 
 ```
-/review
+/vault-review
 ```
 
 What comes back: what was added, which concepts gained the most links,

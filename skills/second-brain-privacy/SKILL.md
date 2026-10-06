@@ -43,7 +43,7 @@ instruction about what may leave the page:
 | Value | Holds | What it blocks |
 |---|---|---|
 | `normal` | Ordinary notes and sources | Nothing beyond the general rails |
-| `private` | Health, finance, relationships, journal-derived material, other people's information | Its content in any web search, API call or connected-service request. `publish: true` and `/publish`, `/export` and any output meant to be shared. Quoting it on a `normal` page |
+| `private` | Health, finance, relationships, journal-derived material, other people's information | Its content in any web search, API call or connected-service request. `publish: true` and `/publish`, `/vault-export` and any output meant to be shared. Quoting it on a `normal` page |
 | `restricted` | Anything that would hurt someone if it leaked | Everything `private` blocks, and more: no content in reports, review pages or scheduled-run summaries (name the page, not what it says), no copying into other pages beyond a link and a neutral one-line pointer, and no excerpts in a chat reply unless the owner asks for that page |
 
 Rules for applying it:

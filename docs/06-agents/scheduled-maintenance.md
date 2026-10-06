@@ -60,7 +60,7 @@ older ones ([documentation](https://code.claude.com/docs/en/desktop-scheduled-ta
 
 A scheduled task can fire a slash command only from the 16-command maintenance
 set listed in [`commands/README.md`](../../commands/README.md) (`/ingest`,
-`/link`, `/lint`, `/review`, `/weekly`, `/monthly`, `/metrics`, `/health`,
+`/link`, `/lint`, `/vault-review`, `/weekly`, `/monthly`, `/metrics`, `/health`,
 `/commit`, `/stale`, `/orphans`, `/prune`, `/archive`, `/dedupe`, `/backfill`
 and `/index`). The other commands set `disable-model-invocation: true`, and from
 Claude Code v2.1.196 that also stops a scheduled task from running them

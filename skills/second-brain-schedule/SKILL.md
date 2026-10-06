@@ -18,7 +18,7 @@ there to say stop. The prompt and the rails have to carry everything.
 
 Propose, with the exact prompt text for each task, and let the owner create it.
 Only the 16 schedulable commands can be fired as slash commands:
-`/ingest`, `/link`, `/lint`, `/review`, `/weekly`, `/monthly`, `/metrics`,
+`/ingest`, `/link`, `/lint`, `/vault-review`, `/weekly`, `/monthly`, `/metrics`,
 `/health`, `/commit`, `/stale`, `/orphans`, `/prune`, `/archive`, `/dedupe`,
 `/backfill` and `/index`. If the kit is installed as the `second-brain` plugin,
 each of these carries the prefix: write `/second-brain:ingest` in the prompt, not
@@ -71,7 +71,7 @@ running it from Claude Code v2.1.196. For those, write a plain-language prompt.
    | Ingest | `/ingest` | Daily, overnight, after a week of running it by hand |
    | Link | `/link` | Weekly, after a week of ingestion |
    | Lint | `/lint` | Weekly, after link |
-   | Review | `/review` or `/weekly` | Weekly, on the morning the owner plans |
+   | Review | `/vault-review` or `/weekly` | Weekly, on the morning the owner plans |
    | Metrics | `/metrics` | Monthly |
    | Archive pass | `/archive` | Monthly |
    | Backlog over 100 | `/backfill` | One batch per run until clear |

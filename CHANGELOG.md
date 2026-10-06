@@ -28,6 +28,27 @@ without that file predates 1.0.0.
   clash with Claude Code's built-in command names as listed in the
   [commands reference](https://code.claude.com/docs/en/commands) on 6 October
   2026.
+- Renamed five commands that shared a name with a Claude Code built-in command
+  or bundled skill: `/review` is now `/vault-review`, `/export` is
+  `/vault-export`, `/init` is `/vault-init`, `/rename` is `/vault-rename` and
+  `/doctor` is `/vault-doctor`. The [commands
+  reference](https://code.claude.com/docs/en/commands), read on 6 October 2026,
+  lists `/review` (an alias of `/code-review`), `/export`, `/init`, `/rename`
+  and `/doctor`. The [skills
+  documentation](https://code.claude.com/docs/en/skills) (precedence table,
+  same date) says a skill or command file with a built-in's name replaces that
+  built-in in a local terminal session, but not its aliases. So a copied
+  `/export`, `/init`, `/rename` or `/doctor` hid the built-in, and a copied
+  `/review` never ran, because the built-in alias won. The new names appear in
+  neither page. This is the same fix as `/schedule` to `/maintenance-schedule`.
+  Plugin installs run commands as `/second-brain:<name>`, so the plain name
+  is not used there, but the plugin lists the same files and they are renamed
+  there too. Update scheduled tasks and notes that fire the old names. A
+  copy install of an earlier version leaves the old files behind in
+  `.claude/commands/`; delete them (`/install` lists them). The skill names
+  (`second-brain-review` and so on) are unchanged. The `/review` period
+  argument works as before. `scripts/build_tree.py` still says "run /init" on
+  the site; tooling will update it.
 - `second-brain-review` has a lifecycle step and a Self-improvement section in
   its output.
 - `second-brain-privacy` says what each `sensitivity:` value (`normal`,
