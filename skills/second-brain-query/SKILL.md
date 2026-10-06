@@ -8,7 +8,9 @@ description: >-
   asks any question that should be answered from their own notes rather than
   general knowledge. Do NOT use for ingesting new material, for general
   questions the vault has nothing to do with, or when the user explicitly wants
-  an answer from the open web.
+  an answer from the open web. For a specific question that needs a cited,
+  line-level answer, use second-brain-ask, which searches with
+  `scripts/vault_search.py`.
 ---
 
 # Query the vault

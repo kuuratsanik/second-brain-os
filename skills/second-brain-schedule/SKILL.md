@@ -17,9 +17,9 @@ there to say stop. The prompt and the rails have to carry everything.
 ## Core rule
 
 Propose, with the exact prompt text for each task, and let the owner create it.
-Only the 16 schedulable commands can be fired as slash commands:
+Only the 17 schedulable commands can be fired as slash commands:
 `/ingest`, `/link`, `/lint`, `/vault-review`, `/weekly`, `/monthly`, `/metrics`,
-`/health`, `/commit`, `/stale`, `/orphans`, `/prune`, `/archive`, `/dedupe`,
+`/health`, `/brief`, `/commit`, `/stale`, `/orphans`, `/prune`, `/archive`, `/dedupe`,
 `/backfill` and `/index`. If the kit is installed as the `second-brain` plugin,
 each of these carries the prefix: write `/second-brain:ingest` in the prompt, not
 `/ingest`. Tell the owner to check the first run of a task, since this skill
@@ -72,17 +72,21 @@ running it from Claude Code v2.1.196. For those, write a plain-language prompt.
    | Link | `/link` | Weekly, after a week of ingestion |
    | Lint | `/lint` | Weekly, after link |
    | Review | `/vault-review` or `/weekly` | Weekly, on the morning the owner plans |
+   | Brief | `/brief` | Weekly, just before the review, or each weekday morning if the owner reads it |
    | Metrics | `/metrics` | Monthly |
    | Archive pass | `/archive` | Monthly |
    | Backlog over 100 | `/backfill` | One batch per run until clear |
 
+   `/brief` only reads and writes its own page under `output/`, so it is the safest
+   first job to schedule. It does not pull from Gmail, Granola or Notion; `/capture`
+   is live-only.
    `/commit` is rarely needed as its own task, because every run commits itself.
    Do not schedule `/monthly` and `/metrics` as well: `/monthly` records the
    snapshot. Schedule ingest last. Pick a start minute that is not `:00`, since
    scheduled starts on the hour can be late.
 4. **Write the prompt for each.** Give it in two forms: the slash command, and
    a self-contained plain-language prompt for older Claude Code versions or for
-   anything outside the 16. Every prompt must say, whether or not `CLAUDE.md`
+   anything outside the 17. Every prompt must say, whether or not `CLAUDE.md`
    already does:
    - the job and its limit (for ingest, the 20 oldest pending items);
    - checkpoint by path before any merge, archive, rename or batch rewrite;
