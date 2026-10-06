@@ -51,7 +51,9 @@ The extra fields:
 - `domain` says which area of life or work the page belongs to, and which hub
   links to it. A page can have more than one.
 - `lang` is the language the page is written in. Pages keep the language of their
-  source and are not translated.
+  source and are not translated. If you write in two languages, such as
+  Estonian and English, put the title in the other language in `aliases`, so a
+  search or a wikilink in either language finds the page.
 - `sensitivity` decides what may leave the vault. `private` is for health,
   finance, relationships, journal-derived material and third parties'
   information; `restricted` is for anything that would hurt someone if it

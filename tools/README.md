@@ -8,10 +8,11 @@ pip install -r requirements.txt   # Python 3.11+ (markdown 3.11)
 python3 scripts/build_all.py
 ```
 
-`scripts/build_all.py` is the single entry point. It runs five steps in order,
+`scripts/build_all.py` is the single entry point. It runs eight steps in order,
 each reading the previous one's output, and produces `index.html`,
-`resources.html` and `tree.html`. Running it twice gives identical bytes, and CI
-rebuilds on every push and fails if the committed HTML is stale.
+`resources.html`, `tree.html` and the files below. Running it twice gives
+identical bytes, and CI rebuilds on every push and fails if any committed
+generated file is stale.
 
 1. `tools/extract_site.py` - docs and resources to `site_data.json` (ignored by git).
 2. `tools/build_site.py` - `index.html` (the ten-section guide) and `resources.html`.
@@ -22,6 +23,28 @@ rebuilds on every push and fails if the committed HTML is stale.
    missing, so it must run after step 2. Also rewrites the folder READMEs.
 4. `scripts/build_tree.py` - `tree.html`, reading the repo and `index.html`.
 5. `scripts/build_static.py` - `sitemap.xml`, `robots.txt` and `404.html`.
+6. `scripts/build_llms.py` - `llms.txt` (an index of every guide, course and handbook
+   page as a raw GitHub markdown link with a one-line description, in the
+   [llms.txt](https://llmstxt.org) format) and `llms-full.txt` (the markdown of all
+   pages in reading order, each under a page header). It reads the page order from
+   the JSON in `index.html`, so it runs after step 3. The descriptions are the first
+   sentences of each page.
+7. `scripts/build_feed.py` - `feed.xml`, an Atom feed (RFC 4287) of the `CHANGELOG.md`
+   releases, one entry per `## [version] - date` heading. Dates come from the
+   headings and ids are tag URIs, so the build reads neither git nor the clock;
+   "Unreleased" is left out. `site_common.head()` links it with `rel="alternate"`.
+8. `scripts/build_og.py` - `og.png`, the 1200x630 social preview, drawn with the
+   stdlib (pixel font, anti-aliased node graph, 8-bit palette PNG). It writes its
+   own deflate stream, so the bytes do not depend on the zlib build.
+
+`llms.txt`, `llms-full.txt`, `feed.xml` and `og.png` are deliberately not in
+`sitemap.xml`, which lists pages; `robots.txt` already allows everything.
+
+The guide page script (in `build_site.py`) adds, per page: reading time (words / 230,
+rounded, at least one minute), an "Edit on GitHub" link to the source `.md`, and a
+Copy button on each code block. The buttons are created by JavaScript, so there is
+no dead control without it; they are keyboard-operable, announce "Copied" in a
+`role=status` region and are hidden in print. No external scripts.
 
 `extract_site.py` reads every page in `docs/`, keeps the reading order declared in
 each section's `README.md`, resolves internal links to page ids, and parses every
@@ -73,9 +96,23 @@ anything. Run `python3 tools/check_kit.py` and `python3 tools/check_kit.py
 --selftest`; when the Claude Code docs add a frontmatter field, a settings key
 or a hook event, update the key sets at the top of the script.
 
-`tests/` holds `unittest` tests for the four vault scripts, using a fixture vault
+`release_notes.py VERSION` prints one version's section of `CHANGELOG.md`; the
+release workflow uses it as the GitHub release body, and `check_kit.py` imports
+it to require a `## [X.Y.Z]` heading for the version in `skills/VERSION`.
+`bench_kv_slots.py` times a long prefix on a running `llama-server` (cold, warm,
+and restored from a saved slot) and prints a markdown table. Both have
+`--selftest`; the benchmark runs against a fake local server. Neither is part
+of the site build.
+
+Lint: `ruff.toml` holds the ruff rules (a conservative set, target py39), and
+`.github/workflows/lint.yml` runs ruff, actionlint and zizmor at pinned
+versions; any finding fails CI. `vault-template/.claude/hooks` is excluded from
+ruff for now.
+
+`tests/` holds `unittest` tests for the seven vault scripts, using a fixture vault
 built in a temp dir (CRLF and BOM files, aliases, piped links, skip folders and
-`--include`, CSV and GraphML shape, and ChatGPT and Claude chat exports). Run
+`--include`, CSV and GraphML shape, and ChatGPT and Claude chat exports). The MCP
+server, `vault_mcp.py`, is tested by driving it as a subprocess over stdio. Run
 `python3 -m unittest discover -s tests -t .` from the repo root. No installs.
 CI runs these on Linux with Python 3.9 and on Windows with Python 3.13, because
 the vault scripts must work on plain Python 3 everywhere.

@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Second Brain OS changelog</title>
+  <subtitle>User-facing changes to the kit: skills, commands, agents, vault scripts, vault template, plugins and guide.</subtitle>
+  <id>https://kuuratsanik.github.io/second-brain-os/feed.xml</id>
+  <updated>2026-10-06T00:00:00Z</updated>
+  <link rel="self" type="application/atom+xml" href="https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/feed.xml"/>
+  <link rel="alternate" type="text/html" href="https://github.com/kuuratsanik/second-brain-os/blob/main/CHANGELOG.md"/>
+  <author><name>kuuratsanik</name><uri>https://github.com/kuuratsanik</uri></author>
+  <entry>
+    <title>Second Brain OS kit 1.3.0</title>
+    <id>tag:kuuratsanik.github.io,2026-10-06:second-brain-os/1.3.0</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/kuuratsanik/second-brain-os/blob/main/CHANGELOG.md#130---2026-10-06"/>
+    <content type="html">&lt;h3&gt;Added&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Skill &lt;code&gt;second-brain-ask&lt;/code&gt;: &lt;code&gt;/ask&lt;/code&gt; now searches the vault with the new
+  &lt;code&gt;scripts/vault_search.py&lt;/code&gt; (BM25, title and aliases above headings above body;
+  optional embeddings from a local llama.cpp server), reads the top pages and
+  cites every claim as &lt;code&gt;[[page]]&lt;/code&gt; plus &lt;code&gt;path:line&lt;/code&gt;. It says "the vault doesn't
+  say" where the pages are silent, labels general knowledge only when you ask
+  for it, never quotes &lt;code&gt;restricted&lt;/code&gt; pages, searches Estonian and English and
+  answers in the language of the question, and offers to file a good answer as
+  a synthesis page. &lt;code&gt;/trace&lt;/code&gt; uses it too; &lt;code&gt;second-brain-query&lt;/code&gt; keeps &lt;code&gt;/know&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Skill &lt;code&gt;second-brain-brief&lt;/code&gt; and command &lt;code&gt;/brief&lt;/code&gt;: one page, written to
+  &lt;code&gt;output/brief-&amp;lt;date&amp;gt;.md&lt;/code&gt;, listing raw sources added since the last brief, the
+  needs-owner queue, experiments and ideas due, stale pages
+  (&lt;code&gt;link_check.py --stale&lt;/code&gt;), likely duplicates (&lt;code&gt;--duplicates&lt;/code&gt;) and the path of
+  the new &lt;code&gt;scripts/dashboard.py&lt;/code&gt; health dashboard. It reports and changes
+  nothing else, and it does not set &lt;code&gt;disable-model-invocation&lt;/code&gt;, so a scheduled
+  task can fire it: the schedulable set is now 17 commands. Per the
+  &lt;a href="https://code.claude.com/docs/en/skills"&gt;skills documentation&lt;/a&gt; and the
+  &lt;a href="https://code.claude.com/docs/en/scheduled-tasks"&gt;scheduled tasks documentation&lt;/a&gt;,
+  read on 6 October 2026, a scheduled fire does not run a skill with
+  &lt;code&gt;disable-model-invocation: true&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Skill &lt;code&gt;second-brain-flashcards&lt;/code&gt; and command &lt;code&gt;/flashcards&lt;/code&gt;: question and
+  answer cards from concept pages in the Obsidian Spaced Repetition plugin's
+  syntax (&lt;code&gt;question::answer&lt;/code&gt;, &lt;code&gt;?&lt;/code&gt; between multi-line sides, a &lt;code&gt;#flashcards&lt;/code&gt;
+  deck tag). Cards go in &lt;code&gt;output/flashcards/&amp;lt;concept&amp;gt;.md&lt;/code&gt;, not in the concept
+  page, because the plugin writes review state into the file that holds the
+  cards. Pages with &lt;code&gt;maintained_by: human&lt;/code&gt; are queued, and &lt;code&gt;restricted&lt;/code&gt; pages
+  are skipped.&lt;/li&gt;
+&lt;li&gt;Skill &lt;code&gt;second-brain-capture&lt;/code&gt; and command &lt;code&gt;/capture&lt;/code&gt;: save Gmail threads,
+  Granola meeting notes and transcripts and Notion pages that you name into
+  &lt;code&gt;raw/&lt;/code&gt; as new files with source frontmatter, strictly read-only on the
+  service. Email and meetings default to &lt;code&gt;private&lt;/code&gt; (&lt;code&gt;restricted&lt;/code&gt; when leaking
+  them would hurt someone), it asks before taking in other people's personal
+  data, and it stops at &lt;code&gt;raw/&lt;/code&gt;; &lt;code&gt;/ingest&lt;/code&gt; does the rest.&lt;/li&gt;
+&lt;li&gt;Two vault scripts, &lt;code&gt;vault_search.py&lt;/code&gt; and &lt;code&gt;dashboard.py&lt;/code&gt;, so the Quickstart,
+  &lt;code&gt;/install&lt;/code&gt; and the plugin README copy six scripts, not four. The vault
+  template's &lt;code&gt;.gitignore&lt;/code&gt; now ignores &lt;code&gt;.cache/&lt;/code&gt;, where &lt;code&gt;vault_search.py&lt;/code&gt; keeps
+  its embedding cache.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;second-brain-ingest&lt;/code&gt;: for an owner who writes in two languages, add the
+  other-language title as an alias and set &lt;code&gt;lang:&lt;/code&gt; to the page's own language.
+  The &lt;code&gt;lang&lt;/code&gt; field already existed in the schema (ISO 639-1, &lt;code&gt;et&lt;/code&gt; or &lt;code&gt;en&lt;/code&gt;), so
+  no new field was added; the schema page now says what to do with &lt;code&gt;aliases&lt;/code&gt;
+  when you write in two languages.&lt;/li&gt;
+&lt;li&gt;Handbook page
+  &lt;a href="https://github.com/kuuratsanik/second-brain-os/blob/main/docs/track-harness/local-models-for-maintenance.md"&gt;Local models for cheap maintenance&lt;/a&gt;:
+  running tagging, summaries and lint triage on a local llama.cpp server on a
+  CPU, saving the vault's &lt;code&gt;CLAUDE.md&lt;/code&gt; as a prompt-cache slot, pointing
+  &lt;code&gt;vault_search.py --embed-url&lt;/code&gt; at a local embedding server, and what a small
+  model cannot do. Linked from the KV-cache page. It reports no quality or
+  speed measurements; none were run.&lt;/li&gt;
+&lt;/ul&gt;</content>
+  </entry>
+  <entry>
+    <title>Second Brain OS kit 1.2.0</title>
+    <id>tag:kuuratsanik.github.io,2026-10-06:second-brain-os/1.2.0</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/kuuratsanik/second-brain-os/blob/main/CHANGELOG.md#120---2026-10-06"/>
+    <content type="html">&lt;h3&gt;Added&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Skill &lt;code&gt;second-brain-lifecycle&lt;/code&gt; and commands &lt;code&gt;/idea&lt;/code&gt;, &lt;code&gt;/experiment-review&lt;/code&gt; and
+  &lt;code&gt;/lifecycle-status&lt;/code&gt;: a lifecycle for self-improvement ideas, tracked in the
+  &lt;code&gt;status:&lt;/code&gt; field and dated log lines. An idea becomes a plan, an experiment and
+  a review, then is adopted as a system page or dropped. The skill decides at
+  review against the written success measure and never deletes: a dropped idea
+  is archived, a failed experiment stays in place. It does not start an
+  experiment unless the owner has set a &lt;code&gt;start:&lt;/code&gt; date. The commands do not
+  clash with Claude Code's built-in command names as listed in the
+  &lt;a href="https://code.claude.com/docs/en/commands"&gt;commands reference&lt;/a&gt; on 6 October
+  2026.&lt;/li&gt;
+&lt;li&gt;Renamed five commands that shared a name with a Claude Code built-in command
+  or bundled skill: &lt;code&gt;/review&lt;/code&gt; is now &lt;code&gt;/vault-review&lt;/code&gt;, &lt;code&gt;/export&lt;/code&gt; is
+  &lt;code&gt;/vault-export&lt;/code&gt;, &lt;code&gt;/init&lt;/code&gt; is &lt;code&gt;/vault-init&lt;/code&gt;, &lt;code&gt;/rename&lt;/code&gt; is &lt;code&gt;/vault-rename&lt;/code&gt; and
+  &lt;code&gt;/doctor&lt;/code&gt; is &lt;code&gt;/vault-doctor&lt;/code&gt;. The &lt;a href="https://code.claude.com/docs/en/commands"&gt;commands
+  reference&lt;/a&gt;, read on 6 October 2026,
+  lists &lt;code&gt;/review&lt;/code&gt; (an alias of &lt;code&gt;/code-review&lt;/code&gt;), &lt;code&gt;/export&lt;/code&gt;, &lt;code&gt;/init&lt;/code&gt;, &lt;code&gt;/rename&lt;/code&gt;
+  and &lt;code&gt;/doctor&lt;/code&gt;. The &lt;a href="https://code.claude.com/docs/en/skills"&gt;skills
+  documentation&lt;/a&gt; (precedence table,
+  same date) says a skill with a built-in's name replaces that built-in in a
+  local terminal session, but not its aliases; the same page says command
+  files work the same way as skills. So a copied
+  &lt;code&gt;/export&lt;/code&gt;, &lt;code&gt;/init&lt;/code&gt;, &lt;code&gt;/rename&lt;/code&gt; or &lt;code&gt;/doctor&lt;/code&gt; hid the built-in, and a copied
+  &lt;code&gt;/review&lt;/code&gt; never ran, because the built-in alias won. The new names appear in
+  neither page. This is the same fix as &lt;code&gt;/schedule&lt;/code&gt; to &lt;code&gt;/maintenance-schedule&lt;/code&gt;.
+  Plugin installs run commands as &lt;code&gt;/second-brain:&amp;lt;name&amp;gt;&lt;/code&gt;, so the plain name
+  is not used there, but the plugin lists the same files and they are renamed
+  there too. Update scheduled tasks and notes that fire the old names. A
+  copy install of an earlier version leaves the old files behind in
+  &lt;code&gt;.claude/commands/&lt;/code&gt;; delete them (&lt;code&gt;/install&lt;/code&gt; lists them). The skill names
+  (&lt;code&gt;second-brain-review&lt;/code&gt; and so on) are unchanged. The period argument
+  of &lt;code&gt;/vault-review&lt;/code&gt; works as &lt;code&gt;/review&lt;/code&gt;'s did.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;second-brain-review&lt;/code&gt; has a lifecycle step and a Self-improvement section in
+  its output.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;second-brain-privacy&lt;/code&gt; says what each &lt;code&gt;sensitivity:&lt;/code&gt; value (&lt;code&gt;normal&lt;/code&gt;,
+  &lt;code&gt;private&lt;/code&gt;, &lt;code&gt;restricted&lt;/code&gt;) blocks and checks that labels match the content.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;second-brain-ingest&lt;/code&gt; has a slug and alias rule that matches the key
+  &lt;code&gt;scripts/link_check.py --duplicates&lt;/code&gt; uses (case-folded, letters and digits
+  only) and sets &lt;code&gt;aliases:&lt;/code&gt; for common title variants.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;vault-template&lt;/code&gt;: the lifecycle page now says a dropped idea is archived and
+  a failed experiment stays in place, and &lt;code&gt;wiki/log.md&lt;/code&gt; lists the &lt;code&gt;lifecycle&lt;/code&gt;
+  operation. An existing vault keeps its own copy of the lifecycle page: copy
+  those two bullets across if you want the new behaviour.&lt;/li&gt;
+&lt;/ul&gt;</content>
+  </entry>
+  <entry>
+    <title>Second Brain OS kit 1.1.0</title>
+    <id>tag:kuuratsanik.github.io,2026-10-06:second-brain-os/1.1.0</id>
+    <updated>2026-10-06T00:00:00Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/kuuratsanik/second-brain-os/blob/main/CHANGELOG.md#110---2026-10-06"/>
+    <content type="html">&lt;h3&gt;Added&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;The kit as a Claude Code plugin, &lt;code&gt;second-brain&lt;/code&gt; (version taken from
+  &lt;code&gt;skills/VERSION&lt;/code&gt;, so 1.1.0): &lt;code&gt;claude plugin marketplace add
+  kuuratsanik/second-brain-os&lt;/code&gt;, then &lt;code&gt;claude plugin install
+  second-brain@second-brain-os&lt;/code&gt;. It packages the existing &lt;code&gt;skills/&lt;/code&gt;,
+  &lt;code&gt;commands/&lt;/code&gt; and &lt;code&gt;agents/&lt;/code&gt; from the repository root, with no second copy of
+  any file, and is an alternative to the Quickstart's &lt;code&gt;cp -r&lt;/code&gt;. Commands run as
+  &lt;code&gt;/second-brain:&amp;lt;name&amp;gt;&lt;/code&gt;, skills as &lt;code&gt;/second-brain:second-brain-&amp;lt;name&amp;gt;&lt;/code&gt; and
+  agents as &lt;code&gt;second-brain:&amp;lt;name&amp;gt;&lt;/code&gt;; update with &lt;code&gt;claude plugin update&lt;/code&gt;. Use one
+  method per vault, not both. The vault template is still copied. See
+  &lt;a href="https://github.com/kuuratsanik/second-brain-os/blob/main/plugins/README.md#second-brain"&gt;&lt;code&gt;plugins/README.md&lt;/code&gt;&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;The skills, command and agent that run the vault scripts
+  (&lt;code&gt;second-brain-metrics&lt;/code&gt;, &lt;code&gt;-graph&lt;/code&gt;, &lt;code&gt;-archive&lt;/code&gt;, &lt;code&gt;-chat-import&lt;/code&gt;,
+  &lt;code&gt;/graph-export&lt;/code&gt;, &lt;code&gt;graph-analyst&lt;/code&gt;) now fall back to
+  &lt;code&gt;${CLAUDE_PLUGIN_ROOT}/scripts/&lt;/code&gt; when the vault has no &lt;code&gt;scripts/&lt;/code&gt; folder.
+  &lt;code&gt;second-brain-doctor&lt;/code&gt; recognises a plugin install and warns when a vault has
+  both. A copied vault is unaffected.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;vault-template/CLAUDE.md&lt;/code&gt;: the autonomy override also covers the names with
+  the &lt;code&gt;second-brain:&lt;/code&gt; prefix.&lt;/li&gt;
+&lt;li&gt;agents-course plugin 0.4.0: an eval suite for &lt;code&gt;claude plugin eval&lt;/code&gt;, in
+  &lt;code&gt;plugins/agents-course/evals/&lt;/code&gt;. Twelve cases: a trigger case and a
+  must-not-fire case for each of the five skills and the &lt;code&gt;loop-critic&lt;/code&gt; agent,
+  with behaviour checks on top (the audit skills never call &lt;code&gt;Edit&lt;/code&gt; or
+  &lt;code&gt;Write&lt;/code&gt;; &lt;code&gt;goal-test&lt;/code&gt; and &lt;code&gt;evals-bootstrap&lt;/code&gt; create the files they promise).
+  Most graders are deterministic; one uses a judge model. See
+  &lt;a href="https://github.com/kuuratsanik/second-brain-os/blob/main/plugins/README.md#running-the-evals"&gt;&lt;code&gt;plugins/README.md&lt;/code&gt;&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;</content>
+  </entry>
+  <entry>
+    <title>Second Brain OS kit 1.0.0</title>
+    <id>tag:kuuratsanik.github.io,2026-10-05:second-brain-os/1.0.0</id>
+    <updated>2026-10-05T00:00:00Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/kuuratsanik/second-brain-os/blob/main/CHANGELOG.md#100---2026-10-05"/>
+    <content type="html">&lt;h3&gt;Added&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Six skills, 24 in total: &lt;code&gt;second-brain-commit&lt;/code&gt;, &lt;code&gt;second-brain-rollback&lt;/code&gt;,
+  &lt;code&gt;second-brain-doctor&lt;/code&gt;, &lt;code&gt;second-brain-schedule&lt;/code&gt;, &lt;code&gt;second-brain-archive&lt;/code&gt; and
+  &lt;code&gt;second-brain-structure&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;argument-hint&lt;/code&gt; on every command that takes an argument.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;/install&lt;/code&gt; now also updates an installed vault. It compares versions, shows
+  the entries in this file, flags files that differ from the checkout and
+  that you may have customised (so you can keep your version), and lists the copy commands for you to run. It
+  never overwrites your &lt;code&gt;CLAUDE.md&lt;/code&gt; or &lt;code&gt;.claude/settings.json&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Vault template: six domains with hubs (work, learning, personal, creative,
+  self-improvement, systems), a self-improvement lifecycle, one &lt;code&gt;raw/&lt;/code&gt; folder
+  per source, mixed-language rules with ASCII slugs, and a &lt;code&gt;.gitignore&lt;/code&gt; that
+  keeps email, chat and document intake out of git.&lt;/li&gt;
+&lt;li&gt;Vault template autonomy rails: a checkpoint commit before destructive steps,
+  archive instead of delete, a change log in &lt;code&gt;wiki/log.md&lt;/code&gt; and a needs-owner
+  queue.&lt;/li&gt;
+&lt;li&gt;Unit tests for the four vault scripts, and a fictional demo vault in
+  &lt;code&gt;examples/demo-vault/&lt;/code&gt; that you can run them against.&lt;/li&gt;
+&lt;li&gt;The site has a system, light and dark theme toggle, and carries sharing tags,
+  a sitemap and a 404 page. Alt text for the course figures.&lt;/li&gt;
+&lt;li&gt;Developer note: &lt;code&gt;tools/check_kit.py&lt;/code&gt; validates &lt;code&gt;vault-template/.claude/settings.json&lt;/code&gt;
+  (valid JSON, known keys), as well as the skills, commands, agents and plugin
+  manifests. CI runs it, the vault script tests and the guard hook tests.
+  The site now builds with one command, &lt;code&gt;python3 scripts/build_all.py&lt;/code&gt;, and CI
+  fails on drift. Added a repository &lt;code&gt;CLAUDE.md&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Changed&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Breaking:&lt;/strong&gt; &lt;code&gt;/schedule&lt;/code&gt; is now &lt;code&gt;/maintenance-schedule&lt;/code&gt;. A project command
+  named &lt;code&gt;/schedule&lt;/code&gt; would shadow Claude Code's built-in &lt;code&gt;/schedule&lt;/code&gt;. Copying
+  the new &lt;code&gt;commands/&lt;/code&gt; folder adds &lt;code&gt;maintenance-schedule.md&lt;/code&gt; but leaves the old
+  &lt;code&gt;.claude/commands/schedule.md&lt;/code&gt; in place, so delete that file. Anything of
+  yours that calls &lt;code&gt;/schedule&lt;/code&gt; (notes, scheduled tasks, other commands) needs
+  the new name. The skill keeps its name, &lt;code&gt;second-brain-schedule&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Breaking:&lt;/strong&gt; 56 commands are manual-only. They set
+  &lt;code&gt;disable-model-invocation: true&lt;/code&gt; and run only when you type them. The 16
+  maintenance commands (&lt;code&gt;/ingest&lt;/code&gt;, &lt;code&gt;/link&lt;/code&gt;, &lt;code&gt;/lint&lt;/code&gt;, &lt;code&gt;/review&lt;/code&gt;, &lt;code&gt;/weekly&lt;/code&gt;,
+  &lt;code&gt;/monthly&lt;/code&gt;, &lt;code&gt;/metrics&lt;/code&gt;, &lt;code&gt;/health&lt;/code&gt;, &lt;code&gt;/commit&lt;/code&gt;, &lt;code&gt;/stale&lt;/code&gt;, &lt;code&gt;/orphans&lt;/code&gt;, &lt;code&gt;/prune&lt;/code&gt;,
+  &lt;code&gt;/archive&lt;/code&gt;, &lt;code&gt;/dedupe&lt;/code&gt;, &lt;code&gt;/backfill&lt;/code&gt;, &lt;code&gt;/index&lt;/code&gt;) stay schedulable. A scheduled
+  task that fires any other command no longer runs it.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Breaking:&lt;/strong&gt; merge and import archive or skip instead of deleting. Merging
+  moves the merged page to &lt;code&gt;archive/&lt;/code&gt;, and imports skip a duplicate. &lt;code&gt;/prune&lt;/code&gt;
+  and &lt;code&gt;/archive&lt;/code&gt; propose, and move pages only if your &lt;code&gt;CLAUDE.md&lt;/code&gt; grants
+  autonomy. If you relied on deletion, say so in your &lt;code&gt;CLAUDE.md&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Breaking:&lt;/strong&gt; every maintenance skill now commits its run to git, staging
+  files by path, and needs the vault to be a git repository. In a vault that is
+  not one, the commit step stops and queues the problem for you; the run's
+  edits stay uncommitted.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;/rollback&lt;/code&gt; undoes one run and keeps your own edits. It never touches &lt;code&gt;raw/&lt;/code&gt;,
+  &lt;code&gt;journal/&lt;/code&gt; or &lt;code&gt;output/&lt;/code&gt;. Archive moves use &lt;code&gt;git mv&lt;/code&gt;; restoring a page is an
+  owner step.&lt;/li&gt;
+&lt;li&gt;Every command points at a skill that does its job, or carries its own
+  instructions. Near-duplicate commands (&lt;code&gt;/ask&lt;/code&gt;, &lt;code&gt;/know&lt;/code&gt;, &lt;code&gt;/trace&lt;/code&gt;;
+  &lt;code&gt;/contradictions&lt;/code&gt;, &lt;code&gt;/contradicts&lt;/code&gt;; &lt;code&gt;/health&lt;/code&gt;, &lt;code&gt;/graph&lt;/code&gt;, &lt;code&gt;/metrics&lt;/code&gt;,
+  &lt;code&gt;/monthly&lt;/code&gt;) say when to use their sibling.&lt;/li&gt;
+&lt;li&gt;Skill introductions are trimmed and trigger descriptions rewritten so two
+  skills no longer claim the same request. &lt;code&gt;graph-analyst&lt;/code&gt; runs on a smaller
+  model.&lt;/li&gt;
+&lt;li&gt;The vault template's &lt;code&gt;CLAUDE.md&lt;/code&gt; is slimmer (about 1,750 words), with an
+  empty Profile block that the interview fills in. &lt;code&gt;/install&lt;/code&gt; never overwrites
+  it, &lt;code&gt;.claude/settings.json&lt;/code&gt; or &lt;code&gt;.claude/hooks/&lt;/code&gt;; compare them with the
+  template by hand if you want the new rules.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;agents-course&lt;/code&gt; plugin 0.3.0: &lt;code&gt;context-audit&lt;/code&gt; and &lt;code&gt;harness-audit&lt;/code&gt; block
+  &lt;code&gt;Edit&lt;/code&gt;, &lt;code&gt;Write&lt;/code&gt; and &lt;code&gt;NotebookEdit&lt;/code&gt; while they run, so "read-only" is
+  enforced. The &lt;code&gt;goal-test&lt;/code&gt; loop caps each attempt with &lt;code&gt;--max-turns&lt;/code&gt; and
+  &lt;code&gt;--max-budget-usd&lt;/code&gt; and explains what &lt;code&gt;acceptEdits&lt;/code&gt; allows in a headless run.
+  &lt;code&gt;evals-bootstrap&lt;/code&gt; notes that Claude Code's transcript format is internal and
+  changes between versions. Clearer wording in &lt;code&gt;gate-check&lt;/code&gt; and &lt;code&gt;context-audit&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Docs: the Quickstart sets up git, the guide pages match the template, and the
+  safety and scheduling pages cover real enforcement, &lt;code&gt;acceptEdits&lt;/code&gt; for
+  unattended runs, and why template vaults should not use cloud routines.
+  Resource counts are refreshed as of 2026-10-05, with one stamp for sources
+  that could not be re-checked. Links point to this fork.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Removed&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;The old &lt;code&gt;/schedule&lt;/code&gt; command name (see Changed).&lt;/li&gt;
+&lt;li&gt;The upstream analytics beacon and the stale roadmap page from the site.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Fixed&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;ChatGPT exports in the &lt;code&gt;mapping&lt;/code&gt; shape produced nothing; they are now read by
+  walking the conversation tree.&lt;/li&gt;
+&lt;li&gt;A UTF-8 byte order mark hid a page's frontmatter in the vault scripts.&lt;/li&gt;
+&lt;li&gt;Aliases are now counted in &lt;code&gt;vault_stats.py&lt;/code&gt; and the graph export.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;[[folder/Page]]&lt;/code&gt; resolved to the wrong page when two pages shared a name; it
+  now resolves by path.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;vault_stats.py&lt;/code&gt; parses its arguments with &lt;code&gt;argparse&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Site accessibility: contrast, landmarks, heading order, a skip link,
+  keyboard-operable graph nodes and labelled controls.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Security&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;The template's hard stops are enforced, not only requested.
+  &lt;code&gt;.claude/settings.json&lt;/code&gt; carries deny, ask and allow rules, and
+  &lt;code&gt;.claude/hooks/guard.py&lt;/code&gt; is a PreToolUse and Stop hook that blocks writes to
+  existing &lt;code&gt;raw/&lt;/code&gt; files, &lt;code&gt;journal/&lt;/code&gt;, &lt;code&gt;scripts/&lt;/code&gt; and &lt;code&gt;.claude/&lt;/code&gt;, deletes,
+  pushes, uploads and unsafe git forms. The template README lists what stays
+  prompt-only. To adopt this in an existing vault, copy the two files by hand;
+  &lt;code&gt;/install&lt;/code&gt; does not.&lt;/li&gt;
+&lt;/ul&gt;</content>
+  </entry>
+</feed>

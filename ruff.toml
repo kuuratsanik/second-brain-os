@@ -1,0 +1,14 @@
+# Lint config for CI (.github/workflows/lint.yml, which pins the ruff version).
+# The vault scripts ship to users on Python 3.9, so target py39.
+target-version = "py39"
+line-length = 120
+
+# vault-template/.claude/hooks is being changed separately; lint it once that lands.
+extend-exclude = ["vault-template/.claude/hooks"]
+
+[lint]
+# E9 syntax errors, F pyflakes, B bugbear, plus the E4/E7 checks that find real bugs
+# (E401 multiple imports per line, E71x comparisons, E721 type comparison, E722 bare except).
+# Set explicitly so a new ruff default never changes what CI enforces. Style rules
+# (E701, E702, E731, E741) are left off on purpose.
+select = ["E401", "E711", "E712", "E713", "E714", "E721", "E722", "E9", "F", "B"]

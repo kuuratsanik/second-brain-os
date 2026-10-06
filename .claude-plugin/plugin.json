@@ -1,7 +1,7 @@
 {
   "name": "second-brain",
-  "version": "1.2.0",
-  "description": "The Second Brain OS kit: 25 skills, 75 slash commands and 6 agents for an LLM-maintained markdown vault, plus the vault scripts.",
+  "version": "1.3.0",
+  "description": "The Second Brain OS kit: 29 skills, 78 slash commands and 6 agents for an LLM-maintained markdown vault, plus the vault scripts.",
   "author": {
     "name": "kuuratsanik",
     "url": "https://github.com/kuuratsanik"
@@ -23,6 +23,8 @@
     "./commands/audit.md",
     "./commands/backfill.md",
     "./commands/bridges.md",
+    "./commands/brief.md",
+    "./commands/capture.md",
     "./commands/changed-my-mind.md",
     "./commands/claude-md.md",
     "./commands/clusters.md",
@@ -38,6 +40,7 @@
     "./commands/dry-run.md",
     "./commands/experiment-review.md",
     "./commands/explain.md",
+    "./commands/flashcards.md",
     "./commands/gaps.md",
     "./commands/graph-export.md",
     "./commands/graph.md",

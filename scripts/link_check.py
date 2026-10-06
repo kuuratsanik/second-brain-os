@@ -32,17 +32,20 @@ def is_page(name):
     return name.endswith(".md") and name not in SKIP_FILES
 
 
-def prune(dirnames):
-    dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS and not d.startswith(".")]
+def prune(dirnames, skip=None):
+    skip = SKIP_DIRS if skip is None else skip
+    dirnames[:] = [d for d in dirnames if d not in skip and not d.startswith(".")]
 
 
 STUB_WORDS = 40
 
 
-def collect(vault):
+def collect(vault, skip=None):
+    """{path: text} for every counted page. `skip` replaces SKIP_DIRS for this
+    call, so a library caller can include a folder without touching the module."""
     pages = {}
     for dirpath, dirnames, filenames in os.walk(vault):
-        prune(dirnames)
+        prune(dirnames, skip)
         for name in filenames:
             if not is_page(name):
                 continue
@@ -260,6 +263,57 @@ def duplicate_groups(pages):
     return out
 
 
+def link_graph(vault, pages):
+    """(outbound, inbound, broken): sets of page paths per page, and a list of
+    (page, target) for links that resolve to nothing. Self links are ignored."""
+    by_path = {rel_key(vault, p): p for p in pages}
+    names = {}
+    for path in sorted(pages):
+        names.setdefault(title_of(path, pages[path]).lower(), path)
+    for path in sorted(pages):
+        for a in aliases_of(pages[path]):
+            names.setdefault(a.lower(), path)
+
+    outbound = {p: set() for p in pages}
+    inbound = {p: set() for p in pages}
+    broken = []
+
+    for path, text in pages.items():
+        for target in LINK.findall(text):
+            dest = resolve(target, by_path, names)
+            if dest:
+                if dest != path:
+                    outbound[path].add(dest)
+                    inbound[dest].add(path)
+            else:
+                broken.append((path, target.strip()))
+    return outbound, inbound, broken
+
+
+def find_orphans(pages, inbound):
+    return [p for p in pages if not inbound[p] and not p.endswith(("index.md", "log.md", "README.md"))]
+
+
+def find_stubs(pages):
+    return [p for p, t in pages.items() if len(t.split()) < STUB_WORDS]
+
+
+def emit(lines):
+    """Print lines; if the reader went away (head, a closed pager) stop quietly:
+    EPIPE, or EINVAL on Windows."""
+    try:
+        for line in lines:
+            print(line)
+        sys.stdout.flush()
+    except OSError as e:
+        if e.errno not in (errno.EPIPE, errno.EINVAL):
+            raise
+        try:
+            os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
+        except (OSError, ValueError):
+            pass
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("vault")
@@ -300,44 +354,12 @@ def main():
                 lines.append(f"{rel(p)}\t{d.isoformat()}\t{a}")
             for k, key, ps in dup or []:
                 lines.append("\t".join([k, key] + [rel(p) for p in ps]))
-        try:
-            for line in lines:
-                print(line)
-            sys.stdout.flush()
-        except OSError as e:
-            # the reader (head, a closed pager) went away: EPIPE, or EINVAL on Windows
-            if e.errno not in (errno.EPIPE, errno.EINVAL):
-                raise
-            try:
-                os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
-            except (OSError, ValueError):
-                pass
+        emit(lines)
         return
 
-    by_path = {rel_key(args.vault, p): p for p in pages}
-    names = {}
-    for path in sorted(pages):
-        names.setdefault(title_of(path, pages[path]).lower(), path)
-    for path in sorted(pages):
-        for a in aliases_of(pages[path]):
-            names.setdefault(a.lower(), path)
-
-    outbound = {p: set() for p in pages}
-    inbound = {p: set() for p in pages}
-    broken = []
-
-    for path, text in pages.items():
-        for target in LINK.findall(text):
-            dest = resolve(target, by_path, names)
-            if dest:
-                if dest != path:
-                    outbound[path].add(dest)
-                    inbound[dest].add(path)
-            else:
-                broken.append((path, target.strip()))
-
-    orphans = [p for p in pages if not inbound[p] and not p.endswith(("index.md", "log.md", "README.md"))]
-    stubs = [p for p, t in pages.items() if len(t.split()) < STUB_WORDS]
+    outbound, inbound, broken = link_graph(args.vault, pages)
+    orphans = find_orphans(pages, inbound)
+    stubs = find_stubs(pages)
     links = sum(len(v) for v in outbound.values())
 
     result = {
