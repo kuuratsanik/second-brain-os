@@ -84,3 +84,7 @@ jobs:
           python scripts/vault_stats.py examples/demo-vault
           python scripts/graph_export.py examples/demo-vault "${{ runner.temp }}/graph.csv"
           python scripts/graph_export.py examples/demo-vault "${{ runner.temp }}/graph.graphml" --format graphml
+          python scripts/vault_search.py examples/demo-vault "weekly review" --limit 3
+          python scripts/vault_search.py examples/demo-vault "oppimise plaan" --json
+          python scripts/dashboard.py examples/demo-vault --out "${{ runner.temp }}/dashboard.html"
+          python scripts/dashboard.py examples/demo-vault --json
