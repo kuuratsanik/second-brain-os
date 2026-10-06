@@ -1,14 +1,17 @@
+import base64
 import hashlib
 import json
 import os
 import socket
+import struct
 import sys
 import threading
 import unicodedata
 import unittest
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from unittest import mock
 
-from tests.fixture import SCRIPTS, VaultCase, run_script, write
+from tests.fixture import ROOT, SCRIPTS, VaultCase, run_script, write
 
 if SCRIPTS not in sys.path:
     sys.path.insert(0, SCRIPTS)
@@ -163,7 +166,9 @@ class FakeEmbeddings(BaseHTTPRequestHandler):
             self.end_headers()
             return
         inputs = body["input"] if isinstance(body["input"], list) else [body["input"]]
-        data = [{"object": "embedding", "index": i, "embedding": fake_vector(t)}
+        extra = self.server.extra + (self.server.extra_multi if len(inputs) > 1 else 0)
+        pad = float("nan") if self.server.nan else 0.5
+        data = [{"object": "embedding", "index": i, "embedding": fake_vector(t) + [pad] * extra}
                 for i, t in reversed(list(enumerate(inputs)))]  # out of order on purpose
         out = json.dumps({"object": "list", "model": "fake-model", "data": data}).encode()
         self.send_response(200)
@@ -183,6 +188,8 @@ class Embed(VaultCase):
         write(self.vault, "wiki/secret.md", "---\nsensitivity: restricted\n---\n# S\nkitten kitten kitten\n")
         self.server = HTTPServer(("127.0.0.1", 0), FakeEmbeddings)
         self.server.requests, self.server.fail = [], False
+        self.server.extra = self.server.extra_multi = 0
+        self.server.nan = False
         threading.Thread(target=self.server.serve_forever, daemon=True).start()
         self.addCleanup(self.server.server_close)
         self.addCleanup(self.server.shutdown)
@@ -285,6 +292,130 @@ class Embed(VaultCase):
         self.assertEqual(len(self.texts_sent()), 4)  # the query and all three chunks again
         with open(self.cache, encoding="utf-8") as fh:
             self.assertEqual(json.load(fh)["model"], "fake-model")
+
+    def cache_doc(self):
+        with open(self.cache, encoding="utf-8") as fh:
+            return json.load(fh)
+
+    def test_corrupt_values_for_chunks_in_use_are_misses(self):
+        self.search("cat")
+        good = self.cache_doc()
+        nan = base64.b64encode(struct.pack("<3f", float("nan"), 1.0, 1.0)).decode()
+        bad = {"not base64": "!!!not base64!!!", "not a string": 12345, "null": None,
+               "wrong length": "AAAA", "empty": "", "wrong size": base64.b64encode(b"\0\0\0\0").decode(),
+               "non-finite": nan, "a list": [1, 2, 3]}
+        for name, value in bad.items():
+            doc = json.loads(json.dumps(good))
+            doc["vectors"][sorted(doc["vectors"])[0]] = value
+            with open(self.cache, "w", encoding="utf-8") as fh:
+                json.dump(doc, fh)
+            hits, info, warnings = self.search("cat")
+            self.assertEqual((info["mode"], warnings), ("hybrid", []), name)
+            self.assertEqual((info["hits"], info["misses"]), (2, 1), name)
+            self.assertEqual(self.cache_doc()["vectors"], good["vectors"], name)  # repaired
+
+    def test_cache_of_the_wrong_shape_is_ignored(self):
+        for text in ("[]", '{"version": 1, "vectors": []}', '{"version": 2, "vectors": {}}', "null"):
+            with open(self.cache, "w", encoding="utf-8") as fh:
+                fh.write(text)
+            self.assertEqual(self.search("cat")[1]["mode"], "hybrid", text)
+
+    def test_vector_size_change_with_the_same_model_rebuilds(self):
+        self.search("cat")
+        self.assertEqual(self.cache_doc()["dim"], 3)
+        self.server.extra = 1  # same model name, 4 numbers per vector
+        hits, info, warnings = self.search("cat")
+        self.assertEqual((info["mode"], info["hits"], info["misses"], warnings), ("hybrid", 0, 3, []))
+        doc = self.cache_doc()
+        self.assertEqual(doc["dim"], 4)
+        self.assertEqual({len(base64.b64decode(v)) for v in doc["vectors"].values()}, {16})
+        self.assertEqual(self.search("cat")[1]["misses"], 0)
+
+    def test_mixed_vector_sizes_are_never_saved(self):
+        self.server.extra_multi = 1  # chunk batches come back wider than the query vector
+        hits, info, warnings = self.search("cat")
+        self.assertEqual(info["mode"], "bm25")
+        self.assertEqual(len(warnings), 1)
+        if os.path.exists(self.cache):
+            sizes = {len(base64.b64decode(v)) for v in self.cache_doc()["vectors"].values()}
+            self.assertLessEqual(sizes, {12})
+        self.server.extra_multi = 0
+        self.assertEqual(self.search("cat")[1]["mode"], "hybrid")
+
+    def test_non_finite_vectors_are_rejected(self):
+        self.server.nan = True
+        self.server.extra = 1
+        hits, info, warnings = self.search("cat")
+        self.assertEqual(info["mode"], "bm25")
+        self.assertIn("non-finite", warnings[0])
+        self.assertFalse(os.path.exists(self.cache))
+
+    def test_remote_server_refused_unless_allowed(self):
+        with mock.patch.object(vault_search, "_is_loopback", return_value=False):
+            hits, info, warnings = self.search("kitten")
+        self.assertEqual(info["mode"], "bm25")
+        self.assertIn("not on this machine", warnings[0])
+        self.assertEqual(self.server.requests, [])  # nothing was sent
+        p = run_script("vault_search.py", self.vault, "cat", "--embed-url", "http://203.0.113.9:8080")
+        self.assertEqual(p.returncode, 2)
+        self.assertIn("--allow-remote-embed", p.stderr)
+
+    def test_remote_server_works_when_allowed(self):
+        info = {}
+        with mock.patch.object(vault_search, "_is_loopback", return_value=False):
+            hits = vault_search.search(self.vault, "kitten", embed_url=self.url, embed_cache=self.cache,
+                                       allow_remote_embed=True, info=info, warn=lambda m: None)
+        self.assertEqual(info["mode"], "hybrid")
+        self.assertEqual(hits[0]["path"], "wiki/cats.md")
+
+    def test_cache_is_pruned_when_keys_change_even_without_misses(self):
+        self.search("kitten", include_restricted=True)
+        self.assertEqual(len(self.cache_doc()["vectors"]), 4)
+        info = self.search("kitten")[1]
+        self.assertEqual(info["misses"], 0)
+        self.assertEqual(len(self.cache_doc()["vectors"]), 3)  # the restricted chunk is gone
+        doc = self.cache_doc()
+        doc["vectors"]["f" * 64] = doc["vectors"][sorted(doc["vectors"])[0]]
+        with open(self.cache, "w", encoding="utf-8") as fh:
+            json.dump(doc, fh)
+        self.search("kitten")
+        self.assertNotIn("f" * 64, self.cache_doc()["vectors"])
+
+    def test_cache_folder_holds_only_the_cache_after_writes(self):
+        self.search("cat")
+        self.search("dog", include_restricted=True)
+        self.assertEqual([n for n in os.listdir(self.tmp) if n.endswith(".tmp")], [])
+        self.assertIn("emb.json", os.listdir(self.tmp))
+
+    def test_cache_dir_is_gitignored_in_the_vault_template(self):
+        with open(os.path.join(ROOT, "vault-template", ".gitignore"), encoding="utf-8") as fh:
+            self.assertIn(".cache/", fh.read().split())
+
+    def test_endpoint_url_forms(self):
+        e = vault_search.embed_endpoint
+        for u in ("http://h:8080", "http://h:8080/", "http://h:8080/v1", "http://h:8080/v1/",
+                  "http://h:8080/v1/embeddings"):
+            self.assertEqual(e(u), "http://h:8080/v1/embeddings", u)
+        self.assertEqual(e("http://h/api"), "http://h/api/v1/embeddings")
+
+    def test_base_url_with_v1_works_against_the_server(self):
+        info = {}
+        vault_search.search(self.vault, "cat", embed_url=self.url + "/v1", embed_cache=self.cache,
+                            info=info, warn=lambda m: None)
+        self.assertEqual(info["mode"], "hybrid")
+
+    def test_model_field_only_when_asked(self):
+        self.search("cat")
+        self.assertTrue(self.server.requests)
+        self.assertTrue(all("model" not in r for r in self.server.requests))
+        self.server.requests[:] = []
+        vault_search.search(self.vault, "cat", embed_url=self.url, embed_cache=self.cache,
+                            embed_model="bge-m3", warn=lambda m: None)
+        self.assertTrue(all(r["model"] == "bge-m3" for r in self.server.requests))
+        p = run_script("vault_search.py", self.vault, "cat", "--embed-url", self.url, "--embed-cache",
+                       self.cache, "--embed-model", "m2", "--json")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertEqual(self.server.requests[-1]["model"], "m2")
 
     def test_corrupt_cache_is_ignored(self):
         with open(self.cache, "w", encoding="utf-8") as fh:

@@ -57,12 +57,13 @@ def rel(vault, path):
     return os.path.relpath(path, vault).replace(os.sep, "/")
 
 
-def lifecycle(pages):
-    """Counts per funnel stage, plus `promoted` and the statuses nothing maps to."""
+def lifecycle(pages, restricted=()):
+    """Counts per funnel stage, plus `promoted` and the statuses nothing maps to.
+    A restricted page's unmapped status is counted as "(restricted)", not named."""
     stage_of = {s: name for name, statuses in FUNNEL for s in statuses}
     counts = {name: 0 for name, _ in FUNNEL}
     other = {}
-    for text in pages.values():
+    for path, text in pages.items():
         status = lc._field(text, "status").strip().lower()
         kind = lc._field(text, "type").strip().lower()
         if not status:
@@ -73,7 +74,8 @@ def lifecycle(pages):
         if status in stage_of:
             counts[stage_of[status]] += 1
         elif kind in LIFECYCLE_TYPES:
-            other[status] = other.get(status, 0) + 1
+            key = "(restricted)" if path in restricted else status
+            other[key] = other.get(key, 0) + 1
     return {"stages": counts, "promoted": other.pop("promoted", 0),
             "other": dict(sorted(other.items()))}
 
@@ -145,7 +147,7 @@ def gather(vault, stale_days=90, today=None):
         "stubs": sorted(rel(vault, p) for p in stubs),
         "stale": stale,
         "duplicates": dups,
-        "lifecycle": lifecycle(pages),
+        "lifecycle": lifecycle(pages, restricted),
         "folders": [{"folder": k, "pages": v} for k, v in sorted(folders.items(), key=lambda kv: (-kv[1], kv[0]))],
         "most_linked": [{"page": p, "inbound": n} for n, p in linked],
         "needs_owner_open": needs_owner_open(vault),

@@ -27,7 +27,7 @@ python3 scripts/dashboard.py ~/brain                  # writes ~/brain/output/da
 ```
 python3 scripts/vault_search.py VAULT QUERY [--limit N] [--json]
     [--include-archive] [--include-restricted]
-    [--embed-url URL] [--embed-cache PATH]
+    [--embed-url URL] [--embed-cache PATH] [--embed-model NAME] [--allow-remote-embed]
 ```
 
 Each hit is `path:line`, the title, a score and a snippet of about 200
@@ -54,10 +54,21 @@ OpenAI-compatible `/v1/embeddings` endpoint and fuses the BM25 and cosine
 rankings by reciprocal rank fusion (`mode` is then `hybrid`). Vectors are cached
 in `VAULT/.cache/embeddings.json` (or `--embed-cache`), keyed by a hash of each
 chunk, so only changed chunks are embedded again; the first run on a large vault
-is slow. Page text and the query go to that server, so use one on your own
-machine; the script warns when the address is not local. Restricted pages are
-never sent unless you pass `--include-restricted`. If the server cannot be
-reached, the script warns on stderr and answers with BM25, exit 0.
+is slow. `--embed-url` takes the server's base address; a trailing `/v1` is
+fine. The request has no `model` field unless you pass `--embed-model NAME`.
+
+Page text and the query go to that server, so the script only accepts one on
+this machine (`localhost`, `127.x.x.x`, `::1`). Another address is refused with
+exit 2 unless you add `--allow-remote-embed`. Restricted pages are never sent
+unless you pass `--include-restricted`. The cache holds vectors of your pages,
+which can be used to infer their content, so keep it out of version control:
+`vault-template/.gitignore` already lists `.cache/`. Whenever the cache's keys
+differ from the current chunks, the file is rewritten without the others, so
+vectors of a restricted page or of text you deleted do not linger after the
+next run without `--include-restricted`. A damaged cache entry, or a server
+that changes model or vector size, is handled by embedding again. If the
+server cannot be reached, the script warns on stderr and answers with BM25,
+exit 0.
 
 ### dashboard.py
 
@@ -74,6 +85,14 @@ most linked pages and the open items in `wiki/systems/needs-owner.md`. A
 restricted page counts in the numbers but only its path is written. `--out` is
 relative to the vault. `--json` prints the data instead and writes no file. The
 same vault on the same day gives the same bytes. Exit codes are as above.
+
+The funnel has five stages: idea (`new`, `considering`), plan (`planned`),
+experiment (`active`, `reviewing`; review is folded in here), adopted and
+dropped. `promoted` ideas and other statuses are listed under the funnel, and a
+restricted page's status is counted as `(restricted)`. Dropped ideas move to
+`archive/`, which is not counted, so "dropped" is in practice the number of
+dropped experiments. The script needs `link_check.py` and `vault_search.py` in
+the same folder.
 
 Copy the vault scripts (everything except the `build_*.py` files) into the vault's `scripts/` folder (the
 [Quickstart](../README.md#quickstart) does this; the `build_*.py` files are site

@@ -110,6 +110,17 @@ class Dashboard(VaultCase):
         self.assertEqual(lc["promoted"], 1)
         self.assertEqual(lc["other"], {"odd": 1})  # system pages with status active never count
 
+    def test_restricted_status_is_not_named_in_the_funnel(self):
+        front = "---\ntype: {}\nstatus: {}\nsensitivity: restricted\n---\n# R\n" + BODY + "\n"
+        write(self.vault, "wiki/r1.md", front.format("experiment", "SECRETSTATUS"))
+        write(self.vault, "wiki/r2.md", front.format("idea", "promoted"))
+        write(self.vault, "wiki/o1.md", f"---\ntype: experiment\nstatus: oddity\n---\n# O\n{BODY}\n")
+        d = self.data()["lifecycle"]
+        self.assertEqual(d["other"], {"(restricted)": 2, "oddity": 1})
+        self.assertEqual(d["promoted"], 0)
+        self.assertNotIn("SECRETSTATUS", self.html())
+        self.assertNotIn("SECRETSTATUS", run_script("dashboard.py", self.vault, "--json").stdout)
+
     def test_folders_and_most_linked(self):
         d = self.data()
         folders = {f["folder"]: f["pages"] for f in d["folders"]}
