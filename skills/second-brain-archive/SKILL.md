@@ -33,7 +33,9 @@ Archive, never delete. Propose first. Move a page only when the vault's
    | Archive | Cold material the owner names, or pages untouched for a year that nothing links to | Archive candidates |
 
    Use `scripts/link_check.py` and `scripts/vault_stats.py` for orphans and
-   stubs where they exist. Stale pages (not updated in 90 days) are not a cut:
+   stubs where they exist (in a plugin install without a vault `scripts/`
+   folder, `${CLAUDE_PLUGIN_ROOT}/scripts/`; Claude Code fills in that path
+   only for a plugin install). Stale pages (not updated in 90 days) are not a cut:
    listing them is `/stale`, and a stale page with new sources waiting needs
    updating, not archiving.
 2. **Apply the protections.** Never archive hubs, `index.md`, `log.md`,

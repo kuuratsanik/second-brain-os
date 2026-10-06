@@ -38,7 +38,10 @@ Run every check, then report all of them, including the ones that pass.
 3. **Scripts.** `scripts/vault_stats.py`, `link_check.py`, `graph_export.py`
    and `chat_export_to_md.py` exist, and `python3 --version` runs (`python` on
    Windows). Do not run the scripts on the vault; existence and an interpreter
-   are the check.
+   are the check. A vault with no `scripts/` folder whose kit is the
+   `second-brain` plugin (step 6) is WARN, not MISSING: the plugin carries the
+   scripts, but each run asks for permission, and a scheduled run cannot ask.
+   The fix is to copy the four scripts into `scripts/`.
 4. **Git.** `git rev-parse --show-toplevel` equals the vault folder (not no
    repository, not a parent repository). Then: current branch, whether commits
    exist, `git config --get user.name` and `git config --get user.email` set, count of uncommitted
@@ -55,6 +58,16 @@ Run every check, then report all of them, including the ones that pass.
    is a defect: it becomes a `/README` command. Check `.claude/agents/` the same
    way only if you can confirm in the Claude Code documentation that it applies.
    Report skills present in the kit but not installed.
+
+   The kit can also be installed as the `second-brain` plugin, which keeps
+   its files under `~/.claude/plugins/`, not in `.claude/`. Read
+   `~/.claude/plugins/installed_plugins.json` (or run `claude plugin list`) for
+   a `second-brain@second-brain-os` entry. If it is there, the skills, commands
+   and agents are the plugin's, so do not report them missing from `.claude/`.
+   If the same vault also has `second-brain-*` skills in `.claude/skills/` or
+   `~/.claude/skills/`, report WARN: every skill and command is loaded twice, once
+   under each name, and the two installs update separately. The fix is to keep
+   one, and the owner chooses which.
 7. **Connectors.** Collect the services the vault refers to, from `CLAUDE.md`,
    `wiki/systems/vault-operating-notes.md` and `wiki/systems/routing.md` (mail,
    chat, calendar, documents, meeting notes, any named service) and from

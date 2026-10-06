@@ -20,9 +20,12 @@ Propose, with the exact prompt text for each task, and let the owner create it.
 Only the 16 schedulable commands can be fired as slash commands:
 `/ingest`, `/link`, `/lint`, `/review`, `/weekly`, `/monthly`, `/metrics`,
 `/health`, `/commit`, `/stale`, `/orphans`, `/prune`, `/archive`, `/dedupe`,
-`/backfill` and `/index`. Every other command sets
-`disable-model-invocation: true`, which stops a scheduled task running it from
-Claude Code v2.1.196. For those, write a plain-language prompt.
+`/backfill` and `/index`. If the kit is installed as the `second-brain` plugin,
+each of these carries the prefix: write `/second-brain:ingest` in the prompt, not
+`/ingest`. Tell the owner to check the first run of a task, since this skill
+has not confirmed that every scheduler resolves a plugin command. Every other
+command sets `disable-model-invocation: true`, which stops a scheduled task
+running it from Claude Code v2.1.196. For those, write a plain-language prompt.
 
 ## Workflow
 

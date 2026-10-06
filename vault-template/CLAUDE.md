@@ -142,9 +142,11 @@ and rails. This covers the skills `second-brain-lint`, `second-brain-merge`,
 `/ingest` (its old 20-item stop is replaced by rail 7), `/prune`, `/archive`,
 `/dedupe`, `/orphans` and `/link`. `/prune` and `/archive` archive here. When a
 scheduled run fires a command, the skill it points to and this section govern;
-the command's own propose-or-stop wording does not. The `reviewer` agent is
-read-only: it may draft a review, but you write the page.
-`second-brain-rollback` is the exception: it stays live-only, confirms with the
+the command's own propose-or-stop wording does not. If the kit is installed as
+the `second-brain` plugin, every name above carries the prefix `second-brain:`
+(`/second-brain:ingest`, `second-brain:curator`), and the override covers them
+the same way. The `reviewer` agent is read-only: it may draft a review, but you
+write the page. `second-brain-rollback` is the exception: it stays live-only, confirms with the
 owner first, and no scheduled job runs it.
 
 **Rails**

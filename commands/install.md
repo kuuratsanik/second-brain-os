@@ -8,6 +8,10 @@ Install or update the kit in this vault. Ask for the path of the `second-brain-o
 
 Who runs the copy: in a vault with the template's guard hook, writes to `.claude/` and `scripts/` are blocked for the agent. There the owner runs every copy command in a terminal, and you list the exact commands and do not run them. Elsewhere, show the commands and run them only after the owner agrees.
 
+## Installed as a plugin
+
+If the owner installed the kit as the `second-brain` plugin (`~/.claude/plugins/installed_plugins.json` has a `second-brain@second-brain-os` entry), this command does not apply to the skills, commands and agents: they live outside the vault. Do not copy them into `.claude/`, since the vault would then load each one twice. Tell the owner to update with `claude plugin update second-brain@second-brain-os`, then `/reload-plugins` or a new session. The version is the one in `$KIT/skills/VERSION`; `claude plugin update` finds nothing new until the kit bumps it. Still read the CHANGELOG entries since the plugin's version for them, and compare the protected files as in step 4 below. The four scripts are the one part that is copied into the vault, so for those, follow steps 3 and 5.
+
 ## First install
 
 If the vault has no `.claude/skills/` folder, copy the skills, commands and agents into `.claude/`, and the scripts into `scripts/`, so they are versioned with the notes. Report what was installed and what already existed. These commands match the Quickstart, except that they drop the folder README files and copy only the four vault scripts:

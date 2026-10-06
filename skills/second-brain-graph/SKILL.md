@@ -22,7 +22,10 @@ Report shape and what it means, never fix anything. This skill is read-only.
 
 1. **Run the scripts** rather than reading files: `scripts/vault_stats.py` for
    counts and degree, `scripts/link_check.py` for orphans and breaks,
-   `scripts/graph_export.py` when deeper analysis is wanted.
+   `scripts/graph_export.py` when deeper analysis is wanted. If the vault has
+   no `scripts/` folder (the kit is installed as the `second-brain` plugin), use
+   the same files under `${CLAUDE_PLUGIN_ROOT}/scripts/`; Claude Code fills in
+   that path only for a plugin install.
 2. **Compute the four metrics:** orphan rate, average degree, component count,
    stale-page rate.
 3. **Identify hubs** (pages that have swallowed the graph) and **bridges**

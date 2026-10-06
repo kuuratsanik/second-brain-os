@@ -22,7 +22,10 @@ wholesale.
 ## Workflow
 
 1. **Convert** with `scripts/chat_export_to_md.py` into one file per
-   conversation, filtering out short exchanges.
+   conversation, filtering out short exchanges. If the vault has no `scripts/`
+   folder (the kit is installed as the `second-brain` plugin), run
+   `${CLAUDE_PLUGIN_ROOT}/scripts/chat_export_to_md.py` instead; Claude Code
+   fills in that path only for a plugin install.
 2. **Privacy pass.** List conversations touching health, money, other people's
    private information, or confidential work. The user decides; you remove
    nothing on your own.
