@@ -72,6 +72,16 @@ removed, which is how `scripts/link_check.py --duplicates` compares file names,
   short form people use in text. Include the title as it appears in the source.
   An alias that already belongs to another page is a duplicate, not an alias:
   stop and update or merge instead (`second-brain-merge`).
+- **Two languages.** The owner writes in Estonian and English. Set `lang:` to
+  the language the page is written in (`et` or `en`; the page keeps its
+  source's language). When the owner uses both languages for a thing, in the
+  source, on another vault page or in what they have told you, add the title in
+  the other language as an alias (`Õppimise plaan` on a page titled `Learning
+  plan`, or the reverse). Do not translate a title yourself to invent one: an
+  alias is a name the owner or a source actually uses. Compute the key of the
+  new alias and check it against every page, as above, so it does not collide
+  with another page. The file name follows the vault `CLAUDE.md`. This is what lets `/ask` and `vault_search`
+  find a page from either language.
 - Alias changes to existing pages are mechanical: add them and log each as
   `lint` in `wiki/log.md`. A page marked `maintained_by: human` is not edited,
   not even its frontmatter: queue the alias in `wiki/systems/needs-owner.md`
