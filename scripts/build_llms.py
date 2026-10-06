@@ -19,9 +19,10 @@ import io, json, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
-from site_common import OWNER, REPO, SITE_URL, SITE_NAME
-
-RAW = f"https://raw.githubusercontent.com/{OWNER}/second-brain-os/main/"
+from site_common import REPO, SITE_URL, SITE_NAME, RAW, FEED_URL
+# The links to llms-full.txt, llms.txt and the feed use raw.githubusercontent.com
+# because the Pages site is a 404 until Pages is enabled. Switch them to SITE_URL
+# (and FEED_URL in site_common) once Pages is on.
 SUMMARY = ("A guide to building a knowledge base your AI agent maintains, in plain "
            "markdown you own, plus an agents course and handbooks.")
 
@@ -45,8 +46,12 @@ def plain(t):
 
 
 def describe(md):
-    """First prose paragraph after the H1, cut to its first sentence."""
-    para, fence = [], False
+    """First prose paragraph after the H1, cut to whole sentences.
+
+    A paragraph that ends in ":" or "?" (a FAQ question) introduces something that is not prose (a list
+    or code), so the next prose paragraph is taken as well.
+    """
+    paras, para, fence = [], [], False
     for line in md.split("\n")[1:]:
         if line.lstrip().startswith(("```", "~~~")):
             fence = not fence
@@ -55,12 +60,19 @@ def describe(md):
             continue
         if not line.strip():
             if para:
-                break
+                paras.append(plain(" ".join(para)))
+                para = []
+                if len(paras) == 2 or not paras[0].endswith((":", "?")):
+                    break
             continue
         if line.startswith(("#", "|", ">", "- ", "* ", "<", "!", "1. ")) and not para:
             continue
         para.append(line.strip())
-    text = plain(" ".join(para))
+    if para and len(paras) < 2:
+        paras.append(plain(" ".join(para)))
+    text = paras[0] if paras else ""
+    if text.endswith((":", "?")) and len(paras) > 1:
+        text = text + " " + paras[1]
     # whole sentences until there is enough to say something (a short opener such
     # as "You screenshot the post." is not a description)
     got = ""
@@ -68,7 +80,7 @@ def describe(md):
         got = (got + " " + sent.strip()).strip()
         if len(got) >= 60:
             break
-    text = got.rstrip(":") or text
+    text = got or text
     if len(text) > 180:
         text = text[:180].rsplit(" ", 1)[0].rstrip(",;:") + "..."
     return text
@@ -94,7 +106,7 @@ def build():
              "sections, read once in order), the agents course (modules C0 to C6) "
              "and the handbooks (references, dip in anywhere). Every link below is "
              "the raw markdown of one page. The same text, concatenated, is in "
-             f"[llms-full.txt]({SITE_URL}llms-full.txt).")
+             f"[llms-full.txt]({RAW}llms-full.txt).")
     out = [f"# {SITE_NAME}", "", f"> {SUMMARY}", "", intro, ""]
     for s in secs:
         out += [f"## {s['title']}", ""]
@@ -103,7 +115,7 @@ def build():
     out += ["## Optional", "",
             f"- [Resources]({RAW}resources/README.md): vetted links: plugins, tools, repositories, papers, reading",
             f"- [Changelog]({RAW}CHANGELOG.md): user-facing changes to the kit, by version",
-            f"- [Changelog feed]({SITE_URL}feed.xml): the same entries as an Atom feed",
+            f"- [Changelog feed]({FEED_URL}): the same entries as an Atom feed",
             f"- [Site]({SITE_URL}): the guide, course and handbooks as a searchable page",
             ""]
     llms = "\n".join(out)
@@ -112,7 +124,7 @@ def build():
     full = [f"# {SITE_NAME}: full text", "", f"> {SUMMARY}", "",
             f"The markdown of all {n} pages, in reading order, each under a page "
             "header. Relative links inside a page point to files in the repository "
-            f"({REPO}/tree/main/); the index is {SITE_URL}llms.txt.", ""]
+            f"({REPO}/tree/main/); the index is {RAW}llms.txt.", ""]
     k = 0
     for s in secs:
         for p in s["pages"]:

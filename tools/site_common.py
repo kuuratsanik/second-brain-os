@@ -129,9 +129,14 @@ THEME_COLOR = LIGHT["paper"]
 THEME_COLOR_DARK = DARK["paper"]
 SITE_NAME = "Second Brain OS"
 # Written by scripts/build_og.py and scripts/build_feed.py.
-OG_IMAGE = SITE_URL + "og.png"
+RAW = f"https://raw.githubusercontent.com/{OWNER}/second-brain-os/main/"
+# Until GitHub Pages is on, SITE_URL is a 404, and an unfurler drops a card whose
+# image fails. So the image, the feed link and the llms.txt links use raw URLs.
+# Switch OG_IMAGE and FEED_URL to SITE_URL + ... once Pages is enabled.
+OG_IMAGE = RAW + "og.png"
 OG_ALT = "Second Brain OS: a knowledge base your agent maintains"
-FEED_URL = SITE_URL + "feed.xml"
+FEED_URL = RAW + "feed.xml"
+FEED_ID = SITE_URL + "feed.xml"   # the feed <id>: stable, never changes with the host
 
 
 def head(title, description, page, css, robots=""):

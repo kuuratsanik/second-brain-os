@@ -2,7 +2,7 @@
 
 > A guide to building a knowledge base your AI agent maintains, in plain markdown you own, plus an agents course and handbooks.
 
-The markdown of all 132 pages, in reading order, each under a page header. Relative links inside a page point to files in the repository (https://github.com/kuuratsanik/second-brain-os/tree/main/); the index is https://kuuratsanik.github.io/second-brain-os/llms.txt.
+The markdown of all 132 pages, in reading order, each under a page header. Relative links inside a page point to files in the repository (https://github.com/kuuratsanik/second-brain-os/tree/main/); the index is https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/llms.txt.
 
 ========================================================================
 PAGE 1 of 132: What a second brain actually is
