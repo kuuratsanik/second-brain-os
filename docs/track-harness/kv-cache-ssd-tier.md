@@ -194,6 +194,10 @@ with urllib.request.urlopen(req) as r:
 
 This script is a plain timing harness written for this page, not taken from any project's docs; it assumes an OpenAI-compatible server on port 8000 that streams, and it stops the timer at the first non-empty content delta. A reasoning model may stream reasoning in a different field first; adjust the check if so. `llama-server` reports the numbers itself: the `/completion` response has a `timings` object with `cache_n` (prompt tokens reused from cache), `prompt_n` (tokens processed) and `prompt_ms`, so a restore should show a large `cache_n` and a small `prompt_ms`. Run each state several times and keep the median; one run on a cold drive tells you little.
 
+## A saved slot for the vault's CLAUDE.md
+
+If a local model runs scheduled vault maintenance (tagging, summaries, lint triage), the stable prefix is the vault's `CLAUDE.md` plus a tag vocabulary, and the llama.cpp slot save and restore described above is how to keep it across restarts. [Local models for cheap maintenance](local-models-for-maintenance.md) walks through that, and through pointing `vault_search.py --embed-url` at a local embedding server.
+
 ## What was and was not checked
 
 Checked on 6 October 2026 against the primary files named above: the LMCache README and docs source (`quickstart.rst`, `mp/l2_storage/fs.rst`, `local_storage.rst`), vLLM's `disagg_prefill.md` and `kv_offloading_usage.md` on `main`, SGLang's HiCache docs on `main`, the llama.cpp server and completion READMEs on `master`, Ollama's `faq.mdx`, the Dynamo README, and Meta's llama-models repository. The docs describe the branch head, so flags may differ from the release you installed. No server or benchmark was run for this page, so no speed result is claimed.

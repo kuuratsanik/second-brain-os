@@ -7,6 +7,9 @@
 __pycache__/
 *.pyc
 
+# Embedding vectors written by scripts/vault_search.py, computed from your pages.
+.cache/
+
 # Pulled from email, Slack, Notion, Drive and Calendar: other people's words.
 # Ignored by default. To version it, delete this line.
 raw/workspace/
