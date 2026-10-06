@@ -25,7 +25,7 @@ Write plainly. No marketing language, no emoji, no filler.
 ## Pull requests
 
 One topic per PR. If you are adding a docs page, follow the shape of the
-existing pages in that section and update the section `README.md` index.
+existing pages in that section.
 
 ### Before you open a PR
 
@@ -40,11 +40,17 @@ python3 tools/doc_links.py --selftest && python3 tools/doc_links.py
 python3 vault-template/.claude/hooks/test_guard.py
 python3 scripts/build_all.py             # rebuild the site, then commit the result
 python3 scripts/link_check.py vault-template
+
+# also run by the vault-scripts job, on the demo vault (use a temp path for the outputs)
+python3 scripts/link_check.py examples/demo-vault
+python3 scripts/vault_stats.py examples/demo-vault
+python3 scripts/graph_export.py examples/demo-vault /tmp/graph.csv
+python3 scripts/graph_export.py examples/demo-vault /tmp/graph.graphml --format graphml
 ```
 
 - Commit the regenerated HTML (`index.html`, `resources.html`, `tree.html`,
-  `404.html`, `sitemap.xml`, `robots.txt`, `site_data.json` and any changed
-  `docs/*/README.md`) in the same change. CI rebuilds the site and fails if
+  `404.html`, `sitemap.xml`, `robots.txt` and any changed `docs/*/README.md`;
+  `site_data.json` is gitignored) in the same change. CI rebuilds the site and fails if
   `git status` shows anything different from what you committed. Never edit
   the generated files by hand.
 - The vault scripts also run on Python 3.9 and on Windows in CI, so keep

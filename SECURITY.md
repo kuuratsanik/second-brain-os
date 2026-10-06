@@ -2,23 +2,21 @@
 
 ## Reporting a vulnerability
 
-Report it privately through GitHub: open this repository's **Security** tab and
-choose **Report a vulnerability**. Please do not open a public issue or pull
-request for it. Include what you found, the file, how to reproduce it, and what
-an attacker gains.
+Report it privately through GitHub's private vulnerability reporting. Open this
+repository, choose the **Security** tab, click **Report a vulnerability**, and
+fill in the form. Please do not report it in a public issue or pull request.
+By default the form asks for a summary, details, a proof of concept and the
+impact: say what you found, in which file, how to reproduce it, and what an
+attacker gains.
 
-GitHub's documentation describes the feature as "privately reporting a security
-vulnerability". Not re-checked on 6 October 2026 because the page on
-docs.github.com could not be fetched, so check [GitHub's
-documentation](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability)
-for the current steps.
-
-The button appears only if the repository owner has enabled private
-vulnerability reporting in the repository settings. If you cannot see it, the
-owner has not yet done so; open a public issue that says only "I have a
-security report" with no details, and wait for contact. The setting is described
-in GitHub's documentation on configuring private vulnerability reporting for a
-repository (not re-checked on 6 October 2026 for the same reason).
+This is GitHub's feature "Privately reporting a security vulnerability"; the
+steps above are from its [documentation](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/report-privately),
+read in the github/docs source on 6 October 2026. It works only where the
+repository owner has enabled it: under Settings, Code security and analysis,
+Advanced Security, Private vulnerability reporting, **Enable**
+([Configuring private vulnerability reporting for a
+repository](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/configure-vulnerability-reporting/configure-for-a-repository),
+read the same way on the same date).
 
 ## What is in scope
 
