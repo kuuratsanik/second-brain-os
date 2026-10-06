@@ -68,6 +68,16 @@ img[src$=".svg"]{background:var(--fig);border-radius:4px}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]) img[src$=".svg"]{padding:10px}}
 :root[data-theme=dark] img[src$=".svg"]{padding:10px}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*{transition:none!important;animation:none!important}}
+@media print{
+  :root:root:root{color-scheme:light;""" + _vars(LIGHT) + """}
+  body{background:#fff;color:#000}
+  .skip,.theme,header,.search,.hits,.toc-btn{display:none!important}
+  img[src$=".svg"]{padding:0;background:#fff}
+  pre,table,figure,img,blockquote{break-inside:avoid;page-break-inside:avoid}
+  pre{white-space:pre-wrap;overflow:visible}
+  thead{display:table-header-group}
+  h1,h2,h3,h4{break-after:avoid;page-break-after:avoid}
+}
 """
 
 # Runs in <head>, before first paint. Storage may be blocked: every access is guarded.

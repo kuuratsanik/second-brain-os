@@ -1,3 +1,10 @@
 * text=auto eol=lf
 *.png binary
 *.webp binary
+
+index.html linguist-generated=true
+resources.html linguist-generated=true
+tree.html linguist-generated=true
+404.html linguist-generated=true
+sitemap.xml linguist-generated=true
+robots.txt linguist-generated=true

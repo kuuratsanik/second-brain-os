@@ -184,7 +184,15 @@ GUIDE_CSS = """
 .tracklist article{border-top:2px solid var(--accent)}
 .courselist article{border-top:2px solid var(--num)}
 article.page img{max-width:100%;height:auto;display:block;margin:20px auto}
-.entr{max-width:var(--w);display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:34px 0 8px}@media(max-width:760px){.entr{grid-template-columns:1fr}}.ent{display:block;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px 20px 16px;text-decoration:none;transition:border-color .15s}.ent:hover{border-color:var(--accent)}.ent .ek{font:11px/1 ui-monospace,Menlo,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}.ent h2{font:600 20px/1.2 Charter,Georgia,serif;color:var(--ink);margin:9px 0 7px}.ent p{font-size:14px;line-height:1.5;color:var(--soft);margin:0 0 12px}.ent .em{font:12px ui-monospace,Menlo,monospace;color:var(--accent)}.ent.e2{border-top:3px solid var(--num)}.ent.e1{border-top:3px solid var(--accent)}.ent.e3{border-top:3px solid var(--rule)}"""
+.entr{max-width:var(--w);display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:34px 0 8px}@media(max-width:760px){.entr{grid-template-columns:1fr}}.ent{display:block;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px 20px 16px;text-decoration:none;transition:border-color .15s}.ent:hover{border-color:var(--accent)}.ent .ek{font:11px/1 ui-monospace,Menlo,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}.ent h2{font:600 20px/1.2 Charter,Georgia,serif;color:var(--ink);margin:9px 0 7px}.ent p{font-size:14px;line-height:1.5;color:var(--soft);margin:0 0 12px}.ent .em{font:12px ui-monospace,Menlo,monospace;color:var(--accent)}.ent.e2{border-top:3px solid var(--num)}.ent.e1{border-top:3px solid var(--accent)}.ent.e3{border-top:3px solid var(--rule)}
+@media print{
+  aside,.rail,.pager{display:none!important}
+  .wrap,.rwrap{display:block;max-width:none;padding:0}
+  main{padding:0}
+  article.page{max-width:none}
+  article a[href^="http"]::after{content:" (" attr(href) ")";font:.8em ui-monospace,Menlo,monospace;
+    color:#444;word-break:break-all}
+}"""
 
 SEARCHBOX = ('<div class="search"><input id="q" type="search" '
              'placeholder="search the guide" aria-label="Search the guide" '
@@ -428,7 +436,7 @@ RES = f"""{head("Second Brain OS - resources", f"{len(R)} checked links: Obsidia
 {page_header('res')}
 <main class="rwrap" id="main" tabindex="-1">
   <h1>Everything worth opening</h1>
-  <p class="lede">{len(R)} links, each one checked. Plugins are ranked by installs from Obsidian's own community stats rather than by stars, because in this ecosystem the two disagree by an order of magnitude. Figures are from September 2026 and will drift.</p>
+  <p class="lede">{len(R)} links, each one checked. Plugins are ranked by installs from Obsidian's own community stats rather than by stars, because in this ecosystem the two disagree by an order of magnitude. Figures are from 5 October 2026 and will drift.</p>
   <div class="controls" id="ctl">
     <button class="chip on" data-k="all" aria-pressed="true">All</button>
     {"".join(f'<button class="chip" data-k="{html.escape(k)}" aria-pressed="false">{html.escape(k)}</button>' for k in kinds)}

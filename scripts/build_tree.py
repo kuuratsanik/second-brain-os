@@ -276,7 +276,7 @@ def main():
                  .read().count("](http") for f in res)
     out.append('<div class="sec">' + branch(
         "resources/", "resources.html",
-        f"{nlinks} vetted links, checked September 2026",
+        f"{nlinks} vetted links, checked 5 October 2026",
         [row(f, "resources.html", RESOURCES_DESC.get(f, "")) for f in res])
         + "</div>")
 
