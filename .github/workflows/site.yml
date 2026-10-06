@@ -31,6 +31,8 @@ jobs:
           python3 tools/check_kit.py
       - name: Run the unit tests
         run: python3 -m unittest discover -s tests -t . -v
+      - name: Test the external link checker (no network)
+        run: python3 tools/check_external_links.py --selftest
       - name: Check docs links and anchors
         run: |
           python3 tools/doc_links.py --selftest

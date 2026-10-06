@@ -1,0 +1,40 @@
+name: link-rot
+
+# Advisory only: a weekly look at the external links in docs/ and resources/.
+# It never fails the run and never opens issues (they are disabled here); read
+# the report in the run summary.
+on:
+  schedule:
+    - cron: "37 5 * * 1"   # Mondays 05:37 UTC; not on the hour, when runners are busiest
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: link-rot
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+      - name: Test the checker
+        run: python3 tools/check_external_links.py --selftest
+      - name: Check external links
+        continue-on-error: true
+        run: |
+          python3 tools/check_external_links.py > "$RUNNER_TEMP/report.txt" || true
+          {
+            echo "## External link check"
+            echo
+            echo '```'
+            cat "$RUNNER_TEMP/report.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
