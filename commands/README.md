@@ -1,6 +1,6 @@
 # commands
 
-Seventy-two slash commands for Claude Code, grouped by what you are doing.
+Seventy-five slash commands for Claude Code, grouped by what you are doing.
 
 ```bash
 mkdir -p ~/brain/.claude/commands
@@ -120,6 +120,14 @@ Most take an optional argument. With none, they default to the sensible whole:
 | `/archive` | Propose cold material to move out of the wiki; moves only if CLAUDE.md grants autonomy |
 | `/commit` | Commit what this run wrote, by path |
 
+### Self-improvement
+
+| Command | What it does |
+|---|---|
+| `/idea` | Capture a self-improvement idea as a page |
+| `/experiment-review` | Review a running experiment against its success measure |
+| `/lifecycle-status` | List ideas and experiments by status |
+
 ### Outputs
 
 | Command | What it does |
@@ -166,7 +174,7 @@ Most take an optional argument. With none, they default to the sensible whole:
 
 ## Why so many
 
-Twenty-four skills do the real work. Most commands are scoped entry points into
+Twenty-five skills do the real work. Most commands are scoped entry points into
 them; a few, such as `/dry-run`, `/audit`, `/index` and `/scope`, carry short
 self-contained instructions instead. That is the point: you should not have to remember how to phrase a
 request for a thing you do every week.

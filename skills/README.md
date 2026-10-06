@@ -1,6 +1,6 @@
 # skills
 
-Twenty-four skills covering every workflow in the guide. Plain `SKILL.md` files, so
+Twenty-five skills covering every workflow in the guide. Plain `SKILL.md` files, so
 they work with Claude Code and with any agent that reads the Agent Skills format.
 
 | Skill | What it does |
@@ -13,6 +13,7 @@ they work with Claude Code and with any agent that reads the Agent Skills format
 | `second-brain-doctor` | Check the setup |
 | `second-brain-graph` | Analyse the graph |
 | `second-brain-ingest` | Ingest a source |
+| `second-brain-lifecycle` | Move self-improvement ideas to experiments, reviews and decisions |
 | `second-brain-lint` | Lint the vault |
 | `second-brain-merge` | Merge duplicate pages |
 | `second-brain-metrics` | Record metrics |

@@ -14,6 +14,32 @@ without that file predates 1.0.0.
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-06
+
+### Added
+
+- Skill `second-brain-lifecycle` and commands `/idea`, `/experiment-review` and
+  `/lifecycle-status`: a lifecycle for self-improvement ideas, tracked in the
+  `status:` field and dated log lines. An idea becomes a plan, an experiment and
+  a review, then is adopted as a system page or dropped. The skill decides at
+  review against the written success measure and never deletes: a dropped idea
+  is archived, a failed experiment stays in place. It does not start an
+  experiment unless the owner has set a `start:` date. The commands do not
+  clash with Claude Code's built-in command names as listed in the
+  [commands reference](https://code.claude.com/docs/en/commands) on 6 October
+  2026.
+- `second-brain-review` has a lifecycle step and a Self-improvement section in
+  its output.
+- `second-brain-privacy` says what each `sensitivity:` value (`normal`,
+  `private`, `restricted`) blocks and checks that labels match the content.
+- `second-brain-ingest` has a slug and alias rule that matches the key
+  `scripts/link_check.py --duplicates` uses (case-folded, letters and digits
+  only) and sets `aliases:` for common title variants.
+- `vault-template`: the lifecycle page now says a dropped idea is archived and
+  a failed experiment stays in place, and `wiki/log.md` lists the `lifecycle`
+  operation. An existing vault keeps its own copy of the lifecycle page: copy
+  those two bullets across if you want the new behaviour.
+
 ## [1.1.0] - 2026-10-06
 
 ### Added

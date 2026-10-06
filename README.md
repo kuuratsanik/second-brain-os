@@ -16,7 +16,7 @@ safety hook is a Python script).
 
 Three things live here — pick your entrance:
 
-- **[The second-brain guide](#the-guide)** — a path you follow once: build a knowledge base an agent maintains for you. 65 pages, a starter vault, 24 skills.
+- **[The second-brain guide](#the-guide)** — a path you follow once: build a knowledge base an agent maintains for you. 65 pages, a starter vault, 25 skills.
 - **[The agents course](#the-agents-course)** — a path you read in order: seven modules from a single prompt to a production agent, with [tools you install in two commands](plugins/README.md).
 - **[The handbooks](#the-handbooks)** — not a path, references: the full menu of techniques, tools and builds for one layer. Open one when that layer starts hurting.
 
@@ -193,7 +193,7 @@ them separate matters more than it sounds.
 | [`docs/track-*/`](docs/track-graph/README.md) | Five handbooks on the wider craft: graphs, Jev, harnesses, loops, evals |
 | [`vault-template/`](vault-template/) | An opinionated starter vault, tuned for an agent that works without asking first, for several domains (work, learning, personal, creative, self-improvement, systems) and for notes in more than one language. It ships with no personal facts: the [CLAUDE.md interview](docs/02-setup/claude-md.md) fills in your profile |
 | [`skills/`](skills/README.md) | 24 agent skills, one per workflow in the guide |
-| [`commands/`](commands/README.md) | 72 slash commands, scoped entry points into those skills. The scheduling command is `/maintenance-schedule`, so it does not shadow Claude Code's built-in `/schedule` |
+| [`commands/`](commands/README.md) | 75 slash commands, scoped entry points into those skills. The scheduling command is `/maintenance-schedule`, so it does not shadow Claude Code's built-in `/schedule` |
 | [`agents/`](agents/README.md) | 6 subagents, four of them read-only by design |
 | [`plugins/`](plugins/README.md) | Claude Code plugins — the course's tools, installable in two commands |
 | [`scripts/`](scripts/README.md) | Dependency-free Python for link checking, stats and graph export |
@@ -346,7 +346,7 @@ Outside Obsidian: [Web Clipper](https://obsidian.md/clipper) for capture,
 
 ## Skills and other implementations
 
-This repo ships **24 skills, 72 commands, 6 subagents and 4 scripts**: one skill
+This repo ships **25 skills, 75 commands, 6 subagents and 4 scripts**: one skill
 per workflow in the guide, and a command for every scoped version of it you would
 actually run.
 

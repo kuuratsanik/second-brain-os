@@ -11,7 +11,7 @@ claude plugin install agents-course@second-brain-os    # the course tools
 
 | Plugin | What it is | Source |
 |---|---|---|
-| [`second-brain`](#second-brain) | The vault kit: 24 skills, 72 slash commands, 6 agents and the vault scripts | The repo root: [`skills/`](../skills/README.md), [`commands/`](../commands/README.md), [`agents/`](../agents/README.md), [`scripts/`](../scripts/README.md) |
+| [`second-brain`](#second-brain) | The vault kit: 25 skills, 75 slash commands, 6 agents and the vault scripts | The repo root: [`skills/`](../skills/README.md), [`commands/`](../commands/README.md), [`agents/`](../agents/README.md), [`scripts/`](../scripts/README.md) |
 | [`agents-course`](#agents-course) | One tool per course module, in your own repo | `plugins/agents-course/` |
 
 ## second-brain
@@ -55,7 +55,7 @@ short names, and its text says the `second-brain:` prefix is covered too. A
 file under `.claude/commands/` in your vault would still run as `/ingest`; a
 plugin command never does.
 
-`claude plugin details second-brain@second-brain-os` lists the 24 skills but shows
+`claude plugin details second-brain@second-brain-os` lists the 25 skills but shows
 0 agents and no commands. It reads only the default directories, and the manifest
 lists files, so it undercounts. The components still load, because the manifest
 accepts file paths for `commands` and `agents`

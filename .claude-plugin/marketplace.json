@@ -9,7 +9,7 @@
     {
       "name": "second-brain",
       "source": "./",
-      "description": "The Second Brain OS kit as a plugin: 24 skills, 72 slash commands and 6 agents for an LLM-maintained markdown vault, plus the vault scripts."
+      "description": "The Second Brain OS kit as a plugin: 25 skills, 75 slash commands and 6 agents for an LLM-maintained markdown vault, plus the vault scripts."
     },
     {
       "name": "agents-course",
