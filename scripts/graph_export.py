@@ -16,6 +16,7 @@ import argparse
 import csv
 import os
 import re
+import sys
 from xml.sax.saxutils import escape
 
 LINK = re.compile(r"\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|[^\]]+)?\]\]")
@@ -172,6 +173,8 @@ def main():
     ap.add_argument("--include", default="", metavar="DIRS",
                     help="comma-separated folders to count anyway, e.g. archive,journal")
     args = ap.parse_args()
+    if not os.path.isdir(args.vault):
+        sys.exit(f"not a directory: {args.vault}")
     SKIP_DIRS.difference_update(x.strip() for x in args.include.split(","))
 
     pages = load(args.vault)

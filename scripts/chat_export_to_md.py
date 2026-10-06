@@ -102,13 +102,21 @@ def main():
                     help="skip conversations shorter than this")
     args = ap.parse_args()
 
-    with open(args.export, encoding="utf-8-sig") as fh:
-        data = json.load(fh)
+    try:
+        with open(args.export, encoding="utf-8-sig") as fh:
+            data = json.load(fh)
+    except OSError as e:
+        sys.exit(f"cannot read {args.export}: {e.strerror or e}")
+    except ValueError as e:  # bad JSON or bad UTF-8
+        sys.exit(f"{args.export} is not a valid JSON export: {e}")
 
     if isinstance(data, dict):
         data = data.get("conversations", [])
-    if not isinstance(data, list):
-        sys.exit("unrecognised export shape: expected a list of conversations")
+    if not isinstance(data, list) or not any(isinstance(c, dict) for c in data):
+        print("no conversations found: unrecognised export shape "
+              "(expected a list of conversations, or an object with a "
+              "\"conversations\" list)", file=sys.stderr)
+        sys.exit(1)
 
     os.makedirs(args.outdir, exist_ok=True)
     written = skipped = 0
