@@ -82,7 +82,7 @@ img[src$=".svg"]{background:var(--fig);border-radius:4px}
 @media print{
   :root:root:root{color-scheme:light;""" + _vars(LIGHT) + """}
   body{background:#fff;color:#000}
-  .skip,.theme,header,.search,.hits,.toc-btn,button,.controls,#rq{display:none!important}
+  .skip,.theme,header,.search,.hits,.toc-btn,button,.copy,.controls,#rq{display:none!important}
   html:root img[src$=".svg"]{padding:0;background:#fff}
   pre,table,figure,img,blockquote{break-inside:avoid;page-break-inside:avoid}
   pre,article.page pre{white-space:pre-wrap;overflow:visible}
@@ -128,6 +128,10 @@ THEME_BUTTON = (
 THEME_COLOR = LIGHT["paper"]
 THEME_COLOR_DARK = DARK["paper"]
 SITE_NAME = "Second Brain OS"
+# Written by scripts/build_og.py and scripts/build_feed.py.
+OG_IMAGE = SITE_URL + "og.png"
+OG_ALT = "Second Brain OS: a knowledge base your agent maintains"
+FEED_URL = SITE_URL + "feed.xml"
 
 
 def head(title, description, page, css, robots=""):
@@ -149,7 +153,14 @@ def head(title, description, page, css, robots=""):
         f'<meta property="og:description" content="{d}">',
         f'<meta property="og:url" content="{u}">',
         '<meta property="og:locale" content="en_US">',
-        '<meta name="twitter:card" content="summary">',
+        f'<meta property="og:image" content="{OG_IMAGE}">',
+        '<meta property="og:image:type" content="image/png">',
+        '<meta property="og:image:width" content="1200">',
+        '<meta property="og:image:height" content="630">',
+        f'<meta property="og:image:alt" content="{OG_ALT}">',
+        '<meta name="twitter:card" content="summary_large_image">',
+        f'<meta name="twitter:image" content="{OG_IMAGE}">',
+        f'<link rel="alternate" type="application/atom+xml" title="{SITE_NAME} changelog" href="{FEED_URL}">',
         f'<meta name="twitter:title" content="{t}">',
         f'<meta name="twitter:description" content="{d}">',
     ]
