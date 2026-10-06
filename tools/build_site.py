@@ -38,6 +38,8 @@ nav a{color:var(--soft)} nav a.on{color:var(--ink);font-weight:600}
 .hits{position:absolute;right:0;top:40px;width:430px;max-height:62vh;overflow:auto;
   background:var(--card);border:1px solid var(--rule);border-radius:3px;display:none}
 .hits.open{display:block}
+.hit .sn{display:block;font-size:13px;line-height:1.45;color:var(--soft);margin-top:4px}
+.hit mark{background:rgba(255,196,0,.4);color:inherit;border-radius:2px;padding:0 1px}
 .hit{display:block;padding:10px 13px;border-bottom:1px solid var(--rule);color:var(--ink)}
 .hit:last-child{border:0}
 .hit:hover{background:var(--accent-bg);text-decoration:none}
@@ -292,7 +294,21 @@ const D=JSON.parse(document.getElementById('data').textContent);
 const P={{}}; D.pages.forEach(p=>{{P[p.id]=p; p.section=p.id.split('/')[0]; p.section_title=D.sections[p.section].title; p.path='docs/'+p.id+'.md';}});
 const T={{}};
 const DEC=document.createElement('textarea');
-function plain(p){{if(!T[p.id]){{DEC.innerHTML=p.html.replace(/<[^>]+>/g,' ');T[p.id]=DEC.value.toLowerCase();}}return T[p.id];}}
+const unhtml=h=>{{DEC.innerHTML=h.replace(/<[^>]+>/g,' ');return DEC.value.replace(/\s+/g,' ').trim();}};
+// text, lowercase text and h2 texts of a page, derived once from its html
+function idx(p){{if(!T[p.id]){{const t=unhtml(p.html);
+  T[p.id]={{t,l:t.toLowerCase(),h:[...p.html.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/g)].map(m=>unhtml(m[1]).toLowerCase())}};}}return T[p.id];}}
+const esc=s=>s.replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+// escape text and wrap each occurrence of v (lowercase) in <mark>
+function mark(s,v){{let o='',i=0,l=s.toLowerCase(),k;
+  if(l.length!==s.length)return esc(s);
+  while((k=l.indexOf(v,i))>=0){{o+=esc(s.slice(i,k))+'<mark>'+esc(s.slice(k,k+v.length))+'</mark>';i=k+v.length;}}
+  return o+esc(s.slice(i));}}
+function snippet(x,v){{const k=x.l.length===x.t.length?x.l.indexOf(v):-1;
+  let a=Math.max(0,(k<0?0:k)-45), b=Math.min(x.t.length,(k<0?0:k)+v.length+90);
+  if(a>0){{const j=x.t.indexOf(' ',a);if(j>=0&&j<k)a=j+1;}}
+  if(b<x.t.length){{const j=x.t.lastIndexOf(' ',b);if(j>k+v.length)b=j;}}
+  return (a>0?'\u2026':'')+mark(x.t.slice(a,b),v)+(b<x.t.length?'\u2026':'');}}
 const FLAT=[]; Object.keys(D.order).forEach(s=>D.order[s].forEach(id=>FLAT.push(id)));
 const HERO=document.getElementById('hero').innerHTML;
 
@@ -388,15 +404,28 @@ const q=document.getElementById('q'), hits=document.getElementById('hits');
 q.addEventListener('input',()=>{{
   const v=q.value.trim().toLowerCase();
   if(v.length<2){{hits.classList.remove('open');return;}}
+  // title 10 (+6 at the start) > an h2 8 > body at most 3
   const r=D.pages.map(p=>{{
-    let sc=0; const t=p.title.toLowerCase();
+    const x=idx(p); let sc=0; const t=p.title.toLowerCase();
     if(t.includes(v)) sc+=10; if(t.startsWith(v)) sc+=6;
-    const n=(plain(p).split(v).length-1); sc+=Math.min(n,6);
-    return {{p,sc}};
+    if(x.h.some(h=>h.includes(v))) sc+=8;
+    sc+=Math.min(x.l.split(v).length-1,3);
+    return {{p,x,sc}};
   }}).filter(x=>x.sc>0).sort((a,b)=>b.sc-a.sc).slice(0,9);
-  hits.innerHTML=r.length?r.map(x=>`<a class="hit" href="#${{x.p.id}}"><b>${{x.p.title}}</b><i>${{x.p.section_title}}</i></a>`).join('')
+  hits.innerHTML=r.length?r.map(x=>`<a class="hit" href="#${{x.p.id}}"><b>${{mark(x.p.title,v)}}</b><i>${{esc(x.p.section_title)}}</i><span class="sn">${{snippet(x.x,v)}}</span></a>`).join('')
     :'<div class="hit"><i>nothing in the guide matches that</i></div>';
   hits.classList.add('open');
+}});
+q.addEventListener('keydown',e=>{{
+  const f=hits.querySelector('a.hit');
+  if(e.key==='ArrowDown'&&f&&hits.classList.contains('open')){{e.preventDefault();f.focus();}}
+  if(e.key==='Enter'&&f&&hits.classList.contains('open')){{e.preventDefault();f.click();location.hash=f.getAttribute('href').slice(1);}}
+}});
+hits.addEventListener('keydown',e=>{{
+  const a=[...hits.querySelectorAll('a.hit')], i=a.indexOf(document.activeElement);
+  if(i<0)return;
+  if(e.key==='ArrowDown'){{e.preventDefault();(a[i+1]||a[i]).focus();}}
+  if(e.key==='ArrowUp'){{e.preventDefault();(i?a[i-1]:q).focus();}}
 }});
 q.addEventListener('keydown',e=>{{if(e.key==='Escape'){{q.value='';hits.classList.remove('open');q.blur();}}}});
 document.addEventListener('click',e=>{{if(!e.target.closest('.search'))hits.classList.remove('open');}});
