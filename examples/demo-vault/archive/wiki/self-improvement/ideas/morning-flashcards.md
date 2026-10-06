@@ -7,7 +7,7 @@ lang: en
 sensitivity: private
 maintained_by: agent
 created: 2026-09-16
-updated: 2026-10-04
+updated: 2026-10-05
 origin: wiki/sources/2026-09-14-oppimise-plaan.md
 aliases: [Morning flashcards idea, Hommikused kaardid]
 tags: [memory, habit]

@@ -42,7 +42,7 @@ Use this when `.claude/skills/` exists. Change nothing until step 5.
    - **Flag customised files.** For each changed file, run `git log --oneline -1 -- <path>` in the vault and `git status --short -- <path>`. A file that has been committed or edited since the install commit, or that has uncommitted changes, is probably the owner's own edit: mark it **customised** and offer a `diff -u` of it against the checkout. A file with no history of its own (copied in once) is stock.
    - **Vault-only files** are the owner's own or were removed upstream. Never delete them; name any the CHANGELOG says to remove (for example `.claude/commands/schedule.md`, or `review.md` renamed to `vault-review.md`).
 4. **Compare the protected files, read-only.** Run `diff -u "$KIT"/vault-template/.claude/settings.json .claude/settings.json`, and the same for `.claude/hooks/guard.py` and `CLAUDE.md`. Summarise the differences and say which CHANGELOG entries explain them. These files hold the owner's own rules and boundaries, so the update never copies over them: the owner merges any wanted change by hand.
-5. **List the commands for the owner to run**, in this order, with `$KIT` filled in and the vault root as the working directory. The first one commits the vault as it is, so the update is a separate commit you can revert:
+5. **List the commands for the owner to run** in their own terminal, not as Claude Code tool calls (the vault guard blocks `rm` and any move out of `.claude/`), in this order, with `$KIT` filled in and the vault root as the working directory. The first one commits the vault as it is, so the update is a separate commit you can revert:
 
    ```bash
    git add -A && git commit -m "Before kit update"      # skip if "git status --short" is empty
@@ -63,7 +63,7 @@ Use this when `.claude/skills/` exists. Change nothing until step 5.
    git commit -m "Update the kit to $(cat .claude/skills/VERSION)"
    ```
 
-   Drop the `rm -f` line if the vault is already on 1.0.0 or later, and add a line for each other removal the CHANGELOG names.
+   Drop each `rm -f` line whose version the vault already has (the first if it is on 1.0.0 or later, the second if it is on 1.2.0 or later), and add a line for each other removal the CHANGELOG names.
 6. **Never write these**, in any mode: `CLAUDE.md`, `.claude/settings.json`, `.claude/hooks/`, `raw/` and `journal/`. If a CHANGELOG entry asks for a change to one of them, describe the change and leave it to the owner.
 
 When the owner reports the commands have run, check `.claude/skills/VERSION` against `$KIT/skills/VERSION` and run `/vault-doctor` to confirm the setup.

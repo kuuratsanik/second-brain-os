@@ -36,8 +36,9 @@ without that file predates 1.0.0.
   lists `/review` (an alias of `/code-review`), `/export`, `/init`, `/rename`
   and `/doctor`. The [skills
   documentation](https://code.claude.com/docs/en/skills) (precedence table,
-  same date) says a skill or command file with a built-in's name replaces that
-  built-in in a local terminal session, but not its aliases. So a copied
+  same date) says a skill with a built-in's name replaces that built-in in a
+  local terminal session, but not its aliases; the same page says command
+  files work the same way as skills. So a copied
   `/export`, `/init`, `/rename` or `/doctor` hid the built-in, and a copied
   `/review` never ran, because the built-in alias won. The new names appear in
   neither page. This is the same fix as `/schedule` to `/maintenance-schedule`.
