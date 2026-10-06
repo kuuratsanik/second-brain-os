@@ -50,7 +50,8 @@ python3 scripts/graph_export.py examples/demo-vault /tmp/graph.graphml --format 
 ```
 
 - Commit the regenerated HTML (`index.html`, `resources.html`, `tree.html`,
-  `404.html`, `sitemap.xml`, `robots.txt` and any changed `docs/*/README.md`;
+  `404.html`, `sitemap.xml`, `robots.txt`, `llms.txt`, `llms-full.txt`,
+  `feed.xml`, `og.png` and any changed `docs/*/README.md`;
   `site_data.json` is gitignored) in the same change. CI rebuilds the site and fails if
   `git status` shows anything different from what you committed. Never edit
   the generated files by hand.

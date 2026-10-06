@@ -109,7 +109,8 @@ TRACKS = {
                   "context-engineering", "tools-and-mcp",
                   "harness-landscape",
                   "build-the-loop", "build-guardrails", "build-graduate",
-                  "kv-cache-ssd-tier", "resources"],
+                  "kv-cache-ssd-tier",
+                  "local-models-for-maintenance", "resources"],
     },
     "track-loop": {
         "title": "Loop engineering",

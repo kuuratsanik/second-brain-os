@@ -96,7 +96,7 @@ anything. Run `python3 tools/check_kit.py` and `python3 tools/check_kit.py
 --selftest`; when the Claude Code docs add a frontmatter field, a settings key
 or a hook event, update the key sets at the top of the script.
 
-`tests/` holds `unittest` tests for the four vault scripts, using a fixture vault
+`tests/` holds `unittest` tests for the six vault scripts, using a fixture vault
 built in a temp dir (CRLF and BOM files, aliases, piped links, skip folders and
 `--include`, CSV and GraphML shape, and ChatGPT and Claude chat exports). Run
 `python3 -m unittest discover -s tests -t .` from the repo root. No installs.
