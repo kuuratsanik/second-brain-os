@@ -20,5 +20,5 @@ DATE archive wiki/concepts/x.md -> archive/wiki/concepts/x.md (reason; checkpoin
 ```
 
 Operations: ingest, pull, link, merge, archive, rename, split, retype, lint,
-review, rollback, skip. `skip` records an item sent to
+review, lifecycle, rollback, skip. `skip` records an item sent to
 [[needs-owner]].

@@ -41,8 +41,14 @@ Rules for the agent:
 - Keep [[hub-self-improvement|the hub]] current: active experiments, ideas
   waiting, next review due. Flag it in the run report when more than three
   experiments are active. The owner may change that number here.
-- Never delete or archive a dropped idea or failed experiment. A failed
-  experiment is evidence. Set `status: dropped`, say why, leave it linked.
+- Never delete a dropped idea or a failed experiment. A failed experiment is
+  evidence: set `status: dropped`, say why, leave it in place and linked. A
+  dropped idea is set to `dropped` with the reason, then moved to `archive/`
+  with `git mv` (never `rm`), so it stays searchable and restorable.
+- The skill `second-brain-lifecycle` carries out these steps: it moves a page
+  between statuses, adds a dated line under `## Log` and a `lifecycle` line in
+  `wiki/log.md`, and decides at review. It does not start an experiment on its
+  own: it sets `active` only when you have put a `start:` date on the plan.
 - Health, mood and relationship material is `private`. Describe it as the owner
   reported it. You are not a clinician; do not diagnose.
 - The weekly review: you write the page from `templates/review.md`. The
