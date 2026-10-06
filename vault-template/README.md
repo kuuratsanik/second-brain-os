@@ -34,8 +34,8 @@ edits; for a page the agent maintains, link it with a folder path, such as
 `output/` is not, so you can find the agent's drafts. The Templates folder is
 `templates/`, and Daily notes writes `YYYY-MM-DD` files to `journal/`. The
 graph colours pages by `domain:`, highlights hubs, and hides `raw/`, `archive/`
-and `templates/`. Obsidian writes this folder; the agent has no reason to write
-here, and nothing blocks it. `.gitignore` keeps `workspace*` and `cache` out of
+and `templates/`. Obsidian writes this folder; the hook blocks the agent from writing
+here; `git add .obsidian/graph.json` and committing it still work. `.gitignore` keeps `workspace*` and `cache` out of
 git, so the preset is versioned and your window layout is not. Obsidian also
 rewrites the view state in `graph.json` when you open the graph: commit that
 diff or ignore it, but keep the file tracked. Change any setting in Obsidian.
@@ -83,7 +83,7 @@ are copied with the template into `.claude/`:
 | `journal/`, `scripts/`, `.claude/`, `.obsidian/` (Obsidian's settings) and `.gitignore` are yours | deny rules and hook | |
 | `CLAUDE.md` only changes in Profile (e) | hook; ask rule | Schedule prompts, which live outside the vault |
 | `raw/workspace/` never staged | hook (also blocks `git add -A`, `.`, the vault root, `raw`, `-f`, `commit -a`) | |
-| Checkpoint before archive (rail 1) | hook: `git mv` into `archive/` is blocked while the source has uncommitted changes, and when git cannot say (no repository, no commit, git missing) | Checkpoints before other operations (merge, rename, split); plain `mv`, which the hook does not check |
+| Checkpoint before archive (rail 1) | hook: `git mv`, `mv` and `Move-Item` into `archive/` are blocked while the source has uncommitted changes, and when git cannot say (no repository, no commit, git missing) | Checkpoints before other operations (merge, rename, split) |
 | Log, report, queue, run commit | | All of it; the Stop hook only warns about uncommitted paths |
 | Secrets (d) | hook: Write, Edit and MultiEdit content, and shell redirects, heredocs and `tee`, are blocked when they contain a GitHub, AWS, Anthropic, OpenAI-style, Slack or Stripe live key or a private key block; the message names the kind, not the value | Other credential formats, passwords, account numbers, secrets that arrive through a script or a connector, and anything already in a file |
 | Merging people (f) | | All of it |

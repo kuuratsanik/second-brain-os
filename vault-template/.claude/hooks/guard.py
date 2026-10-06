@@ -82,8 +82,10 @@ SECRET_PATTERNS = [
     ("a Stripe live key", r"\b[spr]k_live_[A-Za-z0-9]{20,}"),
 ]
 # A match containing one of these is a documented placeholder, not a credential.
-SECRET_PLACEHOLDER = re.compile(r"fake|demo|example|placeholder|redacted|dummy|sample|your|"
-                                r"x{4,}|0{4,}|\*{3,}|\.{3,}", re.I)
+# Words count only when set off by -, _ or the ends; ALL-CAPS markers count anywhere.
+SECRET_PLACEHOLDER = re.compile(
+    r"(?i:(?<![A-Za-z0-9])(fake|demo|example|placeholder|redacted|dummy|sample|your)(?![A-Za-z0-9]))|"
+    r"EXAMPLE|REDACTED|PLACEHOLDER|(?i:x{4,})|0{4,}|\*{3,}|\.{3,}")
 
 BLOCK_MSG = "Blocked by vault guard (.claude/hooks/guard.py): "
 
@@ -521,32 +523,28 @@ def check_git(args, cwd, root):
         if "-f" in flags or "--force" in flags or "f" in letters:
             raise Block("git mv --force can overwrite pages (hard stop c).")
         check_move("git mv", pos, [], cwd, root, is_move=True)
-        check_archive_checkpoint(pos, cwd, root)
 
 
-def check_archive_checkpoint(pos, cwd, root):
+def check_archive_checkpoint(sources, dest, cwd, root):
     """Rail 1: a page moved into archive/ must be committed first. Fails closed
-    when git cannot answer."""
-    if len(pos) < 2:
-        return
-    dfull, _ = lit_rel(pos[-1], cwd, root)
+    when git cannot answer. The timeout stays under the hook's own 10 seconds."""
+    dfull, _ = lit_rel(dest, cwd, root)
     if dfull is None or dfull.split("/")[0] != "archive":
         return
-    for s in pos[:-1]:
+    for s in sources:
         spec = s if FUZZY.search(s) else ":(literal)" + os.path.join(cwd or "", os.path.expanduser(s))
         try:
             p = subprocess.run(["git", "status", "--porcelain", "--", spec], cwd=root,
-                               capture_output=True, text=True, timeout=10)
-        except (OSError, subprocess.SubprocessError):
+                               capture_output=True, text=True, timeout=5)
+        except (OSError, subprocess.SubprocessError):  # includes TimeoutExpired
             raise Block("could not run git status to check for uncommitted changes "
                         "before archiving; commit the checkpoint first (rail 1).")
         if p.returncode != 0:
-            raise Block("git status failed, so the checkpoint cannot be verified "
-                        "(is this folder a git repository with a commit?); "
-                        "commit the checkpoint first (rail 1).")
+            raise Block("this vault is not a git repository, or has no commit. Archive "
+                        "nothing; queue it in wiki/systems/needs-owner.md (rail 1).")
         if p.stdout.strip():
             raise Block(f"'{s}' has uncommitted changes: commit the checkpoint "
-                        "first (rail 1), then git mv it into archive/.")
+                        "first (rail 1), then move it into archive/.")
 
 
 PS_PARAMS = ("method", "body", "infile")
@@ -690,6 +688,8 @@ def check_move(name, pos, args, cwd, root, is_move):
             raise Block(f"destination '{dest}' cannot be checked and may overwrite "
                         "a protected path; name it exactly.")
         return
+    if is_move:
+        check_archive_checkpoint(sources, dest, cwd, root)
     dest_abs = os.path.realpath(jp(cwd, os.path.expanduser(dest)))
     is_dir = os.path.isdir(dest_abs) or dest.endswith(("/", "\\")) or topt is not None
     targets = []
@@ -743,7 +743,13 @@ SCRIPT_INTERP = re.compile(r"^(node|nodejs|deno|bun|perl|ruby|php)[0-9.\-]*$")
 SCRIPT_DELETE = re.compile(
     r"\b(rmSync|unlinkSync|rmdirSync|rmtree|remove_tree|rmdir|unlink|"
     r"File\.(delete|unlink)|FileUtils\.(rm|rm_r|rm_rf|rm_f|remove\w*)|Dir\.(rmdir|delete|unlink)|"
-    r"fs\.(promises\.)?rm|fsPromises\.rm|Deno\.remove(Sync)?)\b", re.I)
+    r"fs\.(promises\.)?rm|fsPromises\.rm|promises\.rm|Deno\.remove(Sync)?)\b|"
+    r"\.rm\s*\(|(?<![A-Za-z0-9_.])rm\s*\(", re.I)
+# A one-liner that runs a shell command: blocked only if the text also deletes.
+SCRIPT_SHELL = re.compile(r"\b(execSync|exec|execFile|spawnSync|spawn|system|popen|"
+                          r"child_process)\b|%x[(\[{]|`", re.I)
+SHELL_DELETE = re.compile(r"(?<![A-Za-z0-9_])(rm|rmdir|unlink|shred|del|erase|rimraf|trash)"
+                          r"(?![A-Za-z0-9_])|-delete\b", re.I)
 SCRIPT_WRITE = re.compile(
     r"\b(writeFile(Sync)?|appendFile(Sync)?|createWriteStream|copyFile(Sync)?|"
     r"rename(Sync)?|file_put_contents|File\.(write|open|rename)|IO\.write|"
@@ -763,7 +769,7 @@ def script_oneliner(name, args):
     elif base == "php":
         hit = any(a == "-r" or re.fullmatch(r"-[A-Za-z]*r", a) for a in args)
     elif base in {"perl", "ruby"}:
-        hit = any(re.fullmatch(r"-[A-Za-z]*[eE]", a) for a in args)
+        hit = any(re.fullmatch(r"-[A-Za-z0-9]*[eE]", a) for a in args)
     else:  # node, bun
         hit = any(a in {"-e", "--eval", "-p", "--print"} or a.startswith(("--eval=", "--print="))
                   for a in args)
@@ -823,11 +829,11 @@ def check_segment(tokens, cwd, root, depth):
         check_shell(" ".join(args), cwd, root, depth + 1)
     if name.startswith("python") and "-c" in args:
         code = " ".join(args[args.index("-c") + 1:])
-        if re.search(r"\b(rmtree|os\.remove|os\.unlink|os\.rmdir|\.unlink\(|\.rmdir\()", code):
+        if re.search(r"(?<![A-Za-z0-9_])(rmtree|os\.remove|os\.unlink|os\.rmdir)|\.unlink\s*\(|\.rmdir\s*\(", code):
             raise Block("python one-liner that deletes files (hard stop c).")
     code = script_oneliner(name, args)
     if code is not None:
-        if SCRIPT_DELETE.search(code):
+        if SCRIPT_DELETE.search(code) or (SCRIPT_SHELL.search(code) and SHELL_DELETE.search(code)):
             raise Block(f"{name} one-liner that deletes files (hard stop c).")
         if SCRIPT_WRITE.search(code) and PROTECTED_WORD.search(code):
             raise Block(f"{name} one-liner that writes to a protected path "
@@ -916,7 +922,9 @@ def pre_tool_use(data):
         cmd = tin.get("command") or ""
         check_shell(cmd, cwd, root)
         # Redirects, heredocs, tee and PowerShell writers carry content in the text.
-        if re.search(r">|<<|\btee\b|set-content|add-content|out-file|\bsc\b|\bac\b",
+        if re.search(r">|<<|\btee\b|set-content|add-content|out-file|\bsc\b|\bac\b|"
+                     r"\bcommit\b|\bsed\b.*-[A-Za-z]*i|\bperl\b.*-[A-Za-z]*i|"
+                     r"\bpython3?\b.*-c\b|\bnode(js)?\b.*(-e|--eval)\b",
                      cmd, re.I):
             check_secrets([cmd])
 
