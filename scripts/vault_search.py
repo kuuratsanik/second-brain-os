@@ -31,6 +31,7 @@ import math
 import os
 import re
 import sys
+import tempfile
 import unicodedata
 import urllib.error
 import urllib.parse
@@ -239,8 +240,9 @@ def make_hit(page, score, query, line=None, snip=None):
 # Request: {"input": ["text", ...], "model": "...", "encoding_format": "float"}.
 # Response (OpenAI shape): {"model": ..., "data": [{"index": i, "embedding": [...]}]}.
 # The server must run with an embedding model and a pooling other than `none`,
-# and the vectors come back normalised with the Euclidean norm. The non-OpenAI
-# `/embedding` endpoint (request {"content": ...}) is not used.
+# and the vectors come back normalised with the Euclidean norm. Not used: `/embedding`
+# (request {"content": ...}) and `/embeddings` (the same request as /v1/embeddings
+# but a non-OpenAI response: per-token arrays when pooling is `none`).
 
 
 class EmbedError(Exception):
@@ -248,9 +250,13 @@ class EmbedError(Exception):
 
 
 def embed_endpoint(url):
+    """The embeddings URL for a base URL such as http://127.0.0.1:8080 or
+    http://127.0.0.1:8080/v1; a URL that already ends in /embeddings is kept."""
     u = url.rstrip("/")
     if u.endswith(("/v1/embeddings", "/embeddings")):
         return u
+    if u.endswith("/v1"):
+        u = u[:-3]
     return u + "/v1/embeddings"
 
 
@@ -259,9 +265,13 @@ def _is_loopback(url):
     return host in ("localhost", "127.0.0.1", "::1") or host.startswith("127.")
 
 
-def embed_texts(url, texts, timeout=60):
-    """One request for `texts`; returns (model, [vector]) in input order."""
-    body = json.dumps({"input": texts, "model": "embedding", "encoding_format": "float"}).encode("utf-8")
+def embed_texts(url, texts, timeout=60, model=None):
+    """One request for `texts`; returns (model, [vector]) in input order. `model`
+    is sent only when given."""
+    payload = {"input": texts, "encoding_format": "float"}
+    if model:
+        payload["model"] = model
+    body = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(embed_endpoint(url), data=body,
                                  headers={"Content-Type": "application/json",
                                           "Authorization": "Bearer no-key"})
@@ -274,9 +284,11 @@ def embed_texts(url, texts, timeout=60):
         data = sorted(doc["data"], key=lambda d: d["index"])
         vecs = [[float(x) for x in d["embedding"]] for d in data]
     except (urllib.error.URLError, OSError, ValueError, KeyError, TypeError) as e:
-        raise EmbedError(str(getattr(e, "reason", e)) or type(e).__name__)
+        raise EmbedError(str(getattr(e, "reason", e)) or type(e).__name__) from e
     if len(vecs) != len(texts) or not all(vecs) or len({len(v) for v in vecs}) != 1:
         raise EmbedError("unexpected response from the embedding server")
+    if not all(math.isfinite(x) for v in vecs for x in v):
+        raise EmbedError("the embedding server returned a non-finite value")
     return str(doc.get("model", "")), vecs
 
 
@@ -324,37 +336,60 @@ def _pack(vec):
     return base64.b64encode(a.tobytes()).decode("ascii")
 
 
-def _unpack(s):
+def _unpack(s, dim=None):
+    """The vector in a cache value, or None if the value is not a valid one:
+    not a string, bad base64, a length that is not whole float32s (or not `dim`
+    of them), or a non-finite number."""
+    if not isinstance(s, str):
+        return None
+    try:
+        raw = base64.b64decode(s, validate=True)
+    except (ValueError, TypeError):  # binascii.Error is a ValueError
+        return None
+    if not raw or len(raw) % 4 or (dim is not None and len(raw) != 4 * dim):
+        return None
     a = array.array("f")
-    a.frombytes(base64.b64decode(s))
+    a.frombytes(raw)
     if sys.byteorder == "big":
         a.byteswap()
-    return a
+    return a if all(map(math.isfinite, a)) else None
 
 
-def load_cache(path, model_hint=None):
+def load_cache(path):
     try:
         with open(path, encoding="utf-8") as fh:
             doc = json.load(fh)
-        if doc.get("version") != 1:
-            return {"model": "", "vectors": {}}
-        return {"model": doc.get("model", ""), "vectors": doc.get("vectors", {})}
-    except (OSError, ValueError, AttributeError):
-        return {"model": "", "vectors": {}}
+        vectors = doc["vectors"]
+        if doc.get("version") != 1 or not isinstance(vectors, dict):
+            raise ValueError("not a version 1 cache")
+        dim = doc.get("dim")
+        return {"model": str(doc.get("model", "")), "dim": dim if isinstance(dim, int) else 0,
+                "vectors": vectors}
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        return {"model": "", "dim": 0, "vectors": {}}
 
 
-def save_cache(path, cache, keep):
-    """Write only the vectors of `keep` (the current chunk hashes), atomically."""
-    doc = {"version": 1, "model": cache["model"],
-           "vectors": {h: v for h, v in sorted(cache["vectors"].items()) if h in keep}}
+def save_cache(path, cache):
+    """Write the cache atomically: a unique temp file in the same folder, then a rename."""
+    doc = {"version": 1, "model": cache["model"], "dim": cache["dim"],
+           "vectors": dict(sorted(cache["vectors"].items()))}
+    tmp = None
     try:
-        os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
-        tmp = path + ".tmp"
-        with open(tmp, "w", encoding="utf-8") as fh:
+        folder = os.path.dirname(os.path.abspath(path))
+        os.makedirs(folder, exist_ok=True)
+        fd, tmp = tempfile.mkstemp(prefix=".embeddings-", suffix=".tmp", dir=folder)
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
             json.dump(doc, fh, separators=(",", ":"))
         os.replace(tmp, path)
+        tmp = None
     except OSError as e:
         sys.stderr.write(f"warning: could not write the embedding cache: {e}\n")
+    finally:
+        if tmp:
+            try:
+                os.remove(tmp)
+            except OSError:
+                pass
 
 
 def _unit(a):
@@ -362,49 +397,67 @@ def _unit(a):
     return array.array("f", (x / n for x in a))
 
 
-def semantic_rank(index, query, url, cache_path, stats=None):
+def semantic_rank(index, query, url, cache_path, stats=None, model=None):
     """[(doc, cosine, chunk line index)] best first, one entry per page. Raises
-    EmbedError when the server fails. `stats` collects cache hits and misses."""
+    EmbedError when the server fails. `stats` collects cache hits and misses.
+
+    The cache is trusted only as far as it checks out: values that are not valid
+    vectors of the server's size count as misses, a different model name or
+    vector size discards every stored vector, and the file is rewritten whenever
+    its keys differ from the current chunks (so text that left the vault, or a
+    restricted page, does not linger there)."""
     cache = load_cache(cache_path)
     chunks = []  # (doc, start line, hash, text)
     for d, page in enumerate(index.pages):
         for start, text in chunk_page(page):
             chunks.append((d, start, chunk_hash(text), text))
+    current = {h for _, _, h, _ in chunks}
+
+    qmodel, qvecs = embed_texts(url, [query], model=model)
+    dim = len(qvecs[0])
+    dirty = False
+    if (cache["model"] and qmodel and qmodel != cache["model"]) or (cache["dim"] and cache["dim"] != dim):
+        cache["vectors"] = {}  # another model or vector size: stored vectors are not comparable
+        dirty = True
+    cache["model"], cache["dim"] = qmodel or cache["model"], dim
+
+    vecs = {}  # hash -> array, valid for this server
+    for h in current:
+        v = _unpack(cache["vectors"].get(h), dim)
+        if v is not None:
+            vecs[h] = v
     missing, seen = [], set()
     for _, _, h, text in chunks:
-        if h not in cache["vectors"] and h not in seen:
+        if h not in vecs and h not in seen:
             seen.add(h)
             missing.append((h, text))
     if stats is not None:
-        stats.update(chunks=len(chunks), hits=len(chunks) - len(missing), misses=len(missing))
+        stats.update(chunks=len(chunks), hits=sum(1 for c in chunks if c[2] in vecs),
+                     misses=len(missing))
 
-    dirty = False
+    packed = {h: cache["vectors"][h] for h in vecs}
     try:
-        qmodel, qvecs = embed_texts(url, [query])
-        if cache["model"] and qmodel and qmodel != cache["model"]:
-            # another model: the stored vectors are not comparable
-            cache["vectors"], missing = {}, list(dict.fromkeys((h, t) for _, _, h, t in chunks))
-            dirty = True
-        cache["model"] = qmodel or cache["model"]
         for i in range(0, len(missing), BATCH):
             batch = missing[i:i + BATCH]
-            _, vecs = embed_texts(url, [t for _, t in batch])
-            for (h, _), v in zip(batch, vecs):
-                cache["vectors"][h] = _pack(v)
-            dirty = True
+            _, got = embed_texts(url, [t for _, t in batch], model=model)
+            if any(len(v) != dim for v in got):
+                raise EmbedError("the embedding server returned vectors of different sizes")
+            for (h, _), v in zip(batch, got):
+                packed[h] = _pack(v)
+                vecs[h] = array.array("f", v)
     finally:
-        if dirty:
-            save_cache(cache_path, cache, {h for _, _, h, _ in chunks})
+        # keep what was embedded before a failure; every vector here has size `dim`
+        if dirty or set(cache["vectors"]) != set(packed) or any(
+                cache["vectors"].get(h) != v for h, v in packed.items()):
+            cache["vectors"] = packed
+            save_cache(cache_path, cache)
 
-    q = _unit(qvecs[0])
-    best = {}
-    unpacked = {}
+    q = _unit(array.array("f", qvecs[0]))
+    best, units = {}, {}
     for d, start, h, _ in chunks:
-        v = unpacked.get(h)
+        v = units.get(h)
         if v is None:
-            v = unpacked[h] = _unit(_unpack(cache["vectors"][h]))
-        if len(v) != len(q):
-            raise EmbedError("cached vectors have a different size; delete " + cache_path)
+            v = units[h] = _unit(vecs[h])
         c = sum(map(mul, q, v))
         if d not in best or c > best[d][0]:
             best[d] = (c, start)
@@ -413,12 +466,15 @@ def semantic_rank(index, query, url, cache_path, stats=None):
 
 
 def search(vault, query, limit=10, include_archive=False, include_restricted=False,
-           embed_url=None, embed_cache=None, index=None, info=None, warn=None):
+           embed_url=None, embed_cache=None, index=None, info=None, warn=None,
+           embed_model=None, allow_remote_embed=False):
     """Hits for `query`, best first: dicts with path, title, score, line, snippet
     and sensitivity. `path` is vault-relative with '/'. Pass a prebuilt `index`
     (see build_index) to search repeatedly. `info`, if a dict, receives `mode`
     ("bm25" or "hybrid") and cache counts. `warn(msg)` receives warnings; the
-    default writes to stderr."""
+    default writes to stderr. A non-local `embed_url` is refused (BM25 is used)
+    unless `allow_remote_embed`, because page text would leave the machine.
+    `embed_model` is sent as the request's `model` field when given."""
     warn = warn or (lambda m: sys.stderr.write(f"warning: {m}\n"))
     if index is None:
         index = build_index(vault, include_archive, include_restricted)
@@ -429,9 +485,9 @@ def search(vault, query, limit=10, include_archive=False, include_restricted=Fal
         cache_path = embed_cache or os.path.join(vault, ".cache", "embeddings.json")
         stats = {}
         try:
-            if not _is_loopback(embed_url):
-                warn("the embedding server is not on this machine; page text is sent to it")
-            sem = semantic_rank(index, query, embed_url, cache_path, stats)
+            if not allow_remote_embed and not _is_loopback(embed_url):
+                raise EmbedError("the server is not on this machine and remote use was not allowed")
+            sem = semantic_rank(index, query, embed_url, cache_path, stats, embed_model)
             mode = "hybrid"
         except EmbedError as e:
             warn(f"embedding server unavailable ({e}); using BM25 only")
@@ -444,7 +500,7 @@ def search(vault, query, limit=10, include_archive=False, include_restricted=Fal
             for r, (d, _) in enumerate(ranked[:n]):
                 fused[d] = fused.get(d, 0.0) + 1.0 / (RRF_K + r + 1)
             lexical = {d for d, _ in ranked}
-            for r, (d, c, start) in enumerate(sem[:n]):
+            for r, (d, _c, start) in enumerate(sem[:n]):
                 fused[d] = fused.get(d, 0.0) + 1.0 / (RRF_K + r + 1)
                 chunk_line[d] = start
             order = sorted(fused.items(), key=lambda kv: (-kv[1], index.pages[kv[0]].path))
@@ -484,6 +540,10 @@ def main(argv=None):
                     help="also search pages with `sensitivity: restricted`")
     ap.add_argument("--embed-url", metavar="URL",
                     help="llama-server base URL (started with --embedding); enables hybrid ranking")
+    ap.add_argument("--embed-model", metavar="NAME",
+                    help="value for the request's `model` field (omitted by default)")
+    ap.add_argument("--allow-remote-embed", action="store_true",
+                    help="allow an --embed-url that is not on this machine (page text is sent there)")
     ap.add_argument("--embed-cache", metavar="PATH",
                     help="embedding cache (default VAULT/.cache/embeddings.json)")
     args = ap.parse_args(argv)
@@ -491,13 +551,17 @@ def main(argv=None):
         ap.error("--limit must be at least 1")
     if not args.query.strip():
         ap.error("the query is empty")
+    if args.embed_url and not args.allow_remote_embed and not _is_loopback(args.embed_url):
+        ap.error("--embed-url is not on this machine, so page text would be sent over the network; "
+                 "pass --allow-remote-embed to do that")
     if not os.path.isdir(args.vault):
         sys.stderr.write(f"not a directory: {args.vault}\n")
         return 1
 
     info = {}
     hits = search(args.vault, args.query, args.limit, args.include_archive, args.include_restricted,
-                  args.embed_url, args.embed_cache, info=info)
+                  args.embed_url, args.embed_cache, info=info,
+                  embed_model=args.embed_model, allow_remote_embed=args.allow_remote_embed)
     if args.json:
         lines = [json.dumps({"query": args.query, "mode": info["mode"], "count": len(hits),
                              "hits": hits}, indent=2, ensure_ascii=False)]

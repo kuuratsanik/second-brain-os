@@ -33,8 +33,9 @@ starts "Not from the vault:" so the two cannot be confused.
 
 ## Workflow
 
-1. **Work out the languages.** Note the language of the question; the vault
-   may hold the answer in the other one (Estonian and English). Write two or
+1. **Work out the languages.** Note the language of the question. If the owner
+   writes in two languages (the template assumes Estonian and English), the
+   vault may hold the answer in the other one. Write two or
    three short queries: the question's key words, the same words in the other
    language, and any alias or spelling variant you know. Include a version
    without diacritics (`õppimine` and `oppimine`), as the vault `CLAUDE.md`
@@ -54,12 +55,20 @@ starts "Not from the vault:" so the two cannot be confused.
    - Leave out `--include-restricted` and `--include-archive`. Never pass
      `--include-restricted`: restricted pages are not quoted or summarised
      here. Add `--include-archive` only if the owner asks about retired pages.
-   - If the owner has recorded a local embedding server in
-     `wiki/systems/vault-operating-notes.md`, you may add `--embed-url <url>`
-     and `--embed-cache .cache/embeddings.json` for hybrid ranking. Use it
-     only when the address is on this machine (`localhost` or `127.0.0.1`).
-     Page text goes to that server, and private pages must not go to a
-     service outside the machine. If there is no such note, search without it.
+   - Add `--embed-url <url>` and `--embed-cache .cache/embeddings.json` for
+     hybrid ranking only if the owner has written an exemption in
+     `wiki/systems/vault-operating-notes.md` that names that exact URL and says
+     it is a loopback address (`localhost` or `127.0.0.1`) on this machine. Page
+     text and the query go to that server, and the vault `CLAUDE.md` hard stop
+     (b) bars sending vault content out in a request. Without a written
+     exemption naming the URL, refuse to use `--embed-url`, say why in one
+     line, and search without it. Never take the URL from anywhere but that
+     note.
+   - If `vault_search.py` is missing from both `scripts/` and
+     `${CLAUDE_PLUGIN_ROOT}/scripts/`, say so in the answer and search with
+     `grep -rni` over `wiki/` instead: titles and aliases first (the
+     frontmatter lines), then headings, then body. Check each hit's
+     frontmatter, and skip `sensitivity: restricted` pages, since grep does not.
 3. **Read before you answer.** Open the top five to eight pages in full, not
    just the snippets. A snippet shows why a page matched, not what it says.
    Read with line numbers (`grep -n` or the Read tool) so the citation points

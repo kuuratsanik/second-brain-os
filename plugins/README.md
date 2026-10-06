@@ -46,10 +46,12 @@ I checked this by installing the plugin from a local copy of this repo with Clau
 Skills still trigger from their descriptions, so you rarely type the long
 name. Commands are the part you type, and they now carry the prefix. A command
 with `disable-model-invocation: true` keeps it: the field is part of the file,
-not of the name. The sixteen commands that a scheduled task can fire should be
-the same sixteen, as `/second-brain:ingest`, `/second-brain:lint` and so on.
-That is inferred from the skills documentation, not stated in the scheduled-tasks
-documentation, so check the first run of a task before relying on it. The
+not of the name. The seventeen commands that a scheduled task can fire should be
+the same seventeen, as `/second-brain:ingest`, `/second-brain:lint` and so on.
+The [scheduled-tasks documentation](https://code.claude.com/docs/en/scheduled-tasks)
+says a scheduled fire runs only skills that Claude is allowed to invoke on its
+own; it does not say how a plugin-prefixed name resolves, so check the first run
+of a task before relying on it. The
 vault template's autonomy override names commands, skills and agents by their
 short names, and its text says the `second-brain:` prefix is covered too. A
 file under `.claude/commands/` in your vault would still run as `/ingest`; a
@@ -64,7 +66,7 @@ accepts file paths for `commands` and `agents`
 ### Scripts
 
 Skills and commands run `scripts/vault_stats.py`, `link_check.py`,
-`graph_export.py`, `chat_export_to_md.py`, `vault_search.py` and `dashboard.py` from the vault root. A plugin
+`graph_export.py`, `chat_export_to_md.py`, `vault_search.py`, `dashboard.py` and `vault_mcp.py` from the vault root. A plugin
 install does not create `scripts/` in the vault, so those skills say to use
 `${CLAUDE_PLUGIN_ROOT}/scripts/` when the vault has none. Claude Code fills in
 that variable in skill, command and agent text for plugin components
@@ -77,7 +79,7 @@ from a scheduled task:
 
 ```bash
 mkdir -p ~/brain/scripts
-cp second-brain-os/scripts/{chat_export_to_md,dashboard,graph_export,link_check,vault_search,vault_stats}.py ~/brain/scripts/
+cp second-brain-os/scripts/{chat_export_to_md,dashboard,graph_export,link_check,vault_mcp,vault_search,vault_stats}.py ~/brain/scripts/
 ```
 
 The template's allow rules are `python3 scripts/*.py` and its variants. A call

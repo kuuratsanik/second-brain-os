@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Builds index.html (the guide) and resources.html (the catalog) from site_data.json."""
-import io, json, os, html, sys
+import io
+import json
+import os
+import html
+import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from site_common import (RESOURCES_DATE, REPO, GHT, FOOTER, head, header, min_css, min_js, dumps,
@@ -352,11 +356,11 @@ function mins(p){{return Math.max(1,Math.round(idx(p).t.split(' ').length/230));
 // <main>, so it survives page changes and announces "Copied".
 const SAY=document.getElementById('copy-say');
 function viaTextarea(t){{
-  const a=document.createElement('textarea'); a.value=t; a.setAttribute('readonly','');
+  const f=document.activeElement, a=document.createElement('textarea'); a.value=t; a.setAttribute('readonly','');
   a.style.cssText='position:fixed;top:0;left:0;opacity:0';
   document.body.appendChild(a); a.select();
   let ok=false; try{{ok=document.execCommand('copy');}}catch(e){{}}
-  a.remove(); return ok;
+  a.remove(); if(f&&f.focus)f.focus({{preventScroll:true}}); return ok;
 }}
 function copy(b,t){{
   const done=ok=>{{

@@ -36,12 +36,12 @@ Run every check, then report all of them, including the ones that pass.
    others). `journal/` is optional. Report extra top-level folders as
    information only.
 3. **Scripts.** `scripts/vault_stats.py`, `link_check.py`, `graph_export.py`,
-   `chat_export_to_md.py`, `vault_search.py` and `dashboard.py` exist, and `python3 --version` runs (`python` on
+   `chat_export_to_md.py`, `vault_search.py`, `dashboard.py` and `vault_mcp.py` exist, and `python3 --version` runs (`python` on
    Windows). Do not run the scripts on the vault; existence and an interpreter
    are the check. A vault with no `scripts/` folder whose kit is the
    `second-brain` plugin (step 6) is WARN, not MISSING: the plugin carries the
    scripts, but each run asks for permission, and a scheduled run cannot ask.
-   The fix is to copy the six scripts into `scripts/`.
+   The fix is to copy the seven scripts into `scripts/`.
 4. **Git.** `git rev-parse --show-toplevel` equals the vault folder (not no
    repository, not a parent repository). Then: current branch, whether commits
    exist, `git config --get user.name` and `git config --get user.email` set, count of uncommitted

@@ -2,7 +2,8 @@
 """Read-only MCP server for a second-brain vault, over stdio.
 
 Usage:
-    python3 vault_mcp.py /path/to/vault [--embed-url URL] [--allow-raw]
+    python3 vault_mcp.py /path/to/vault [--embed-url URL [--embed-model NAME]
+        [--allow-remote-embed]] [--allow-raw]
 
 Speaks the Model Context Protocol over standard input and output: JSON-RPC
 2.0, one message per line. Nothing but protocol messages is written to stdout;
@@ -28,13 +29,14 @@ server is dual-era, as basic/versioning allows:
 
 * Modern (2026-07-28): a request whose params._meta carries
   `io.modelcontextprotocol/protocolVersion` is served on its own. Supported:
-  `server/discover`, `tools/list`, `tools/call`. Results carry
+  `server/discover`, `tools/list`, `tools/call`. `supportedVersions` lists exactly
+  the versions a request may declare. Results carry
   `resultType: "complete"` and the server identity in `_meta`; `tools/list` and
   `server/discover` carry `ttlMs` and `cacheScope`. An unknown version gets
   UnsupportedProtocolVersion (-32022) with data.supported and data.requested; a
   missing required `_meta` field gets -32602. `ping` is not part of this
   revision, so it is an unknown method there.
-* Legacy (2025-11-25, 2025-06-18, 2025-03-26, 2024-11-05): `initialize`
+* Legacy (2025-11-25, 2025-06-18): `initialize`
   negotiates the version (the requested one if supported, else the latest the
   server supports, 2025-11-25), then `notifications/initialized`, `ping`,
   `tools/list`, `tools/call`. Only the `tools` capability is advertised, with no
@@ -42,7 +44,7 @@ server is dual-era, as basic/versioning allows:
   `initialize` is refused with -32600.
 
 Errors: -32700 parse error, -32600 invalid request (also batches, which the
-spec dropped in 2025-06-18), -32601 unknown method, -32602 bad params (also an
+spec dropped in 2025-06-18, so 2025-03-26 and 2024-11-05 are not offered), -32601 unknown method, -32602 bad params (also an
 unknown tool name, as the tools page shows), -32603 internal error. A tool that
 fails, including bad arguments, returns a normal result with `isError: true`.
 
@@ -63,6 +65,10 @@ process with the user's own rights):
   their paths can appear in lists, as in dashboard.py. `private` pages are
   returned and flagged.
 * Files reachable only through a symlink that leaves the vault are not indexed.
+* Files with more than one hard link (st_nlink > 1) are neither indexed nor
+  readable: a hard link cannot be traced back to where it points, so one could
+  alias a file outside the vault or in a protected folder. Copy such a page
+  instead of linking it.
 * Output is capped (page text 200000 characters; lists 200 entries).
 
 Exit codes: 0 when stdin closes, 1 for a bad vault path, 2 for a usage error.
@@ -83,7 +89,8 @@ SERVER_NAME = "second-brain-vault"
 SERVER_VERSION = "1.0.0"
 
 MODERN_VERSIONS = ("2026-07-28",)
-LEGACY_VERSIONS = ("2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05")
+# 2025-03-26 and 2024-11-05 are not served: they allow JSON-RPC batches, which this server rejects.
+LEGACY_VERSIONS = ("2025-11-25", "2025-06-18")
 META_VERSION = "io.modelcontextprotocol/protocolVersion"
 META_CAPS = "io.modelcontextprotocol/clientCapabilities"
 META_CLIENT = "io.modelcontextprotocol/clientInfo"
@@ -185,11 +192,13 @@ def parse_front(text):
 
 
 class Vault:
-    def __init__(self, path, allow_raw=False, embed_url=None):
+    def __init__(self, path, allow_raw=False, embed_url=None, embed_model=None, allow_remote_embed=False):
         self.path = os.path.abspath(path)
         self.root = os.path.realpath(path)
         self.allow_raw = allow_raw
         self.embed_url = embed_url
+        self.embed_model = embed_model
+        self.allow_remote_embed = allow_remote_embed
         self._snap = None
         self._protected = [os.path.join(self.root, d) for d in
                            (".git", ".claude", "journal") + (() if allow_raw else ("raw",))]
@@ -214,6 +223,11 @@ class Vault:
         that read_page would also allow."""
         real = os.path.realpath(path)
         if not self.inside(real):
+            return False
+        try:
+            if os.path.isfile(real) and os.stat(real).st_nlink > 1:
+                return False
+        except OSError:
             return False
         rel = os.path.relpath(real, self.root)
         parts = [x for x in rel.replace("\\", "/").split("/") if x]
@@ -264,7 +278,7 @@ class Vault:
             with open(real, "rb") as fh:
                 data = fh.read(MAX_PAGE_BYTES + 1)
         except OSError as e:
-            raise ToolError(f"Could not read the page ({e.__class__.__name__}).")
+            raise ToolError(f"Could not read the page ({e.__class__.__name__}).") from None
         truncated = len(data) > MAX_PAGE_BYTES
         text = data[:MAX_PAGE_BYTES].decode("utf-8-sig", errors="replace")
         # Same newline handling as link_check.collect (text mode), so line numbers match.
@@ -349,7 +363,11 @@ def scrub_dashboard(data, refused_rel):
 class Tools:
     def __init__(self, vault):
         self.v = vault
-        lc.collect = vault.collect  # see Vault.collect
+        # Process-local monkeypatch: dashboard.gather() calls lc.collect(vault), which
+        # follows file symlinks out of the vault. Swapping it for Vault.collect makes
+        # the dashboard data obey the same path rules as read_page. It affects only
+        # this server process, never the vault_search or link_check scripts on disk.
+        lc.collect = vault.collect
         self.table = {
             "search": self.search, "read_page": self.read_page, "backlinks": self.backlinks,
             "stale": self.stale, "duplicates": self.duplicates, "health": self.health,
@@ -371,8 +389,9 @@ class Tools:
         info = {}
         kwargs = {"index": snap["index"], "info": info, "warn": lambda m: log(f"search: {m}")}
         try:
-            hits = vs.search(self.v.path, q, limit=limit,
-                             embed_url=self.v.embed_url, **kwargs)
+            hits = vs.search(self.v.path, q, limit=limit, embed_url=self.v.embed_url,
+                             embed_model=self.v.embed_model,
+                             allow_remote_embed=self.v.allow_remote_embed, **kwargs)
         except Exception as e:  # an embedding failure must not break plain search
             if not self.v.embed_url:
                 raise
@@ -627,7 +646,7 @@ class Server:
                 return self.err(id_, *bad)
             if method == "server/discover":
                 return self.ok(id_, self.modern({
-                    "supportedVersions": list(MODERN_VERSIONS + LEGACY_VERSIONS),
+                    "supportedVersions": list(MODERN_VERSIONS),
                     "capabilities": {"tools": {}}, "instructions": INSTRUCTIONS,
                     "ttlMs": CACHE_TTL_MS, "cacheScope": "public"}))
             if method == "tools/list":
@@ -751,8 +770,14 @@ def main(argv=None):
     ap.add_argument("vault")
     ap.add_argument("--embed-url", metavar="URL",
                     help="llama.cpp embedding server for hybrid search (see vault_search.py)")
+    ap.add_argument("--embed-model", metavar="NAME", help="`model` field for embedding requests")
+    ap.add_argument("--allow-remote-embed", action="store_true",
+                    help="allow an --embed-url that is not on this machine (page text is sent there)")
     ap.add_argument("--allow-raw", action="store_true", help="let read_page read files under raw/")
     args = ap.parse_args(argv)
+    if args.embed_url and not args.allow_remote_embed and not vs._is_loopback(args.embed_url):
+        ap.error("--embed-url is not on this machine, so page text would be sent over the network; "
+                 "pass --allow-remote-embed to do that")
     if not os.path.isdir(args.vault):
         sys.stderr.write(f"not a directory: {args.vault}\n")
         return 1
@@ -773,7 +798,8 @@ def main(argv=None):
     sys.stdout = sys.stderr
     inp = sys.stdin.buffer
 
-    server = Server(Vault(args.vault, allow_raw=args.allow_raw, embed_url=args.embed_url))
+    server = Server(Vault(args.vault, allow_raw=args.allow_raw, embed_url=args.embed_url,
+                          embed_model=args.embed_model, allow_remote_embed=args.allow_remote_embed))
     log(f"serving {os.path.basename(server.tools.v.path)} read-only"
         + (" (raw/ readable)" if args.allow_raw else ""))
     try:
@@ -782,6 +808,11 @@ def main(argv=None):
         pass
     except OSError as e:
         log(f"stdio closed: {e}")
+    finally:
+        try:
+            out.close()  # the private copy of fd 1
+        except (OSError, ValueError):
+            pass
     return 0
 
 

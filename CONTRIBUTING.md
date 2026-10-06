@@ -39,8 +39,16 @@ python3 -m unittest discover -s tests -t .
 python3 tools/doc_links.py --selftest && python3 tools/doc_links.py
 python3 tools/check_external_links.py --selftest   # no network; the real check runs weekly, see link-rot.yml
 python3 vault-template/.claude/hooks/test_guard.py
+python3 tools/release_notes.py --selftest
+python3 tools/bench_kv_slots.py --selftest   # fake local server; no llama-server needed
 python3 scripts/build_all.py             # rebuild the site, then commit the result
 python3 scripts/link_check.py vault-template
+
+# lint, as in .github/workflows/lint.yml (pinned versions; any finding fails CI)
+pip install ruff==0.16.10 zizmor==1.30.1
+python3 -m ruff check .                  # rules and the py39 target are in ruff.toml
+zizmor --offline --no-progress .github   # workflow security audit
+actionlint                               # workflow syntax; see the actionlint note below
 
 # also run by the vault-scripts job, on the demo vault (use a temp path for the outputs)
 python3 scripts/link_check.py examples/demo-vault
@@ -49,6 +57,10 @@ python3 scripts/graph_export.py examples/demo-vault /tmp/graph.csv
 python3 scripts/graph_export.py examples/demo-vault /tmp/graph.graphml --format graphml
 ```
 
+- `actionlint` is a Go binary, not a pip package. CI installs release 1.7.12 and
+  checks its SHA-256 (see `lint.yml`). Locally, download the same release from
+  [rhysd/actionlint](https://github.com/rhysd/actionlint/blob/main/docs/install.md)
+  or use your package manager; CI runs it either way.
 - Commit the regenerated HTML (`index.html`, `resources.html`, `tree.html`,
   `404.html`, `sitemap.xml`, `robots.txt`, `llms.txt`, `llms-full.txt`,
   `feed.xml`, `og.png` and any changed `docs/*/README.md`;
@@ -64,3 +76,38 @@ python3 scripts/graph_export.py examples/demo-vault /tmp/graph.graphml --format 
 - A new docs page updates its section `README.md` index in the same change.
   For the course and handbooks the index is generated from the page order in
   `scripts/build_tracks.py`, so add the page there.
+
+## Releases
+
+Only a maintainer does this. The kit version is the single line in
+`skills/VERSION`; `.github/workflows/release.yml` turns a tag into a GitHub
+release whose body is that version's section of `CHANGELOG.md`.
+
+1. Set the new version `X.Y.Z` in `skills/VERSION` and in the `version` of
+   `.claude-plugin/plugin.json`.
+2. In `CHANGELOG.md`, move the entries under `## [Unreleased]` to a new
+   `## [X.Y.Z] - YYYY-MM-DD` heading.
+3. Run the checks above. `python3 tools/check_kit.py` fails if the two version
+   files differ or the changelog has no heading, or an empty section, for the version, and
+   `python3 tools/release_notes.py X.Y.Z` prints the text the release will carry.
+4. Open a pull request and merge it to `main`.
+5. Tag the merge commit and push the tag:
+
+   ```bash
+   git checkout main && git pull
+   git tag vX.Y.Z && git push origin vX.Y.Z
+   ```
+
+The workflow publishes nothing and fails if the tag is not `vX.Y.Z`, differs
+from `skills/VERSION` or `plugin.json`, is not in `main`, or has no changelog
+section. If a release for the tag already exists, the job skips creating one. To
+redo a failed release, delete any half-made release with
+`gh release delete vX.Y.Z --yes`, delete the tag locally and on `origin`, fix the
+cause, and tag again.
+
+Consider a repository ruleset for `v*` tags (under Settings, Rules) that
+restricts who can create, update and delete them, since a pushed tag publishes a
+release.
+
+The Dependabot `cooldown` setting in `.github/dependabot.yml` was checked against
+zizmor's documentation, not GitHub's own Dependabot reference.

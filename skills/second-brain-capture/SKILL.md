@@ -29,8 +29,8 @@ or spam, archive, trash or delete a message; never create, update, comment on,
 move or share a Notion page; never change a Granola meeting. Tool names differ
 between connectors and versions, so judge by what a tool does, not what it is
 called: if a tool could change anything on the service, do not call it. The
-vault guard blocks connector writes by tool name, but it cannot see every name;
-this rule does not depend on it.
+template's `.claude/settings.json` deny rules block connector writes by tool
+name, but they cannot list every name; this rule does not depend on them.
 
 Writing to a connected service is a hard stop in the vault `CLAUDE.md` (a),
 and so is sending vault content out in a request (b). A search query is a
@@ -47,8 +47,9 @@ other threads or pages unless the owner asked for them. "My last three emails
 from X" is a request; "catch up on my email" is not, and you ask which threads.
 
 In a scheduled run, capture only what a standing rule covers, ask nothing, and
-queue the rest in `wiki/systems/needs-owner.md`. `/capture` itself is a live
-command.
+queue the rest in `wiki/systems/needs-owner.md`. The `/capture` command is
+live-only (it sets `disable-model-invocation`), but this skill may run without
+it, under a standing rule, for example inside a scheduled ingest.
 
 ## Where each goes
 
@@ -165,6 +166,10 @@ Next: /ingest to turn them into source pages
 The failure to avoid is a mirror: forty threads captured because the owner said
 "my project emails". Capture what was named. If a request would return more
 than about ten items, list their titles and dates and ask which.
+
+The routing page's limits on summarising and copying other people's messages
+apply when the source page is written at ingest, not in `raw/`, which keeps the
+full text.
 
 Never summarise instead of capturing when the owner asked to save the item:
 `raw/` is the archive that can be re-read, and a summary there is a source that

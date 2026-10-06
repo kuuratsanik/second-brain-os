@@ -2,7 +2,7 @@
 
 > A guide to building a knowledge base your AI agent maintains, in plain markdown you own, plus an agents course and handbooks.
 
-The markdown of all 132 pages, in reading order, each under a page header. Relative links inside a page point to files in the repository (https://github.com/kuuratsanik/second-brain-os/tree/main/); the index is https://kuuratsanik.github.io/second-brain-os/llms.txt.
+The markdown of all 132 pages, in reading order, each under a page header. Relative links inside a page point to files in the repository (https://github.com/kuuratsanik/second-brain-os/tree/main/); the index is https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/llms.txt.
 
 ========================================================================
 PAGE 1 of 132: What a second brain actually is
@@ -8139,6 +8139,8 @@ with urllib.request.urlopen(req) as r:
 
 This script is a plain timing harness written for this page, not taken from any project's docs; it assumes an OpenAI-compatible server on port 8000 that streams, and it stops the timer at the first non-empty content delta. A reasoning model may stream reasoning in a different field first; adjust the check if so. `llama-server` reports the numbers itself: the `/completion` response has a `timings` object with `cache_n` (prompt tokens reused from cache), `prompt_n` (tokens processed) and `prompt_ms`, so a restore should show a large `cache_n` and a small `prompt_ms`. Run each state several times and keep the median; one run on a cold drive tells you little.
 
+The repository's [`tools/bench_kv_slots.py`](../../tools/bench_kv_slots.py) automates this for `llama-server`: it times the first streamed token and reads `cache_n` and `prompt_n` for a long prefix cold, warm in RAM and after a slot erase and restore, and prints the median and p90 as a markdown table.
+
 ## A saved slot for the vault's CLAUDE.md
 
 If a local model runs scheduled vault maintenance (tagging, summaries, lint triage), the stable prefix is the vault's `CLAUDE.md` plus a tag vocabulary, and the llama.cpp slot save and restore described above is how to keep it across restarts. [Local models for cheap maintenance](local-models-for-maintenance.md) walks through that, and through pointing `vault_search.py --embed-url` at a local embedding server.
@@ -8212,7 +8214,7 @@ What the README says about each flag:
 | `--host HOST` | "IP addresses to listen on ... (default: 127.0.0.1)" |
 | `--slot-save-path PATH` | "path to save slot kv cache (default: disabled)" |
 
-`-ngl 0` is this page's reading of the `-ngl` description: if it is the maximum number of layers kept in VRAM, zero keeps none there. On a machine with no GPU the default `auto` should already do that; the flag is only a way to say so. `-np 1` gives one slot, so there is one cache to save and restore; the README does not say how the context is divided between several slots, so check that before raising it. Set `-t` to your physical core count as a starting point, which is a convention, not a README recommendation, and measure.
+`-ngl 0` is this page's reading of the `-ngl` description: if it is the maximum number of layers kept in VRAM, zero keeps none there. On a machine with no GPU the default `auto` should already do that; the flag is only a way to say so. `-np 1` gives one slot, so there is one cache to save and restore; the README documents `--kv-unified` and `--kv-unified-per-slot`, and how the context is divided between slots depends on those flags, which this page did not study, so read them before raising it. Set `-t` to your physical core count as a starting point, which is a convention, not a README recommendation, and measure.
 
 Calling it from a script uses the OpenAI-compatible chat endpoint, which the README describes as "POST `/v1/chat/completions`: OpenAI-compatible Chat Completions API" that takes `messages`. For output your script must parse, the README documents schema-constrained JSON (`{"type": "json_object", "schema": {...}}`) and grammar-based sampling. Use one of them for tags and triage so the model cannot return free text where your code expects a list. Constraining the shape does not make the content right; you still validate it.
 
@@ -8276,7 +8278,7 @@ Not re-checked on that date:
 
 - The last part of the server README (about 16,000 of its 116,000 characters) was not returned by the fetch tool.
 - The fetch tool returned extracts, so quoted descriptions are as it returned them; confirm any flag against `llama-server --help` for your build.
-- What `--slot-save-path` restore does across different models, and how context is divided between slots when `-np` is above 1.
+- What `--slot-save-path` restore does across different models, and how `--kv-unified` and `--kv-unified-per-slot` change the division of context between slots when `-np` is above 1.
 - The exact path and base-address handling of `--embed-url` in `vault_search.py`, which belongs to the script, not to llama.cpp.
 - Model choice, model file formats and their licences, CPU speed, and token counts. No model was downloaded or run.
 

@@ -29,7 +29,7 @@ python3 scripts/vault_mcp.py ~/brain                   # started by an MCP clien
 ```
 python3 scripts/vault_search.py VAULT QUERY [--limit N] [--json]
     [--include-archive] [--include-restricted]
-    [--embed-url URL] [--embed-cache PATH]
+    [--embed-url URL] [--embed-cache PATH] [--embed-model NAME] [--allow-remote-embed]
 ```
 
 Each hit is `path:line`, the title, a score and a snippet of about 200
@@ -56,10 +56,21 @@ OpenAI-compatible `/v1/embeddings` endpoint and fuses the BM25 and cosine
 rankings by reciprocal rank fusion (`mode` is then `hybrid`). Vectors are cached
 in `VAULT/.cache/embeddings.json` (or `--embed-cache`), keyed by a hash of each
 chunk, so only changed chunks are embedded again; the first run on a large vault
-is slow. Page text and the query go to that server, so use one on your own
-machine; the script warns when the address is not local. Restricted pages are
-never sent unless you pass `--include-restricted`. If the server cannot be
-reached, the script warns on stderr and answers with BM25, exit 0.
+is slow. `--embed-url` takes the server's base address; a trailing `/v1` is
+fine. The request has no `model` field unless you pass `--embed-model NAME`.
+
+Page text and the query go to that server, so the script only accepts one on
+this machine (`localhost`, `127.x.x.x`, `::1`). Another address is refused with
+exit 2 unless you add `--allow-remote-embed`. Restricted pages are never sent
+unless you pass `--include-restricted`. The cache holds vectors of your pages,
+which can be used to infer their content, so keep it out of version control:
+`vault-template/.gitignore` already lists `.cache/`. Whenever the cache's keys
+differ from the current chunks, the file is rewritten without the others, so
+vectors of a restricted page or of text you deleted do not linger after the
+next run without `--include-restricted`. A damaged cache entry, or a server
+that changes model or vector size, is handled by embedding again. If the
+server cannot be reached, the script warns on stderr and answers with BM25,
+exit 0.
 
 ### dashboard.py
 
@@ -77,10 +88,18 @@ restricted page counts in the numbers but only its path is written. `--out` is
 relative to the vault. `--json` prints the data instead and writes no file. The
 same vault on the same day gives the same bytes. Exit codes are as above.
 
+The funnel has five stages: idea (`new`, `considering`), plan (`planned`),
+experiment (`active`, `reviewing`; review is folded in here), adopted and
+dropped. `promoted` ideas and other statuses are listed under the funnel, and a
+restricted page's status is counted as `(restricted)`. Dropped ideas move to
+`archive/`, which is not counted, so "dropped" is in practice the number of
+dropped experiments. The script needs `link_check.py` and `vault_search.py` in
+the same folder.
+
 ### vault_mcp.py
 
 ```
-python3 scripts/vault_mcp.py VAULT [--embed-url URL] [--allow-raw]
+python3 scripts/vault_mcp.py VAULT [--embed-url URL [--embed-model NAME] [--allow-remote-embed]] [--allow-raw]
 ```
 
 A read-only [Model Context Protocol](https://modelcontextprotocol.io/) server
@@ -104,7 +123,9 @@ There is no tool that writes. The server never changes the vault; the one file
 it can write is the embedding cache that `vault_search.py` keeps in
 `VAULT/.cache/embeddings.json` when you pass `--embed-url` (see
 [vault_search.py](#vault_searchpy); the page text goes to that server, so keep
-it on your machine). The search index and link graph are built on the first
+it on your machine). The server takes `--embed-model` and `--allow-remote-embed`
+with the same meaning as the script, and refuses a non-local `--embed-url`
+without the latter. The search index and link graph are built on the first
 call and kept in memory; they are rebuilt when a page changes, is added or is
 removed.
 
@@ -124,7 +145,9 @@ What it will not return:
   `--allow-raw`. It follows symlinks and then checks the real location, so a
   link that leaves the vault, or points into a refused folder, is refused too.
   Symlinked files that resolve outside the vault are also kept out of the
-  index. `--allow-raw` opens `raw/` only; restricted pages in it stay closed.
+  index. Files with more than one hard link are refused and not indexed, since
+  a hard link cannot be traced back to where it points; copy such a page
+  instead. `--allow-raw` opens `raw/` only; restricted pages in it stay closed.
 - Output is capped: 200,000 characters of page text, 200 entries per list.
 
 A failing tool returns a normal result with `isError: true` and a message the
@@ -138,9 +161,10 @@ revision removed the `initialize` handshake and `ping`, and clients are still
 moving over, so the server speaks both: a request that carries
 `io.modelcontextprotocol/protocolVersion` in `_meta` is served as 2026-07-28
 (`server/discover`, `tools/list`, `tools/call`), and `initialize` starts a
-session that negotiates 2025-11-25, 2025-06-18, 2025-03-26 or 2024-11-05
+session that negotiates 2025-11-25 or 2025-06-18
 (`ping`, `tools/list`, `tools/call`). Only the `tools` capability is
-advertised. Details are in the module docstring.
+advertised. 2025-03-26 and 2024-11-05 are not offered, because they allow
+JSON-RPC batches, which the server does not accept. Details are in the module docstring.
 
 #### Connect it to Claude Code
 

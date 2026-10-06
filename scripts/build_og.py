@@ -13,7 +13,12 @@ builds. Only zlib.adler32 and zlib.crc32 are used, and those are specified.
 
     python3 scripts/build_og.py
 """
-import io, math, os, struct, sys, zlib
+import io
+import math
+import os
+import struct
+import sys
+import zlib
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
@@ -79,7 +84,8 @@ def clamp01(v):
 def seg_dist(px, py, ax, ay, bx, by):
     dx, dy = bx - ax, by - ay
     t = clamp01(((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy))
-    return math.hypot(px - ax - t * dx, py - ay - t * dy)
+    ex, ey = px - ax - t * dx, py - ay - t * dy
+    return math.sqrt(ex * ex + ey * ey)
 
 
 def line(cv, a, b, width):
@@ -99,7 +105,8 @@ def node(cv, cx, cy, r, ring=4, filled=False):
     for y in range(max(0, int(cy - r - 2)), min(H, int(cy + r + 3))):
         row = cv[y]
         for x in range(max(0, int(cx - r - 2)), min(W, int(cx + r + 3))):
-            d = math.hypot(x + .5 - cx, y + .5 - cy)
+            ex, ey = x + .5 - cx, y + .5 - cy
+            d = math.sqrt(ex * ex + ey * ey)
             disk = clamp01(r + .5 - d)
             if disk <= 0:
                 continue

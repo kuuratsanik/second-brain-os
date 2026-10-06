@@ -14,6 +14,8 @@ the page could not be fetched". Write "none" if there are no factual claims.>
 - [ ] `python3 tools/doc_links.py --selftest && python3 tools/doc_links.py`
 - [ ] `python3 tools/check_external_links.py --selftest` (no network)
 - [ ] `python3 -m unittest discover -s tests -t .`
+- [ ] `python3 -m ruff check .` (ruff 0.16.10, rules in `ruff.toml`)
+- [ ] `zizmor --offline --no-progress .github` (zizmor 1.30.1) and `actionlint`, if a workflow changed
 - [ ] `python3 vault-template/.claude/hooks/test_guard.py`
 - [ ] `python3 scripts/link_check.py vault-template`
 - [ ] A new docs page updated its section `README.md` index (or the page order in `scripts/build_tracks.py`)

@@ -109,10 +109,10 @@ class McpCase(VaultCase):
         super().setUp()
         write(self.vault, "wiki/private.md", page("type: concept\nsensitivity: private", f"{BODY} privateword"))
         write(self.vault, "wiki/secret.md", page("type: concept\nsensitivity: restricted\ntitle: Alpha",
-                                                 f"{BODY} {CANARY} [[alpha]]"))
-        write(self.vault, "wiki/secret2.md", page("type: concept\nSensitivity : Restricted", f"{BODY} {CANARY}"))
-        write(self.vault, "wiki/secret3.md", page("type: concept\nsensitivity: confidential", f"{BODY} {CANARY}"))
-        write(self.vault, "wiki/secret4.md", page('type: concept\nsensitivity: "restricted"', f"{BODY} {CANARY}"))
+                                                 f"{BODY} {CANARY} plainword [[alpha]]"))
+        write(self.vault, "wiki/secret2.md", page("type: concept\nSensitivity : Restricted", f"{BODY} {CANARY} capitalword"))
+        write(self.vault, "wiki/secret3.md", page("type: concept\nsensitivity: confidential", f"{BODY} {CANARY} unrecognizedword"))
+        write(self.vault, "wiki/secret4.md", page('type: concept\nsensitivity: "restricted"', f"{BODY} {CANARY} quotedword"))
         write(self.vault, "wiki/linker.md", page("type: concept", f"{BODY} [[secret]] [[Missing Here]]"))
         self.clients = []
 
@@ -130,13 +130,13 @@ class McpCase(VaultCase):
 
 class Protocol(McpCase):
     def test_initialize_echoes_supported_version(self):
-        for ver in ("2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"):
+        for ver in ("2025-11-25", "2025-06-18"):
             c = self.start(handshake=False)
             r = c.rpc("initialize", dict(INIT, protocolVersion=ver))["result"]
             self.assertEqual(r["protocolVersion"], ver)
 
     def test_initialize_unknown_version_gets_latest_supported(self):
-        for ver in ("1999-01-01", "2026-07-28", "2099-12-31", ""):
+        for ver in ("1999-01-01", "2026-07-28", "2025-03-26", "2024-11-05", "2099-12-31", ""):
             c = self.start(handshake=False)
             r = c.rpc("initialize", dict(INIT, protocolVersion=ver))
             if ver == "":
@@ -261,7 +261,7 @@ class ModernEra(McpCase):
         c = self.start(handshake=False)
         r = self.req(c, "server/discover")["result"]
         self.assertEqual(r["resultType"], "complete")
-        self.assertEqual(r["supportedVersions"][0], "2026-07-28")
+        self.assertEqual(r["supportedVersions"], ["2026-07-28"])
         self.assertEqual(r["capabilities"], {"tools": {}})
         self.assertGreaterEqual(r["ttlMs"], 0)
         self.assertIn(r["cacheScope"], ("public", "private"))
@@ -401,7 +401,10 @@ class Search(McpCase):
         d = c.tool("search", query="privateword")[1]
         self.assertEqual([h["path"] for h in d["hits"]], ["wiki/private.md"])
         self.assertTrue(d["hits"][0]["private"])
-        for q in (CANARY, "confidential"):
+        # each word sits in a page body the search would find if the page were not refused
+        direct = json.loads(run_script("vault_search.py", self.vault, "plainword", "--include-restricted", "--json").stdout)
+        self.assertEqual(direct["count"], 1)  # the control: the word is searchable
+        for q in (CANARY, "plainword", "capitalword", "unrecognizedword", "quotedword"):
             self.assertEqual(c.tool("search", query=q)[1]["count"], 0, q)
 
     def test_index_refreshes_on_change(self):
@@ -441,7 +444,7 @@ def symlink_or_skip(target, link, directory=False):
     try:
         os.symlink(target, link, target_is_directory=directory)
     except (OSError, NotImplementedError, AttributeError):
-        raise unittest.SkipTest("cannot create symlinks here")
+        raise unittest.SkipTest("cannot create symlinks here") from None
 
 
 class ReadPage(McpCase):
@@ -600,6 +603,17 @@ class Traversal(McpCase):
             self.refused(c, p)
         for q in ("gitword", "journalword"):
             self.assertEqual(c.tool("search", query=q)[1]["count"], 0)
+
+    def test_hardlinks_are_refused(self):
+        write(self.vault, "wiki/hl-src.md", f"# H\n{BODY} hardlinkword\n")
+        try:
+            os.link(os.path.join(self.vault, "wiki", "hl-src.md"), os.path.join(self.vault, "wiki", "hl-copy.md"))
+        except (OSError, NotImplementedError, AttributeError):
+            self.skipTest("cannot create hard links here")
+        c = self.start()
+        for p in ("wiki/hl-src.md", "wiki/hl-copy.md"):
+            self.refused(c, p)
+        self.assertEqual(c.tool("search", query="hardlinkword")[1]["count"], 0)
 
     def test_symlink_inside_vault_is_allowed(self):
         symlink_or_skip(os.path.join(self.vault, "wiki", "beta.md"), os.path.join(self.vault, "wiki", "beta-link.md"))
@@ -786,6 +800,13 @@ class Cli(unittest.TestCase):
                            stdin=subprocess.DEVNULL)
         self.assertEqual(p.returncode, 2)
         self.assertEqual(p.stdout, "")
+
+    def test_remote_embed_url_needs_the_flag(self):
+        p = subprocess.run([sys.executable, SERVER, SCRIPTS, "--embed-url", "http://example.com:8080"],
+                           capture_output=True, text=True, timeout=30, stdin=subprocess.DEVNULL)
+        self.assertEqual(p.returncode, 2)
+        self.assertEqual(p.stdout, "")
+        self.assertIn("--allow-remote-embed", p.stderr)
 
     def test_empty_vault(self):
         import tempfile
