@@ -2,7 +2,9 @@
 """Check a second-brain vault for broken wikilinks, orphan pages and stubs.
 
 Usage:
-    python3 link_check.py /path/to/vault [--json]
+    python3 link_check.py /path/to/vault [--json] [--include DIRS]
+    python3 link_check.py /path/to/vault --stale DAYS
+    python3 link_check.py /path/to/vault --duplicates
 
 No dependencies. Reads only; never modifies the vault.
 
@@ -10,6 +12,7 @@ Links: `[[Page]]` matches a file name or an alias; `[[folder/Page]]` matches the
 vault-relative path first and falls back to the file name.
 """
 import argparse
+import datetime
 import json
 import os
 import re
@@ -170,12 +173,85 @@ def resolve(target, by_path, by_name):
     return by_name.get(key)
 
 
+def _front(text):
+    m = re.search(r"^---\n(.*?)\n---", text, re.S)
+    return m.group(1) if m else ""
+
+
+def _field(text, key):
+    m = re.search(rf"^{key}:[ \t]*(.*)$", _front(text), re.M)
+    return _scalar(m.group(1)) if m else ""
+
+
+def _day(value):
+    """A YYYY-MM-DD date (a time after it is ignored), or None."""
+    try:
+        return datetime.date.fromisoformat(value.strip()[:10])
+    except ValueError:
+        return None
+
+
+def page_date(path, text):
+    """`updated:`, else `created:`, else the file's mtime. A missing, empty or
+    unparseable value falls through to the next source."""
+    for key in ("updated", "created"):
+        d = _day(_field(text, key))
+        if d:
+            return d
+    return datetime.date.fromtimestamp(os.path.getmtime(path))
+
+
+def stale_pages(pages, days, today=None):
+    """[(path, date, age_days)] for pages older than `days`, oldest first."""
+    today = today or datetime.date.today()
+    out = []
+    for path, text in pages.items():
+        d = page_date(path, text)
+        age = (today - d).days
+        if age > days:
+            out.append((path, d, age))
+    out.sort(key=lambda r: (r[1], r[0]))
+    return out
+
+
+def norm_name(s):
+    """Lower case with everything but letters and digits removed."""
+    return re.sub(r"[\W_]+", "", s.lower())
+
+
+def duplicate_groups(pages):
+    """[(kind, key, [paths])]. 'title': file names or `title:` values that match
+    once case and punctuation are ignored. 'alias': pages that share an alias."""
+    titles, aliases = {}, {}
+    for path in sorted(pages):
+        text = pages[path]
+        stem = os.path.splitext(os.path.basename(path))[0]
+        for name in (stem, _field(text, "title")):
+            k = norm_name(name)
+            if k:
+                titles.setdefault(k, set()).add(path)
+        for a in aliases_of(text):
+            k = norm_name(a)
+            if k:
+                aliases.setdefault(k, set()).add(path)
+    out = []
+    for kind, table in (("title", titles), ("alias", aliases)):
+        for k in sorted(table):
+            if len(table[k]) > 1:
+                out.append((kind, k, sorted(table[k])))
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("vault")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--include", default="", metavar="DIRS",
                     help="comma-separated folders to count anyway, e.g. archive,journal")
+    ap.add_argument("--stale", type=int, metavar="DAYS",
+                    help="list pages not updated for more than DAYS days")
+    ap.add_argument("--duplicates", action="store_true",
+                    help="list pages with matching titles or shared aliases")
     args = ap.parse_args()
     SKIP_DIRS.difference_update(x.strip() for x in args.include.split(","))
 
@@ -183,6 +259,15 @@ def main():
         sys.exit(f"not a directory: {args.vault}")
 
     pages = collect(args.vault)
+    if args.stale is not None or args.duplicates:
+        rel = lambda p: os.path.relpath(p, args.vault).replace(os.sep, "/")
+        if args.stale is not None:
+            for path, d, age in stale_pages(pages, args.stale):
+                print(f"{rel(path)}\t{d.isoformat()}\t{age}")
+        if args.duplicates:
+            for kind, key, paths in duplicate_groups(pages):
+                print("\t".join([kind, key] + [rel(p) for p in paths]))
+        return
     by_path = {rel_key(args.vault, p): p for p in pages}
     names = {}
     for path in sorted(pages):
