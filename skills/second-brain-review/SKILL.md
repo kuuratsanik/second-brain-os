@@ -36,7 +36,10 @@ know how many tool calls ran; they need to know what they now know.
    what waits on the owner. Skip this step if the folder is empty. A read-only
    agent cannot make these changes: it reports what is due and leaves the
    writing to the main session.
-7. **Recommend three things to read or write next**, each tied to a specific
+7. **Read the guard log.** If `.claude/guard.log` exists, count its lines for the
+   period by `rule` and report the rules that fired most (a rule name and a
+   count, never a command or content), so the owner can fix a habit or a rule.
+8. **Recommend three things to read or write next**, each tied to a specific
    page.
 
 ## Output format

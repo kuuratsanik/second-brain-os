@@ -215,8 +215,8 @@ log `.claude/guard.log` included), CLAUDE.md edits outside Profile, staging
 `raw/workspace/`, moving a page into `archive/` before it is committed (rail 1),
 and keys, tokens or private keys written to a file (d). For (b), a
 `sensitivity: restricted` page may not be copied, piped or sent to `output/`,
-outside the vault or to the web, and a verbatim run of 200 or more characters
-from one may not appear in text headed there; `private` pages and paraphrase are
+outside the vault, the web or an MCP tool, and a verbatim run of 200 or more
+characters from one may not appear in text headed there; `private` pages and paraphrase are
 not checked. Every block is logged (rule and path only) for the owner's weekly
 review, and `.claude/hooks/integrity.py` warns at session start if the guard
 files differ from the last commit: if that warning appears, tell the owner

@@ -3,9 +3,6 @@
 target-version = "py39"
 line-length = 120
 
-# vault-template/.claude/hooks is being changed separately; lint it once that lands.
-extend-exclude = ["vault-template/.claude/hooks"]
-
 [lint]
 # E9 syntax errors, F pyflakes, B bugbear, plus the E4/E7 checks that find real bugs
 # (E401 multiple imports per line, E71x comparisons, E721 type comparison, E722 bare except).

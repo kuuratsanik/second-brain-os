@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Claude Code hook that enforces the vault's hard stops (stdlib only).
+"""Claude Code hook that enforces the vault's hard stops (stdlib only, Python 3.9 or newer).
 
 Registered in .claude/settings.json for two events:
 
@@ -48,15 +48,20 @@ import re
 import subprocess
 import sys
 import time
+import unicodedata
 import zlib
+from urllib.parse import unquote_plus
 
 WRITE_TOOLS = {"Write", "Edit", "MultiEdit", "NotebookEdit"}
 SHELL_TOOLS = {"Bash", "PowerShell"}
 
 DELETE_CMDS = {"rm", "rmdir", "unlink", "shred", "del", "erase", "rd",
-               "remove-item", "ri", "rimraf", "trash"}
+               "remove-item", "ri", "rimraf", "trash", "trash-put", "trash-rm", "trash-empty",
+               "gvfs-trash"}
+MAX_DEPTH = 5  # nested sh -c, eval, $( ) levels that are followed
 WRAPPERS = {"sudo", "doas", "command", "builtin", "env", "nohup", "time",
-            "exec", "xargs", "nice", "stdbuf", "timeout", "setsid", "ionice"}
+            "exec", "xargs", "nice", "stdbuf", "timeout", "setsid", "ionice",
+            "busybox", "coreutils", "start-process", "saps"}
 SHELLS = {"sh", "bash", "zsh", "dash", "ksh", "pwsh", "powershell"}
 GIT_OPTS_WITH_VALUE = {"-C", "-c", "--git-dir", "--work-tree", "--namespace",
                        "--exec-path", "--super-prefix", "--config-env"}
@@ -70,7 +75,7 @@ MOVE_SOURCE_BLOCKED = ["raw", "archive", "journal", ".claude", "scripts", ".obsi
                        "claude.md", ".gitignore"] + KEEP_PAGES
 MOVE_CMDS = {"mv", "move", "move-item", "mi", "rename-item", "rni", "ren", "rename"}
 RENAME_CMDS = {"rename-item", "rni", "ren", "rename"}
-COPY_CMDS = {"cp", "copy", "copy-item", "cpi", "copy-item", "install", "ln"}
+COPY_CMDS = {"cp", "copy", "copy-item", "cpi", "install", "ln"}
 PS_WRITE_CMDS = {"set-content", "sc", "out-file", "add-content", "ac", "clear-content",
                  "clc", "new-item", "ni", "mkdir", "md"}
 WEB_CMDS = {"invoke-webrequest", "iwr", "invoke-restmethod", "irm", "curl", "wget"}
@@ -129,8 +134,9 @@ RULE_PATTERNS = [
     (r"outside the vault", "outside-vault"),
     (r"protected path|system, hub, index or log", "protected-move"),
     (r"pathspec|never staged|stage by explicit|stages every tracked", "staging"),
-    (r"deletes files|one-liner that deletes|find -delete", "delete"),
-    (r"git (reset|revert|checkout|restore|clean|rm|rebase|commit|mv)|amending|--no-verify|rewrites history", "git-destructive"),
+    (r"deletes (the )?files|one-liner that deletes|find -delete|Delete or Move", "delete"),
+    (r"git (reset|revert|checkout|restore|clean|rm|rebase|commit|mv|stash|branch|update-index|switch|worktree|"
+     r"reflog|update-ref|gc|prune|tag|notes|submodule|replace)|amending|--no-verify|rewrites history", "git-destructive"),
     (r"PowerShell -EncodedCommand|no file path|internal error", "unreadable-input"),
 ]
 LOG_MAX = 1_000_000
@@ -204,7 +210,7 @@ def check_claude_md(tool, tool_input, real_path):
         with open(real_path, encoding="utf-8") as f:
             content = f.read()
     except OSError:
-        raise Block("CLAUDE.md can only be edited inside its Profile block")
+        raise Block("CLAUDE.md can only be edited inside its Profile block") from None
     span = profile_span(content)
     if span is None:
         raise Block("CLAUDE.md has no '## Profile' block, so no edit is allowed")
@@ -300,9 +306,45 @@ def check_path(tool, path, tool_input, cwd, root):
 
 # ----------------------------------------------------------- shell parsing
 
+_POSIX = [os.name != "nt"]  # shell-escape decoding applies to sh-like shells, not PowerShell or cmd
+_ANSI = {"a": "\a", "b": "\b", "e": "\x1b", "E": "\x1b", "f": "\f", "n": "\n", "r": "\r", "t": "\t",
+         "v": "\v", "\\": "\\", "'": "'", '"': '"', "?": "?"}
+
+
+def ansi_c(body):
+    """Decode the inside of $'...' the way bash does."""
+    out, i = [], 0
+    while i < len(body):
+        c = body[i]
+        if c != "\\" or i + 1 >= len(body):
+            out.append(c)
+            i += 1
+            continue
+        n = body[i + 1]
+        m = re.match(r"[0-7]{1,3}", body[i + 1:]) or (re.match(r"x[0-9A-Fa-f]{1,2}", body[i + 1:]) or
+                                                      re.match(r"u[0-9A-Fa-f]{1,4}", body[i + 1:]) or
+                                                      re.match(r"U[0-9A-Fa-f]{1,8}", body[i + 1:]))
+        if m:
+            txt = m.group(0)
+            try:
+                out.append(chr(int(txt, 8) if txt[0] in "01234567" else int(txt[1:], 16)))
+            except (ValueError, OverflowError):
+                pass
+            i += 1 + len(txt)
+        elif n in _ANSI:
+            out.append(_ANSI[n])
+            i += 2
+        else:
+            out.append(n)
+            i += 2
+    return "".join(out)
+
+
 def split_commands(cmd):
     """Quote-aware split into command segments, each a list of tokens.
-    Separators: ; & | newline ( ) { } and the openers of $( and backticks."""
+    Separators: ; & | newline ( ) { } and the openers of $( and backticks.
+    On sh-like shells a backslash outside quotes is dropped (r\\m is rm) and $'...'
+    is decoded."""
     segs, toks, cur = [], [], []
     quote = None
     i, n = 0, len(cmd)
@@ -318,13 +360,27 @@ def split_commands(cmd):
             segs.append(list(toks))
             toks.clear()
 
+    posix = _POSIX[0]
     while i < n:
         c = cmd[i]
         if quote:
-            if c == quote:
+            if posix and quote == '"' and c == "\\" and i + 1 < n and cmd[i + 1] in '"\\$`':
+                cur.append(cmd[i + 1])
+                i += 1
+            elif c == quote:
                 quote = None
             else:
                 cur.append(c)
+        elif posix and c == "\\" and i + 1 < n:
+            if cmd[i + 1] != "\n":  # a backslash-newline is a line continuation
+                cur.append(cmd[i + 1])
+            i += 1
+        elif posix and c == "$" and i + 1 < n and cmd[i + 1] == "'":
+            j = i + 2
+            while j < n and cmd[j] != "'":
+                j += 2 if cmd[j] == "\\" else 1
+            cur.append(ansi_c(cmd[i + 2:j]))
+            i = j
         elif c in "\"'":
             quote = c
             cur.append("")  # keep empty-string tokens alive
@@ -413,6 +469,27 @@ def strip_prefix_ex(tokens):
             t.pop(0)
             while t and t[0].startswith("-"):
                 f = t.pop(0)
+                if (w == "env" and (f == "--chdir" or f.startswith("--chdir=")
+                                    or (re.match(r"^-[A-Za-z]*C", f) and not f.startswith("-S")))) or (
+                        w in {"sudo", "doas"} and (f == "--chdir" or f.startswith("--chdir=")
+                                                   or (w == "sudo" and re.match(r"^-[A-Za-z]*D", f)))) or (
+                        w in {"start-process", "saps"} and f.lower().startswith("-workingd")):
+                    raise Block(f"{w} {f} changes the folder that later paths are read from, "
+                                "so the guard cannot tell what they point at; not allowed. "
+                                "Use paths from the vault root.", rule="unresolvable-path")
+                if w == "coreutils" and f.startswith("--coreutils-prog="):
+                    t.insert(0, f.split("=", 1)[1])
+                    break
+                if w in {"start-process", "saps"}:
+                    fl = f.lower()
+                    if fl.startswith("-f") or fl in {"-wait", "-passthru", "-nonewwindow", "-usenewenvironment",
+                                                      "-loaduserprofile", "-nonew"}:
+                        continue  # -FilePath rm: the value is the program, keep it
+                    if fl.startswith("-a"):
+                        continue  # -ArgumentList: its value stays as arguments
+                    if t:
+                        t.pop(0)
+                    continue
                 if f in WRAPPER_VALUE_FLAGS.get(w, ()) and t:
                     t.pop(0)
             while t and re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", t[0]):
@@ -527,6 +604,9 @@ def check_git(args, cwd, root):
         elif opt.startswith("--config-env=") or opt.startswith("--git-dir=") \
                 or opt.startswith("--work-tree="):
             value = opt.split("=", 1)[1]
+        if opt.startswith("--exec-path"):
+            raise Block("git --exec-path changes which programs git runs; not allowed "
+                        "(hard stop c).", rule="git-config")
         if opt == "-C" and value is not None:
             if FUZZY.search(value):
                 raise Block("git -C with a glob or variable cannot be checked.")
@@ -568,12 +648,64 @@ def check_git(args, cwd, root):
     if sub == "revert" and "--abort" in flags:
         raise Block("git revert --abort discards later changes; use "
                     "git revert --quit (second-brain-rollback).")
-    if sub in {"clean", "rm", "rebase", "filter-branch", "filter-repo"}:
+    if sub in {"clean", "rm", "rebase", "filter-branch", "filter-repo", "prune"}:
         raise Block(f"git {sub} deletes files or rewrites history (hard stop c).")
     if sub in {"checkout", "restore"} and (
             any(p in {".", "*", ":/"} for p in pos)
             or "-f" in flags or "--force" in flags or "f" in letters):
         raise Block(f"git {sub} would discard working-tree changes (hard stop c).")
+    if sub == "restore" and pos:
+        source = any(f.startswith("--source") for f in flags) or "s" in letters
+        staged_only = ("--staged" in flags or "S" in letters) and not ("--worktree" in flags or "W" in letters)
+        if not source and not staged_only:
+            raise Block("git restore without --source overwrites the working copy of an existing "
+                        "file, discarding its changes (hard stop c). Use git revert, or restore "
+                        "from a named commit with --source.")
+    if sub == "checkout":
+        if "--" in rest:
+            before = [x for x in rest[:rest.index("--")] if not x.startswith("-")]
+            if rest[rest.index("--") + 1:] and not before:
+                raise Block("git checkout -- <path> overwrites the working copy of an existing "
+                            "file, discarding its changes (hard stop c). Use git revert, or check "
+                            "out from a named commit.")
+        elif any(os.path.exists(os.path.join(cwd or "", os.path.expanduser(p))) for p in pos):
+            raise Block("git checkout of an existing path discards its changes (hard stop c).")
+    if sub == "stash" and not (pos and pos[0].lower() in {"list", "show"}):
+        raise Block("git stash hides or drops uncommitted work (hard stop c). Commit by path, "
+                    "or leave the change alone.")
+    if sub == "branch" and (letters & {"d", "D", "m", "M", "f"} or any(
+            f in {"--delete", "--move", "--force"} for f in flags)):
+        raise Block("git branch -d/-D/-m/-M/-f deletes, renames or moves a branch "
+                    "(hard stop c).")
+    if sub == "update-index" and any(f in {"--remove", "--force-remove"} for f in flags):
+        raise Block("git update-index --remove drops files from the index (hard stop c).")
+    if sub == "switch" and (letters & {"f", "C"} or any(
+            f in {"--force", "--discard-changes", "--force-create"} for f in flags)):
+        raise Block("git switch --force/--discard-changes discards working-tree changes "
+                    "(hard stop c).")
+    if sub == "reset":
+        before = [x for x in (rest[:rest.index("--")] if "--" in rest else rest) if not x.startswith("-")]
+        explicit = any(f in {"--keep", "--soft", "--mixed"} for f in flags)
+        moves = bool(before) and bool(re.match(r"^(?!HEAD$)(HEAD.+|[0-9a-fA-F]{7,40}|.*[~^].*|.*@\{.*)$", before[0]))
+        if before and (explicit or moves):
+            raise Block("git reset to another commit moves HEAD and can orphan work "
+                        "(hard stop c). Use git revert.")
+    if sub == "tag" and (letters & {"d", "f"} or any(f in {"--delete", "--force"} for f in flags)):
+        raise Block("git tag -d/-f deletes or moves a tag (hard stop c).")
+    if sub == "notes" and pos and pos[0].lower() in {"remove", "prune"}:
+        raise Block("git notes remove/prune deletes notes (hard stop c).")
+    if sub == "submodule" and pos and pos[0].lower() == "deinit":
+        raise Block("git submodule deinit removes a working tree (hard stop c).")
+    if sub == "replace" and not (letters & {"l"} or "--list" in flags):
+        raise Block("git replace rewrites what a commit means (hard stop c).")
+    if sub == "worktree" and pos and pos[0].lower() in {"remove", "prune"}:
+        raise Block("git worktree remove/prune deletes a working tree (hard stop c).")
+    if sub == "reflog" and pos and pos[0].lower() in {"expire", "delete"}:
+        raise Block("git reflog expire/delete erases the undo history (hard stop c).")
+    if sub == "update-ref" and ("d" in letters or "--delete" in flags):
+        raise Block("git update-ref -d deletes a reference (hard stop c).")
+    if sub == "gc" and any(f.startswith("--prune") for f in flags):
+        raise Block("git gc --prune deletes unreachable commits (hard stop c).")
     if sub in {"add", "stage"}:
         if letters & {"A", "f", "u"} or any(
                 f.split("=")[0] in {"--all", "--force", "--update"} for f in flags):
@@ -619,7 +751,7 @@ def check_archive_checkpoint(sources, dest, cwd, root):
                                capture_output=True, text=True, timeout=5)
         except (OSError, subprocess.SubprocessError):  # includes TimeoutExpired
             raise Block("could not run git status to check for uncommitted changes "
-                        "before archiving; commit the checkpoint first (rail 1).")
+                        "before archiving; commit the checkpoint first (rail 1).") from None
         if p.returncode != 0:
             raise Block("this vault is not a git repository, or has no commit. Archive "
                         "nothing; queue it in wiki/systems/needs-owner.md (rail 1).")
@@ -792,9 +924,12 @@ def check_move(name, pos, args, cwd, root, is_move):
 def decode_ps(b64):
     import base64
     try:
-        return base64.b64decode(b64, validate=True).decode("utf-16-le")
+        raw = base64.b64decode(b64, validate=True)
+        if len(raw) % 2 or raw.count(0) < len(raw) // 4:  # UTF-16LE text is mostly NUL, every other byte
+            raise ValueError("not UTF-16LE")
+        return raw.decode("utf-16-le")
     except (ValueError, UnicodeDecodeError):
-        raise Block("could not decode a PowerShell -EncodedCommand; refusing.")
+        raise Block("could not decode a PowerShell -EncodedCommand; refusing.") from None
 
 
 def nested_script(name, args):
@@ -833,10 +968,10 @@ SHELL_DELETE = re.compile(r"(?<![A-Za-z0-9_])(rm|rmdir|unlink|shred|del|erase|ri
                           r"(?![A-Za-z0-9_])|-delete\b", re.I)
 SCRIPT_WRITE = re.compile(
     r"\b(writeFile(Sync)?|appendFile(Sync)?|createWriteStream|copyFile(Sync)?|"
-    r"rename(Sync)?|file_put_contents|File\.(write|open|rename)|IO\.write|"
+    r"rename(Sync)?|truncate(Sync)?|ftruncate(Sync)?|file_put_contents|File\.(write|open|rename|truncate)|IO\.write|"
     r"Deno\.write\w*|open)\b", re.I)
 PY_WRITE = re.compile(r"open\s*\([^)]*,\s*['\"][^'\"]*[wax+]|write_text|write_bytes|"
-                     r"shutil\.(copy|move)|os\.(rename|replace|truncate)|\.touch\s*\(|\bwrite\s*\(")
+                     r"shutil\.(copy|move)|os\.(rename|replace|truncate)|\.truncate\s*\(|\.touch\s*\(|\bwrite\s*\(")
 PROTECTED_WORD = re.compile(r"raw|journal|scripts|\.claude|guard\.log|\.obsidian|claude\.md|\.gitignore|"
                             r"wiki[/\\](systems|hubs|index|log)", re.I)
 
@@ -859,6 +994,75 @@ def script_oneliner(name, args):
     return " ".join(args) if hit else None
 
 
+REMOTE_SPEC = re.compile(r"^(?![A-Za-z]:[\\/])(?:[A-Za-z][A-Za-z0-9+.-]*://|[^\s/:@]+@[^\s/:]+:|[^\s/:@\\]+:)")
+NETCAT_CMDS = {"nc", "ncat", "netcat", "socat", "nc.openbsd", "nc.traditional"}
+FILE_EDITORS = {"vim": {"-c", "-s", "-S", "-u", "-U", "--cmd", "-i", "-T", "-V", "-w", "-W"},
+                "vi": {"-c", "-s", "-S", "-u", "-U", "--cmd", "-i", "-T", "-V", "-w", "-W"},
+                "nvim": {"-c", "-s", "-S", "-u", "-U", "--cmd", "-i", "-T", "-V", "-w", "-W"},
+                "ex": {"-c", "-s", "-S", "-u", "-U", "--cmd", "-i", "-T", "-V", "-w", "-W"},
+                "rvim": {"-c", "-s", "-S", "-u", "-U", "--cmd", "-i", "-T", "-V", "-w", "-W"},
+                "ed": {"-p"}, "red": {"-p"}}
+ATTR_CMDS = {"chmod", "chown", "chgrp", "chattr", "setfacl", "attrib", "icacls", "touch", "mkdir",
+             "setfattr", "xattr"}
+AWK_CMDS = {"awk", "gawk", "mawk", "nawk"}
+
+
+def unquoted(cmd):
+    """The command text with quoted strings removed."""
+    return re.sub(r"'[^']*'|\"(?:\\.|[^\"\\])*\"", "", cmd)
+
+
+def check_extra(name, args, pos, cwd, root):
+    """Network sends, trash and move-and-delete archivers, in-place editors, attribute changes."""
+    if name in NETCAT_CMDS:
+        raise Block(f"{name} sends data to a network host (hard stop a).", rule="upload")
+    if name in {"scp", "sftp", "rsync"}:
+        for a in args:
+            if not a.startswith("-") and (REMOTE_SPEC.match(a) or (name == "sftp" and "@" in a)):
+                raise Block(f"{name} to a remote host sends the vault out (hard stop a).", rule="upload")
+    if name == "ssh" and re.search(r"[|<]", unquoted(_CTX.get("cmd", ""))):
+        raise Block("ssh with input from a file or a pipe sends data to a remote host "
+                    "(hard stop a).", rule="upload")
+    if name == "gio" and args[:1] in (["trash"], ["remove"]):
+        raise Block("gio trash/remove deletes files (hard stop c).")
+    if name == "zip" and any(a in {"-m", "--move"} or (re.fullmatch(r"-[A-Za-z]+", a) and "m" in a[1:])
+                             for a in args):
+        raise Block("zip -m deletes the files it adds (hard stop c).")
+    if name in {"tar", "bsdtar"} and any(a.startswith("--remove-files") for a in args):
+        raise Block("tar --remove-files deletes the files it adds (hard stop c).")
+    if name == "patch":
+        for i, a in enumerate(args):
+            if a in {"-d", "--directory"} or a.startswith("--directory="):
+                raise Block("patch -d changes the folder paths are read from; not allowed.",
+                            rule="unresolvable-path")
+            if a in {"-o", "-r"} and i + 1 < len(args):
+                check_path("Bash", args[i + 1], {}, cwd, root)
+        files = positionals(args, {"-p", "-i", "-o", "-r", "-B", "-V", "-z", "-F", "-D", "-Y", "-b", "-x"})
+        if not files:
+            raise Block("patch with no file operand edits the files named inside the diff, "
+                        "which the guard cannot check; name the file.", rule="unresolvable-path")
+        check_path("Bash", files[0], {}, cwd, root)
+    if name == "sort":
+        for i, a in enumerate(args):
+            if a == "-o" and i + 1 < len(args):
+                check_path("Bash", args[i + 1], {}, cwd, root)
+            elif a.startswith("--output="):
+                check_path("Bash", a.split("=", 1)[1], {}, cwd, root)
+            elif a.startswith("-o") and not a.startswith("--") and len(a) > 2:
+                check_path("Bash", a[2:], {}, cwd, root)
+    if name in AWK_CMDS and ("inplace" in args or "--include=inplace" in args):
+        files = positionals(args, {"-f", "-v", "-F", "-i", "--include", "-e"})
+        for p in (files if "-f" in args else files[1:]):
+            check_path("Bash", p, {}, cwd, root)
+    if name in FILE_EDITORS:
+        for p in positionals(args, FILE_EDITORS[name]):
+            if not p.startswith("+"):
+                check_path("Bash", p, {}, cwd, root)
+    if name in ATTR_CMDS:
+        for p in pos:
+            check_path("Bash", p, {}, cwd, root)
+
+
 def check_segment(tokens, cwd, root, depth):
     for target in redirect_targets(tokens):
         check_path("Bash", target, {}, cwd, root)
@@ -873,7 +1077,7 @@ def check_segment(tokens, cwd, root, depth):
                     script = f.split("=", 1)[1]
                 elif f.startswith("-S") and len(f) > 2:
                     script = f[2:]
-                if script and depth < 3:
+                if script and depth < MAX_DEPTH:
                     check_shell(script, cwd, root, depth + 1)
             break
     t, assigns = strip_prefix_ex(tokens)
@@ -895,6 +1099,16 @@ def check_segment(tokens, cwd, root, depth):
     if name in DELETE_CMDS:
         raise Block(f"'{name}' deletes files (hard stop c). Archive instead: "
                     "git mv the page into archive/ keeping its path.")
+    if name == "find" and depth < MAX_DEPTH:
+        for i, a in enumerate(args):
+            if a in {"-exec", "-execdir", "-ok", "-okdir"}:
+                run_tokens = []
+                for x in args[i + 1:]:
+                    if x in {";", "+", "\\;"}:
+                        break
+                    run_tokens.append(x)
+                if run_tokens:
+                    check_segment(run_tokens, cwd, root, depth + 1)
     if name == "find" and ("-delete" in args or any(
             a in {"-exec", "-execdir", "-ok"} and i + 1 < len(args)
             and os.path.basename(args[i + 1]).lower() in DELETE_CMDS
@@ -906,15 +1120,16 @@ def check_segment(tokens, cwd, root, depth):
         check_git(args, cwd, root)
     if name in {"curl", "wget"} | WEB_CMDS:
         check_net(name, args)
-    if (name in SHELLS or name == "cmd") and depth < 3:
+    check_extra(name, args, pos, cwd, root)
+    if (name in SHELLS or name == "cmd") and depth < MAX_DEPTH:
         script = nested_script(name, args)
         if script:
             check_shell(script, cwd, root, depth + 1)
-    if name == "eval" and depth < 3:
+    if name == "eval" and depth < MAX_DEPTH:
         check_shell(" ".join(args), cwd, root, depth + 1)
     if name.startswith("python") and "-c" in args:
         code = " ".join(args[args.index("-c") + 1:])
-        if re.search(r"(?<![A-Za-z0-9_])(rmtree|os\.remove|os\.unlink|os\.rmdir)|\.unlink\s*\(|\.rmdir\s*\(", code):
+        if re.search(r"(?<![A-Za-z0-9_])(rmtree|os\s*\.\s*(remove|unlink|rmdir))|\.\s*unlink\s*\(|\.\s*rmdir\s*\(", code):
             raise Block("python one-liner that deletes files (hard stop c).")
         if PY_WRITE.search(code) and PROTECTED_WORD.search(code):
             raise Block("python one-liner that writes to a protected path (raw/, journal/, "
@@ -980,7 +1195,7 @@ def check_shell(cmd, cwds, root, depth=0):
     if not isinstance(cwds, list):
         cwds = [cwds]
     for inner in inner_strings(cmd):
-        if depth < 3:
+        if depth < MAX_DEPTH:
             check_shell(inner, cwds, root, depth + 1)
     for seg in split_commands(cmd):
         for c in cwds:
@@ -1031,7 +1246,8 @@ SEND_CMDS = {"curl", "wget", "scp", "sftp", "ssh", "rsync", "nc", "ncat", "netca
              "gh", "aws", "gsutil", "gcloud", "rclone", "mail", "mailx", "mutt", "sendmail",
              "invoke-webrequest", "iwr", "invoke-restmethod", "irm", "send-mailmessage"}
 DIR_REF_CMDS = COPY_CMDS | MOVE_CMDS | {"rsync", "tar", "zip", "7z", "7za", "grep", "egrep",
-                                        "fgrep", "rg", "ag", "ack", "scp", "compress-archive"}
+                                        "fgrep", "rg", "ag", "ack", "scp", "compress-archive", "rar", "bsdtar", "7zr",
+                                        "pax", "cpio"}
 FM_LABEL = re.compile(r"(?mi)^sensitivity[ \t]*:[ \t]*[\"']?restricted[\"']?[ \t\r]*(?:#.*)?$")
 _CTX = {}
 _PAGES = {}
@@ -1039,12 +1255,19 @@ _PAGES = {}
 
 def reset_ctx():
     _CTX.clear()
-    _CTX.update({"dests": [], "tokens": [], "net": False})
+    _CTX.update({"dests": [], "tokens": [], "net": False, "all": False, "cmd": ""})
     _PAGES.clear()
 
 
+_INVISIBLE = re.compile("[\u00ad\u034f\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\ufeff]")
+
+
 def normalise(text):
-    return re.sub(r"[\W_]+", " ", text.lower()).strip()
+    """NFKC, drop zero-width characters and soft hyphens, fold case, then collapse every
+    run of spaces and punctuation to one space. Homoglyphs from another script and
+    encodings (base64, rot13) are not undone."""
+    text = _INVISIBLE.sub("", unicodedata.normalize("NFKC", text))
+    return re.sub(r"[\W_]+", " ", text.casefold()).strip()
 
 
 def split_frontmatter(text):
@@ -1081,7 +1304,7 @@ def restricted_pages(root):
     try:
         with open(cache_path, encoding="utf-8") as f:
             cache = json.load(f)
-        old = cache["files"] if cache.get("v") == 1 and isinstance(cache.get("files"), dict) else {}
+        old = cache["files"] if cache.get("v") == 2 and isinstance(cache.get("files"), dict) else {}
     except (OSError, ValueError, KeyError, TypeError):
         old = {}
     files, changed = {}, False
@@ -1125,7 +1348,7 @@ def restricted_pages(root):
             if os.path.isdir(os.path.dirname(cache_path)):
                 tmp = cache_path + f".{os.getpid()}.tmp"
                 with open(tmp, "w", encoding="utf-8") as f:
-                    json.dump({"v": 1, "files": files}, f, separators=(",", ":"))
+                    json.dump({"v": 2, "files": files}, f, separators=(",", ":"))
                 os.replace(tmp, cache_path)
         except OSError:
             pass
@@ -1243,7 +1466,7 @@ def check_restricted_net(tool, tin, root):
         return
     for t in _strings(tin):
         if len(t) >= RESTRICTED_MIN:
-            page = find_excerpt(t, root)
+            page = find_excerpt(t, root) or find_excerpt(unquote_plus(t), root)
             if page:
                 raise Block(f"the input of {tool} holds a verbatim excerpt of {RESTRICTED_MIN} or "
                             f"more characters from '{page}', which is marked sensitivity: "
@@ -1261,18 +1484,95 @@ def is_export_path(d, cwd, root):
     return full is None or full.split("/")[0] in EXPORT_DIRS
 
 
+def git_sub(args):
+    """(subcommand, its arguments) of a git command line, skipping git's own options."""
+    a = list(args)
+    while a and a[0].startswith("-"):
+        opt = a.pop(0)
+        if opt in GIT_OPTS_WITH_VALUE and a:
+            a.pop(0)
+    return (a[0].lower(), a[1:]) if a else (None, [])
+
+
+def ps_value(args, full, minlen):
+    """Value of a PowerShell parameter written with any unambiguous prefix (-Dest, -DestinationPath)."""
+    for i, a in enumerate(args):
+        key = a.lower().split(":", 1)[0]
+        if key.startswith("-") and len(key) - 1 >= minlen and full.startswith(key[1:]):
+            return a.split(":", 1)[1] if ":" in a else (args[i + 1] if i + 1 < len(args) else None)
+    return None
+
+
+def tar_dest(args):
+    """The archive tar writes, when it is creating one (-c, -r, -u)."""
+    creating, dest = False, None
+    if args and not args[0].startswith("-"):  # old style: tar czf out.tgz dir
+        creating = any(ch in args[0] for ch in "cru")
+        if "f" in args[0] and len(args) > 1:
+            dest = args[1]
+    else:
+        for i, a in enumerate(args):
+            if a == "--create" or a == "--append" or a == "--update":
+                creating = True
+            elif a.startswith("--file="):
+                dest = a.split("=", 1)[1]
+            elif a == "--file" and i + 1 < len(args):
+                dest = args[i + 1]
+            elif a.startswith("-") and not a.startswith("--") and len(a) > 1:
+                letters = a[1:]
+                creating = creating or any(ch in letters for ch in "cru")
+                if "f" in letters:
+                    tail = letters[letters.index("f") + 1:]
+                    dest = tail or (args[i + 1] if i + 1 < len(args) else None)
+    return dest if creating else None
+
+
+def export_dests(name, args):
+    """Files an archiver or converter writes, named by an option or a position."""
+    p = positionals(args, {"-b", "-t", "-tt", "-P", "-O", "-fz", "-x", "-i", "-n"})
+    if name in {"zip", "rar"}:
+        return p[:1] if name == "zip" else p[1:2] if p and p[0] in {"a", "u", "m"} else []
+    if name in {"7z", "7za", "7zr"}:
+        return p[1:2] if len(p) > 1 and p[0] in {"a", "u"} else []
+    if name in {"tar", "bsdtar"}:
+        d = tar_dest(args)
+        return [d] if d else []
+    if name == "compress-archive":
+        d = ps_value(args, "destinationpath", 2)
+        return [d] if d else (p[1:2] if len(p) > 1 else [])
+    if name == "pandoc":
+        out = []
+        for i, a in enumerate(args):
+            if a in {"-o", "--output"} and i + 1 < len(args):
+                out.append(args[i + 1])
+            elif a.startswith("--output="):
+                out.append(a.split("=", 1)[1])
+            elif a.startswith("-o") and not a.startswith("--") and len(a) > 2:
+                out.append(a[2:])
+        return out
+    return []
+
+
 def note_segment(tokens, name, args, pos, cwd, root):
     """Collect what check_restricted_shell needs from one command segment."""
     dests = list(redirect_targets(tokens))
     sub_args = args
-    if name == "git" and args:  # git mv <src> <dest>: skip git's own options to find the subcommand
-        a = list(args)
-        while a and a[0].startswith("-"):
-            opt = a.pop(0)
-            if opt in GIT_OPTS_WITH_VALUE and a:
-                a.pop(0)
-        if a and a[0].lower() == "mv":
-            name, sub_args = "mv", a[1:]
+    if name == "git":
+        sub, sub_args = git_sub(args)
+        if sub == "mv":
+            name = "mv"
+        elif sub in {"archive", "bundle"}:
+            _CTX["all"] = True
+            if sub == "archive":
+                for i, a in enumerate(sub_args):
+                    if a in {"-o", "--output"} and i + 1 < len(sub_args):
+                        dests.append(sub_args[i + 1])
+                    elif a.startswith("--output="):
+                        dests.append(a.split("=", 1)[1])
+            else:
+                rest = [x for x in sub_args if not x.startswith("-")]
+                if len(rest) > 1 and rest[0] == "create":
+                    dests.append(rest[1])
     if name == "tee" or name in PS_WRITE_CMDS:
         dests += pos
     elif name in MOVE_CMDS or name in COPY_CMDS or name == "rsync":
@@ -1284,10 +1584,12 @@ def note_segment(tokens, name, args, pos, cwd, root):
             dests.append(p[-1])
     elif name == "dd":
         dests += [a.split("=", 1)[1] for a in args if a.startswith("of=")]
+    else:
+        dests += export_dests(name, args)
     for d in dests:
         if is_export_path(d, cwd, root):
             _CTX["dests"].append(d)
-    if name in SEND_CMDS:
+    if name in SEND_CMDS or name in NETCAT_CMDS:
         _CTX["net"] = True
     dirs_ok = name in DIR_REF_CMDS
     skip = set(dests)
@@ -1374,6 +1676,8 @@ def check_restricted_shell(cmd, root):
     what = ("sends data out with" if _CTX["net"] else "writes to output/ or outside the vault with")
     low = cmd.lower().replace("\\", "/")
     hit = next((r for r in pages if r.lower() in low), None)
+    if hit is None and _CTX["all"]:  # git archive and git bundle carry the whole history
+        hit = next(iter(pages))
     if hit is None:
         for cwd, tok, dirs_ok in _CTX["tokens"]:
             hit = restricted_ref(tok, cwd, root, pages, dirs_ok)
@@ -1384,7 +1688,7 @@ def check_restricted_shell(cmd, root):
                     "Restricted pages are not copied, piped or sent anywhere: name the page "
                     "and link it (privacy skill, hard stop b).",
                     rule="restricted-path", target=hit)
-    page = find_excerpt(cmd, root)
+    page = find_excerpt(cmd, root) or find_excerpt(unquote_plus(cmd), root)
     if page:
         raise Block(f"this command {what} a verbatim excerpt of {RESTRICTED_MIN} or more "
                     f"characters from '{page}', which is marked sensitivity: restricted "
@@ -1394,6 +1698,9 @@ def check_restricted_shell(cmd, root):
 # ------------------------------------------------------------------- main
 
 NET_TOOLS = {"WebFetch", "WebSearch"}
+PS_DOTNET_DELETE = re.compile(r"\[(?:System\.)?IO\.(?:File|Directory)\]::(?:Delete|Move)\b", re.I)
+PS_DOTNET_WRITE = re.compile(r"\[(?:System\.)?IO\.(?:File|Directory)\]::(?:Write\w*|Append\w*|Replace|Copy|Create\w*|"
+                             r"SetAttributes)\b", re.I)
 
 
 def pre_tool_use(data):
@@ -1402,6 +1709,8 @@ def pre_tool_use(data):
     cwd = data.get("cwd") or os.getcwd()
     root = os.environ.get("CLAUDE_PROJECT_DIR") or cwd
     reset_ctx()
+    _POSIX[0] = os.name != "nt" and tool != "PowerShell"
+    _CTX["cmd"] = tin.get("command") if isinstance(tin.get("command"), str) else ""
     if tool in WRITE_TOOLS:
         if tool == "MultiEdit" and not tin.get("file_path"):
             paths = {e.get("file_path") or e.get("path") for e in tin.get("edits") or []}
@@ -1417,6 +1726,11 @@ def pre_tool_use(data):
     elif tool in SHELL_TOOLS:
         cmd = tin.get("command") or ""
         check_shell(cmd, cwd, root)
+        if PS_DOTNET_DELETE.search(cmd):
+            raise Block("a .NET File/Directory Delete or Move call deletes files (hard stop c).")
+        if PS_DOTNET_WRITE.search(cmd) and PROTECTED_WORD.search(cmd):
+            raise Block("a .NET file write that names a protected path (raw/, journal/, scripts/, "
+                        ".claude/, .obsidian/, CLAUDE.md).", rule="owner-config")
         # Redirects, heredocs, tee and PowerShell writers carry content in the text.
         if re.search(r">|<<|\btee\b|set-content|add-content|out-file|\bsc\b|\bac\b|"
                      r"\bcommit\b|\bsed\b.*-[A-Za-z]*i|\bperl\b.*-[A-Za-z]*i|"

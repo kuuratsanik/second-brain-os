@@ -61,7 +61,7 @@ Rules for applying it:
   the vault's guard hook does not already block, so a page that must never
   leave the machine also belongs out of any synced or backed-up folder. The one
   exception is that the hook blocks a `restricted` page, or a 200-character
-  verbatim excerpt of one, going to `output/`, outside the vault or to the web.
+  verbatim excerpt of one, going to `output/`, outside the vault, the web or an MCP tool.
 
 ## Output format
 

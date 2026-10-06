@@ -18,7 +18,7 @@ script always exits 0, and prints nothing when all three files match HEAD.
 Limits: it compares with the last commit, so a tampered file that was then
 committed passes; it runs at session start, not on every call; and it cannot
 report on itself or on a settings.json that no longer registers it. Line endings
-are ignored (CRLF and LF compare equal). Stdlib only.
+are ignored (CRLF and LF compare equal). Stdlib only; Python 3.9 or newer.
 """
 import hashlib
 import json
@@ -58,8 +58,11 @@ def check(root):
         path = os.path.join(root, *rel.split("/"))
         committed, problem = git_show(root, rel)
         if problem:
+            hint = (" Do the Quickstart's first-commit step (git init, git add of the template files "
+                    "including .claude/hooks, git commit -m \"Initial vault\") so there is a committed "
+                    "version to compare with." if "no commit" in problem or "not a git" in problem else "")
             return [f"Integrity check could not run: {problem}. The settings, guard and "
-                    "CLAUDE.md cannot be compared with a committed version."]
+                    f"CLAUDE.md cannot be compared with a committed version.{hint}"]
         try:
             with open(path, "rb") as f:
                 current = f.read()

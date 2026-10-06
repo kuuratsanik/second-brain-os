@@ -194,6 +194,29 @@ def _rx(transform, key, start, length):
         return " ".join("**" + w + "**" for w in s.split(" "))
     if transform == "comma":
         return ", ".join(s.split(" "))
+    if transform == "zw":  # zero-width space every 7 characters
+        return "​".join(s[i:i + 7] for i in range(0, len(s), 7))
+    if transform == "shy":  # soft hyphen every 9 characters
+        return "­".join(s[i:i + 9] for i in range(0, len(s), 9))
+    if transform == "zwj":  # zero-width joiner every 5, byte order mark every 11
+        return "﻿".join("‍".join(c[i:i + 5] for i in range(0, len(c), 5)) for c in
+                             (s[j:j + 11] for j in range(0, len(s), 11)))
+    if transform == "fw":  # full-width letters and digits
+        return "".join(chr(ord(ch) + 0xFEE0) if ch.isascii() and ch.isalnum() else ch for ch in s)
+    if transform == "pct":
+        from urllib.parse import quote
+        return quote(s, safe="")
+    if transform == "plus":
+        from urllib.parse import quote_plus
+        return quote_plus(s)
+    if transform == "homoglyph":  # Latin a, e, o swapped for Cyrillic look-alikes
+        return s.replace("a", "а").replace("e", "е").replace("o", "о")
+    if transform == "b64":
+        import base64
+        return base64.b64encode(s.encode()).decode()
+    if transform == "rot13":
+        import codecs
+        return codecs.encode(s, "rot13")
     return s
 
 
@@ -396,7 +419,7 @@ def corpus_section(chk):
     print(f"{'ok  ' if not bad else 'FAIL'} corpus: {ran - bad}/{ran} cases behave as recorded")
     # every blocked call left a log line with a rule name, and nothing sensitive in it
     lines, texts = 0, []
-    for kind, (home, root) in vaults.items():
+    for kind, (_home, root) in vaults.items():
         entries, text = read_log(root)
         lines += len(entries)
         texts.append(text)
@@ -490,6 +513,21 @@ def log_section(chk):
     chk.check("settings.json denies Edit on .claude/**, the log and the cache",
               all(r in deny for r in ("Edit(/.claude/**)", "Edit(/.claude/guard.log*)", "Edit(/.claude/guard-cache.json)")))
     chk.check("settings.json denies rm, rmdir, unlink and shred", all(f"Bash({c} *)" in deny for c in ("rm", "rmdir", "unlink", "shred")))
+    import fnmatch
+    verbs = [r for r in deny if r.startswith("mcp__*__") and not r.startswith("mcp__*__*")]
+    chk.check("settings.json denies the connector verbs label, unlabel, apply, modify, archive, mark, star (prefix patterns)",
+              all(any(r.startswith("mcp__*__" + v) for r in verbs)
+                  for v in ("label", "unlabel", "apply_", "modify", "archive", "unarchive", "mark", "unmark", "star", "unstar")), verbs)
+    reads = ["Gmail__list_labels", "Gmail__get_draft", "Gmail__list_drafts", "Gmail__get_thread", "Gmail__search_threads",
+             "github__get_label", "PocketSmith_Complete_Access__list_labels", "Unsplash__get_bookmarks",
+             "HubSpot__get_marketing_email_analytics", "monday_com__get_sprints_metadata", "Notion__notion-fetch",
+             "Notion__notion-get-comments", "Slack__slack_read_channel", "Google_Drive__list_recent_files"]
+    chk.check("the connector verb patterns match no known read tool (list_labels, get_draft, get_bookmarks ...)",
+              not [(n, r) for n in reads for r in verbs if fnmatch.fnmatchcase("mcp__" + n, r)])
+    chk.check("the connector verb patterns match the Gmail write tools",
+              all(any(fnmatch.fnmatchcase("mcp__Gmail__" + n, r) for r in verbs) for n in (
+                  "label_message", "unlabel_thread", "apply_sensitive_message_label", "mark_thread_spam",
+                  "unmark_message_spam")))
     pre = {g["matcher"] for g in st["hooks"]["PreToolUse"]}
     chk.check("settings.json hooks guard.py on file tools, shells and web or MCP tools",
               pre == {"Write|Edit|MultiEdit|NotebookEdit", "Bash|PowerShell", "WebFetch|WebSearch|mcp__.*"}, pre)
@@ -514,7 +552,7 @@ def restricted_section(chk):
     try:
         with open(cache, encoding="utf-8") as f:
             data = json.load(f)
-        ok = data.get("v") == 1 and "wiki/concepts/layoff-plan.md" in data["files"]
+        ok = data.get("v") == 2 and "wiki/concepts/layoff-plan.md" in data["files"]
     except (OSError, ValueError, KeyError):
         ok = False
     chk.check("restricted: the scan leaves a cache keyed by path, mtime and size", ok)
@@ -654,12 +692,13 @@ def integrity_section(chk):
     # no repository, no commit, no git
     n = tempfile.mkdtemp(prefix="vault-integrity-")
     rc, out, _ = go(n)
-    chk.check("integrity: no repository warns that the check could not run, exit 0",
-              rc == 0 and "could not run" in out and "not a git repository" in out, out)
+    chk.check("integrity: no repository warns that the check could not run, exit 0, and points at the Quickstart's first commit",
+              rc == 0 and "could not run" in out and "not a git repository" in out and "first-commit" in out, out)
     e = tempfile.mkdtemp(prefix="vault-integrity-")
     git(e, "init", "-q")
     rc, out, _ = go(e)
-    chk.check("integrity: a repository with no commit warns, exit 0", rc == 0 and "no commit yet" in out, out)
+    chk.check("integrity: a repository with no commit warns, exit 0, and says to make the first commit",
+              rc == 0 and "no commit yet" in out and "first-commit" in out, out)
     d = repo()
     rc, out, _ = go(d, env_extra={"PATH": os.path.join(d, "no-such-bin")})
     chk.check("integrity: git missing from PATH warns, exit 0", rc == 0 and "could not run" in out, out)
