@@ -15,6 +15,15 @@ Checks, as `path:line: message`, exit status 1 on any problem:
 * a command has `argument-hint` if and only if its body uses `$ARGUMENTS`;
 * `.claude-plugin/marketplace.json` and each `plugin.json` are valid and the
   plugin sources resolve;
+* the root plugin (`.claude-plugin/plugin.json` next to `marketplace.json`,
+  which packages `skills/`, `commands/` and `agents/`): its version equals
+  `skills/VERSION`, its `commands` and `agents` lists name exactly the files in
+  those folders except `README.md` (a plugin loads every `.md` in a listed
+  folder, and a folder README would become a bogus command or agent), the
+  marketplace lists it, and its agents use no frontmatter that plugin agents
+  ignore;
+* `${CLAUDE_PLUGIN_ROOT}` appears only as `${CLAUDE_PLUGIN_ROOT}/scripts/`, and
+  a `.py` file named after it must exist in `scripts/`;
 * the schedulable-command list in `commands/README.md` is exactly the set of
   commands without `disable-model-invocation: true`;
 * `vault-template/.claude/settings.json` is valid JSON with only known
@@ -57,6 +66,10 @@ KEY_LINE = re.compile(r"^([A-Za-z][\w-]*)\s*:(?:\s+(.*)|\s*)$")
 SKILL_REF = re.compile(r"(?<![\w/.-])second-brain-[a-z0-9]+(?:-[a-z0-9]+)*(?![\w/-])(?!\.[\w/])")
 NOT_SKILLS = {"second-brain-os"}  # the repository name
 SCRIPT_REF = re.compile(r"(?<![\w./${}-])scripts/([\w.-]+\.py)")
+# Plugin installs have no vault `scripts/`; the docs say Claude Code substitutes this
+# variable in skill, command and agent bodies
+# (https://code.claude.com/docs/en/plugins/manifest-reference#where-each-variable-resolves).
+PLUGIN_ROOT_REF = re.compile(r"\$\{CLAUDE_PLUGIN_ROOT\}(/scripts/(?:([\w.-]+\.py))?)?")
 # `./scripts/x.py` and `~/brain/scripts/x.py` mean the same file as `scripts/x.py`.
 SCRIPT_PREFIX = re.compile(r"(?<![\w.])\./(?=scripts/)|~/brain/(?=scripts/)")
 ARG_USE = re.compile(r"\$(?:ARGUMENTS|\d+)\b")
@@ -306,6 +319,12 @@ class Checker:
             for ref in SCRIPT_REF.findall(line):
                 if not (self.root / "scripts" / ref).is_file():
                     self.err(path, lineno, f"references scripts/{ref}, which does not exist")
+            for m in PLUGIN_ROOT_REF.finditer(line):
+                if not m.group(1):
+                    self.err(path, lineno, "${CLAUDE_PLUGIN_ROOT} must be followed by /scripts/")
+                elif m.group(2) and not (self.root / "scripts" / m.group(2)).is_file():
+                    self.err(path, lineno, f"references ${{CLAUDE_PLUGIN_ROOT}}/scripts/{m.group(2)}, "
+                             "which does not exist")
 
     # ---- plugins ----------------------------------------------------------
 
@@ -385,8 +404,40 @@ class Checker:
                            for p in plugins):
                     self.err(path, 1, f"plugins/{d.name} is not listed in the marketplace")
 
+    def check_root_plugin(self, commands, agents):
+        """The marketplace root is itself a plugin that ships skills/, commands/ and agents/."""
+        manifest = self.root / ".claude-plugin" / "plugin.json"
+        data = self.load_json(manifest)
+        if data is None:
+            return
+        version_file = self.root / "skills" / "VERSION"
+        if version_file.is_file():
+            want = (self.read(version_file) or "").strip()
+            if data.get("version") != want:
+                self.err(manifest, 1, f"version {data.get('version')!r} differs from skills/VERSION {want!r}")
+        for key, folder, names in (("commands", "commands", commands), ("agents", "agents", agents)):
+            listed = data.get(key)
+            if not (isinstance(listed, list) and all(isinstance(x, str) for x in listed)):
+                self.err(manifest, 1, f"'{key}' must list each file, so that {folder}/README.md is not loaded")
+                continue
+            have = {f"./{folder}/{n}.md" for n in names}
+            for x in sorted(set(listed) - have):
+                self.err(manifest, 1, f"'{key}' lists {x}, which is not a file in {folder}/ (or is its README.md)")
+            for x in sorted(have - set(listed)):
+                self.err(manifest, 1, f"'{key}' does not list {x}")
+            if len(listed) != len(set(listed)):
+                self.err(manifest, 1, f"'{key}' lists a file twice")
+        mp = self.load_json(self.root / ".claude-plugin" / "marketplace.json") or {}
+        entries = [p for p in mp.get("plugins", []) if isinstance(p, dict) and isinstance(p.get("source"), str)]
+        if not any((self.root / p["source"]).resolve() == self.root.resolve() for p in entries):
+            self.err(manifest, 1, "the marketplace has no entry with source './' for this root plugin")
+
     def check_plugin_manifests(self):
-        for manifest in sorted(self.root.glob("plugins/*/.claude-plugin/plugin.json")):
+        manifests = sorted(self.root.glob("plugins/*/.claude-plugin/plugin.json"))
+        root_manifest = self.root / ".claude-plugin" / "plugin.json"
+        if root_manifest.is_file():
+            manifests.insert(0, root_manifest)
+        for manifest in manifests:
             data = self.load_json(manifest)
             if data is None:
                 continue
@@ -547,13 +598,18 @@ class Checker:
             if fields is not None:
                 commands[p.stem] = fields
             self.check_refs(p, body, skills)
+        root_plugin = (r / ".claude-plugin" / "plugin.json").is_file()
+        agents = []
         for p in sorted(r.glob("agents/*.md")):
             if p.name != "README.md":
-                self.check_refs(p, self.check_agent(p, False), skills)
+                agents.append(p.stem)
+                self.check_refs(p, self.check_agent(p, root_plugin), skills)
         for p in sorted(r.glob("plugins/*/agents/*.md")):
             if p.name != "README.md":
                 self.check_agent(p, True)
         self.check_marketplace()
+        if root_plugin:
+            self.check_root_plugin(sorted(commands), agents)
         self.check_plugin_manifests()
         self.check_schedulable(commands)
         self.check_settings()
@@ -655,6 +711,29 @@ def selftest():
     case("plugin.json missing name", {"plugins/p/.claude-plugin/plugin.json": "{}"}, "'name' is required")
     case("schedulable list extra", {"commands/README.md": "can be scheduled `/two`, `/one`. A scheduled task can fire only"}, "/one is listed as schedulable but sets")
     case("schedulable list missing", {"commands/README.md": "can be scheduled none. A scheduled task can fire only"}, "/two has no disable")
+    # The marketplace root as a plugin: skills/, commands/ and agents/ shipped as they are.
+    RP = ".claude-plugin/plugin.json"
+    MP = ".claude-plugin/marketplace.json"
+    MP_ROOT = json.dumps({"name": "m", "owner": {"name": "o"}, "plugins": [
+        {"name": "kit", "source": "./"}, {"name": "p", "source": "./plugins/p"}]})
+    rp = lambda **kw: json.dumps(dict({"name": "kit", "version": "1.0.0",
+                                       "commands": ["./commands/one.md", "./commands/two.md"],
+                                       "agents": ["./agents/ag.md"]}, **kw))
+    ROOT = {RP: rp(), MP: MP_ROOT, "skills/VERSION": "1.0.0\n"}
+    case("root plugin passes", ROOT, None)
+    case("root plugin version differs from skills/VERSION", dict(ROOT, **{"skills/VERSION": "1.0.1\n"}), "differs from skills/VERSION")
+    case("root plugin lists a missing command", dict(ROOT, **{RP: rp(commands=["./commands/one.md"])}), "does not list ./commands/two.md")
+    case("root plugin lists the README", dict(ROOT, **{RP: rp(commands=["./commands/one.md", "./commands/two.md", "./commands/README.md"])}), "or is its README.md")
+    case("root plugin lists a file that is gone", dict(ROOT, **{RP: rp(agents=["./agents/ag.md", "./agents/zz.md"])}), "'agents' lists ./agents/zz.md")
+    case("root plugin without a commands list", dict(ROOT, **{RP: json.dumps({"name": "kit", "version": "1.0.0", "agents": ["./agents/ag.md"]})}), "'commands' must list each file")
+    case("root plugin lists a file twice", dict(ROOT, **{RP: rp(agents=["./agents/ag.md", "./agents/ag.md"])}), "lists a file twice")
+    case("root plugin missing from the marketplace", dict(ROOT, **{MP: '{"name":"m","owner":{"name":"o"},"plugins":[{"name":"p","source":"./plugins/p"}]}'}), "no entry with source './'")
+    case("root plugin name differs from its entry", dict(ROOT, **{RP: rp(name="other")}), "differs from marketplace entry 'kit'")
+    case("root agents are plugin agents", dict(ROOT, **{"agents/ag.md": "---\nname: ag\ndescription: d\npermissionMode: plan\n---\n"}), "plugin agents ignore")
+    case("copied-only agents may use permissionMode", {"agents/ag.md": "---\nname: ag\ndescription: d\npermissionMode: plan\n---\n"}, None)
+    case("plugin root script ref passes", {"commands/two.md": "---\ndescription: x\n---\nRun ${CLAUDE_PLUGIN_ROOT}/scripts/tool.py or ${CLAUDE_PLUGIN_ROOT}/scripts/\n"}, None)
+    case("plugin root script ref missing", {"commands/two.md": "---\ndescription: x\n---\nRun ${CLAUDE_PLUGIN_ROOT}/scripts/nope.py\n"}, "${CLAUDE_PLUGIN_ROOT}/scripts/nope.py")
+    case("plugin root outside scripts", {"commands/two.md": "---\ndescription: x\n---\nRead ${CLAUDE_PLUGIN_ROOT}/docs/x.md\n"}, "must be followed by /scripts/")
     ST = "vault-template/.claude/settings.json"
     case("settings bad JSON", {ST: "{"}, "invalid JSON")
     case("settings unknown key", {ST: '{"permisions": {}}'}, "unknown top-level key 'permisions'")

@@ -7,6 +7,11 @@
   "description": "Plugins from the Second Brain OS repo and its agents course.",
   "plugins": [
     {
+      "name": "second-brain",
+      "source": "./",
+      "description": "The Second Brain OS kit as a plugin: 24 skills, 72 slash commands and 6 agents for an LLM-maintained markdown vault, plus the vault scripts."
+    },
+    {
       "name": "agents-course",
       "source": "./plugins/agents-course",
       "description": "Tools from the agents course: audit your context, write done as a script, bootstrap your eval suite, and a loop critic agent."
