@@ -9,7 +9,8 @@ questions.
 
 This repo is the full version of the guide: the concepts, the setup, the vault
 template, the agent skills, the scripts, and the resources. Free, no signup,
-nothing to install beyond Obsidian, an agent and Python 3 (the template's safety hook is a Python script).
+nothing to install beyond Obsidian, an agent, git and Python 3 (the template's
+safety hook is a Python script).
 
 **Read it on the web:** [kuuratsanik.github.io/second-brain-os](https://kuuratsanik.github.io/second-brain-os/) — the full guide with search and navigation, plus [every vetted link](https://kuuratsanik.github.io/second-brain-os/resources.html) in one filterable page.
 
@@ -33,9 +34,8 @@ Hand that work to an agent and the system stays alive. That is the whole idea.
 One evening. Nine steps, each with a full page behind it.
 
 You need git, Python 3, Obsidian and an agent such as Claude Code. Check that
-`python3 --version` prints a version. On macOS without the Command Line Tools,
-`python3` is a stub that opens an installer prompt instead. The vault's guard
-hook runs `python3`, and a hook that cannot start blocks nothing.
+`python3 --version` prints a version. On a Mac, `/usr/bin/python3` is one of Apple's developer-tool shims
+([TN2339](https://developer.apple.com/library/archive/technotes/tn2339/_index.html)); if `python3 --version` asks to install the Command Line Tools instead of printing a version, accept, or install Python from [python.org](https://www.python.org/downloads/). The vault's guard hook runs `python3`, and a hook that cannot start blocks nothing.
 
 ```bash
 # copy the starter vault, skills, commands and agents
@@ -96,6 +96,8 @@ git add .gitignore CLAUDE.md README.md templates wiki projects output journal ar
   .claude/settings.json .claude/hooks .claude/skills .claude/commands .claude/agents scripts
 git commit -m "Initial vault"
 python .claude\hooks\test_guard.py
+
+claude
 ```
 
 The vault must be its own git repository, not a folder inside another one. The
@@ -115,9 +117,8 @@ the empty subfolders are tracked; `raw/workspace/` stays ignored.
 
 The `scripts/` copy is only the four vault scripts, not the site builders
 (`build_*.py`), and it is what lets `/metrics`, `/health` and `/graph-export` run
-`scripts/vault_stats.py` and friends from inside the vault. On Windows, use
-`python` where this guide says `python3`: the `python3` name usually resolves to
-the Microsoft Store stub and does nothing.
+`scripts/vault_stats.py` and friends from inside the vault. On Windows, see the
+[Windows](#windows) subsection above.
 
 **Or install the kit as a plugin.** Instead of the `cp -r` lines for `skills/`,
 `commands/` and `agents/`, add this repo as a plugin marketplace. Still copy

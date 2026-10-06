@@ -88,7 +88,7 @@ Code asks first, and a scheduled run has nobody to ask.
 
 | | Copy into the vault (Quickstart) | Plugin |
 |---|---|---|
-| Install | `cp -r` of `skills/`, `commands/`, `agents/`, `scripts/` | `claude plugin install second-brain@second-brain-os`, plus the template copy |
+| Install | `cp -r` of `skills/`, `commands/`, `agents/`, plus the four vault scripts from `scripts/` | `claude plugin install second-brain@second-brain-os`, plus the template copy |
 | Names | `/ingest`, `curator` | `/second-brain:ingest`, `second-brain:curator` |
 | Where the files live | In the vault, versioned with your notes | In `~/.claude/plugins/`, outside the vault |
 | Edit a skill for this vault | Edit the file | Not durable: an update replaces the plugin's copy. Copy the skill into `.claude/skills/` under another name, or use the Quickstart |
