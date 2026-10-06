@@ -168,10 +168,14 @@ def main():
                     f"{pl}:{f[:-3]}", GH + f"plugins/{pl}/agents/{f}",
                     fm_desc(os.path.join(adir, f))))
                 n_plug_tools += 1
+    # the kit itself is a plugin too: its manifest is at the repository root
+    plug_rows.insert(0, row(
+        "second-brain", GH + "plugins/README.md#second-brain",
+        "the whole kit (skills, commands, agents) from the repository root"))
     out.append('<div class="sec">' + branch(
         "plugins/", GHT + "plugins",
-        "the course's tools as a Claude Code plugin, installable in "
-        "two commands", plug_rows) + "</div>")
+        "two Claude Code plugins, each installable in two commands: the "
+        "kit itself and the course's tools", plug_rows) + "</div>")
 
     # commands, grouped
     cmd_desc = {}
