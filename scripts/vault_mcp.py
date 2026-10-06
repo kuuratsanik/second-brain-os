@@ -113,6 +113,7 @@ MAX_LIST = 200
 CACHE_TTL_MS = 60000
 
 DENY = "Refused: the path is outside the vault or in a protected location."
+HARDLINK = "has more than one hard link, so it cannot be traced to where it points (copy it instead of linking)."
 HIDDEN_ALWAYS = {"journal"}
 BAD_CHARS = set('<>:"|?*')
 
@@ -218,31 +219,36 @@ class Vault:
         except ValueError:  # another drive
             return False
 
-    def real_ok(self, path):
-        """True if `path` resolves, after symlinks, to a place inside the vault
-        that read_page would also allow."""
+    def real_problem(self, path):
+        """None if `path` resolves, after symlinks, to a place inside the vault
+        that read_page would also allow; else why not: "outside" (outside the
+        vault or in a protected folder) or "hardlink" (a file with more than one
+        hard link, which cannot be traced back to where it points)."""
         real = os.path.realpath(path)
         if not self.inside(real):
-            return False
-        try:
-            if os.path.isfile(real) and os.stat(real).st_nlink > 1:
-                return False
-        except OSError:
-            return False
+            return "outside"
         rel = os.path.relpath(real, self.root)
         parts = [x for x in rel.replace("\\", "/").split("/") if x]
         if not parts or self._denied(parts):
-            return False
+            return "outside"
         anc = os.path.dirname(real)
         while self.inside(anc) and anc != self.root:
             for prot in self._protected:
                 try:
                     if os.path.exists(prot) and os.path.samefile(anc, prot):
-                        return False
+                        return "outside"
                 except OSError:
                     pass
             anc = os.path.dirname(anc)
-        return True
+        try:
+            if os.path.isfile(real) and os.stat(real).st_nlink > 1:
+                return "hardlink"
+        except OSError:
+            return "outside"
+        return None
+
+    def real_ok(self, path):
+        return self.real_problem(path) is None
 
     def resolve_page(self, rel):
         """(real path, vault-relative posix path) for a page the caller may read,
@@ -265,7 +271,10 @@ class Vault:
         if not parts[-1].lower().endswith(".md"):
             raise ToolError("Only markdown pages (.md) can be read.")
         real = os.path.realpath(os.path.join(self.root, *parts))
-        if not self.real_ok(real):
+        problem = self.real_problem(real)
+        if problem == "hardlink":
+            raise ToolError(f"Refused: {'/'.join(parts)} {HARDLINK}")
+        if problem:
             raise ToolError(DENY)
         if not os.path.isfile(real):
             raise ToolError(f"No such page: {'/'.join(parts)}")
@@ -295,8 +304,10 @@ class Vault:
                 if not lc.is_page(name):
                     continue
                 path = os.path.join(dirpath, name)
-                if not self.real_ok(path):
-                    log(f"skipping {os.path.relpath(path, self.path)}: resolves outside the vault")
+                problem = self.real_problem(path)
+                if problem:
+                    why = HARDLINK if problem == "hardlink" else "resolves outside the vault or into a protected folder"
+                    log(f"skipping {os.path.relpath(path, self.path)}: {why}")
                     continue
                 try:
                     with open(path, encoding="utf-8-sig", errors="replace") as fh:

@@ -7,6 +7,7 @@ import socket
 import subprocess
 import sys
 import threading
+import time
 import unittest
 
 from tests.fixture import BODY, SCRIPTS, VaultCase, run_script, write
@@ -612,8 +613,15 @@ class Traversal(McpCase):
             self.skipTest("cannot create hard links here")
         c = self.start()
         for p in ("wiki/hl-src.md", "wiki/hl-copy.md"):
-            self.refused(c, p)
+            self.refused(c, p, "hard link")
+        self.assertIn("copy it instead", c.tool("backlinks", path="wiki/hl-copy.md")[1])
         self.assertEqual(c.tool("search", query="hardlinkword")[1]["count"], 0)
+        c.close()
+        for _ in range(50):  # the stderr reader thread finishes just after the process exits
+            if c.err:
+                break
+            time.sleep(0.1)
+        self.assertIn(b"more than one hard link", b"".join(c.err))  # logged when indexing skipped it
 
     def test_symlink_inside_vault_is_allowed(self):
         symlink_or_skip(os.path.join(self.vault, "wiki", "beta.md"), os.path.join(self.vault, "wiki", "beta-link.md"))

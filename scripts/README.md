@@ -147,7 +147,8 @@ What it will not return:
   Symlinked files that resolve outside the vault are also kept out of the
   index. Files with more than one hard link are refused and not indexed, since
   a hard link cannot be traced back to where it points; copy such a page
-  instead. `--allow-raw` opens `raw/` only; restricted pages in it stay closed.
+  instead. A vault built as a hard-link mirror (`cp -al`, `rsync --link-dest`,
+  rsnapshot-style) is therefore served as empty: copy it, do not link it. `--allow-raw` opens `raw/` only; restricted pages in it stay closed.
 - Output is capped: 200,000 characters of page text, 200 entries per list.
 
 A failing tool returns a normal result with `isError: true` and a message the
