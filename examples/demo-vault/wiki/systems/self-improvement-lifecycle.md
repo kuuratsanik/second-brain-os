@@ -39,12 +39,17 @@ Rules for the agent:
 - Link every idea to the concepts and sources that support or contradict it. If
   the vault holds evidence against an idea, say so. Do not flatter the owner.
 - Do not start experiments. You may propose one when an idea has sat at
-  `considering` for a while; the owner promotes it.
+  `considering` for 30 days or more (change the number here if you like); the
+  owner promotes it.
 - Keep [[hub-self-improvement|the hub]] current: active experiments, ideas
   waiting, next review due. Flag it in the run report when more than three
   experiments are active. The owner may change that number here.
-- Never delete or archive a dropped idea or failed experiment. A failed
-  experiment is evidence. Set `status: dropped`, say why, leave it linked.
+- Never delete a dropped idea or a failed experiment. A failed experiment is
+  evidence: set `status: dropped`, say why, leave it in place and linked. A
+  dropped idea is set to `dropped` with the reason, its links from live pages
+  become plain text, and it is moved to `archive/` with `git mv` (never `rm`),
+  so it stays searchable and restorable. Where the vault does not allow the
+  agent to archive on its own, the move is queued for you.
 - Health, mood and relationship material is `private`. Describe it as the owner
   reported it. You are not a clinician; do not diagnose.
 - The weekly review: you write the page from `templates/review.md`. The

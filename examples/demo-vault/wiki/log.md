@@ -22,7 +22,7 @@ DATE archive wiki/concepts/x.md -> archive/wiki/concepts/x.md (reason; checkpoin
 ```
 
 Operations: ingest, pull, link, merge, archive, rename, split, retype, lint,
-review, rollback, skip. `skip` records an item sent to
+review, lifecycle, rollback, skip. `skip` records an item sent to
 [[needs-owner]].
 
 The commit ids below are invented; this demo vault is not a git repository.
@@ -41,7 +41,7 @@ The commit ids below are invented; this demo vault is not a git repository.
 2026-09-23 ingest raw/meetings/2026-09-22-q4-planning-sync.md -> wiki/sources/2026-09-22-q4-planning-sync.md, wiki/entities/anu-kask.md, wiki/entities/mihkel-sepp.md, wiki/entities/kuusk-analytics.md
 2026-09-26 skip raw/inbox/2026-09-25-vendor-call-notes.md -> hard stop (d), token found; not ingested, not staged; queued in wiki/systems/needs-owner.md
 2026-09-30 ingest raw/youtube/2026-09-29-notes-that-link-back.md -> wiki/sources/2026-09-29-notes-that-link-back.md, wiki/concepts/note-linking.md, wiki/entities/margin.md
-2026-09-30 review wiki/self-improvement/ideas/morning-flashcards.md -> status dropped by the owner; kept linked
+2026-09-30 review wiki/self-improvement/ideas/morning-flashcards.md -> status dropped by the owner
 2026-09-30 link wiki/synthesis/review-cadence.md -> created from three sources that disagree on spacing
 2026-10-03 review wiki/self-improvement/experiments/friday-review-trial.md -> review written at wiki/self-improvement/reviews/friday-review-trial-review.md
 2026-10-04 link wiki/hubs/hub-personal.md -> idea fifteen-minute-friday-review listed (journal-derived, domain personal added)
@@ -49,3 +49,4 @@ The commit ids below are invented; this demo vault is not a git repository.
 2026-10-04 lint wiki -> 0 broken links, 0 orphans, 0 stubs; Q4 priorities page listed under Gaps in index.md
 2026-10-04 skip raw/inbox/2026-09-25-vendor-call-notes.md -> hard stop (d), token still present; entry in wiki/systems/needs-owner.md re-dated
 2026-10-04 skip tag rename habit to routine (seven pages) -> checkpoint failed (git index.lock exists); queued in wiki/systems/needs-owner.md
+2026-10-05 archive wiki/self-improvement/ideas/morning-flashcards.md -> archive/wiki/self-improvement/ideas/morning-flashcards.md (dropped idea; links turned into plain text; checkpoint 8b27d1e)

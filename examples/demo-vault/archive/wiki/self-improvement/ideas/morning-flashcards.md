@@ -11,6 +11,9 @@ updated: 2026-10-04
 origin: wiki/sources/2026-09-14-oppimise-plaan.md
 aliases: [Morning flashcards idea, Hommikused kaardid]
 tags: [memory, habit]
+archived: 2026-10-05
+archived_reason: Dropped by the owner on 2026-09-30; archived with its links turned into plain text.
+archived_from: wiki/self-improvement/ideas/morning-flashcards.md
 ---
 
 # Morning flashcards
@@ -36,6 +39,12 @@ Turn the three recall sentences from each reading into flashcards and go through
 
 ## Next step
 
-Dropped on 2026-09-30. The owner judged the daily load too high while the Friday review trial was still running. Kept linked as a record of the reasoning; it can be reopened after the trial's [[friday-review-trial-review|review]].
+Dropped on 2026-09-30. The owner judged the daily load too high while the Friday review trial was still running. Archived as a record of the reasoning; it can be reopened after the trial's [[friday-review-trial-review|review]].
+
+## Log
+
+2026-09-16 new: captured from the Estonian source.
+2026-09-30 dropped: the daily load is too high while the Friday review trial runs.
+2026-10-05 archived: links from live pages turned into plain text.
 
 Part of [[hub-self-improvement|Self-improvement]].

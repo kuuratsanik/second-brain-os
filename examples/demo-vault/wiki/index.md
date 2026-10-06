@@ -51,7 +51,6 @@ pages are not listed.
 Ideas, experiments and reviews.
 
 - [[fifteen-minute-friday-review|Fifteen-minute Friday review]], idea, promoted
-- [[morning-flashcards|Morning flashcards]], idea, dropped
 - [[friday-review-trial|Friday review trial]], experiment, adopted
 - [[friday-review-trial-review|Friday review trial, review]], review
 

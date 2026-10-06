@@ -32,7 +32,7 @@ Two sources in this vault: [[2026-09-03-retrieval-practice-at-work|Retrieval pra
 
 - Neither article cites a study. The claims are the authors' own.
 - The schedules differ: one, three and ten days in the English article, one, three and seven in the Estonian one. See [[review-cadence|Review cadence]].
-- The owner dropped the [[morning-flashcards|morning flashcards idea]] after finding the daily load too high.
+- The owner dropped the morning flashcards idea on 2026-09-30 after finding the daily load too high (archived at archive/wiki/self-improvement/ideas/morning-flashcards.md).
 
 ## Open questions
 
@@ -40,4 +40,4 @@ Two sources in this vault: [[2026-09-03-retrieval-practice-at-work|Retrieval pra
 
 ## Related
 
-[[weekly-review|Weekly review]], [[note-linking|Note linking]], [[review-cadence|Review cadence]], [[morning-flashcards|Morning flashcards]], [[hub-learning|Learning]]
+[[weekly-review|Weekly review]], [[note-linking|Note linking]], [[review-cadence|Review cadence]], [[hub-learning|Learning]]

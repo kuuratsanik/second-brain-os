@@ -34,7 +34,7 @@ Articles, talks and the concepts they teach. A source with no concept links out 
 
 **Synthesis:** [[review-cadence|Review cadence]]
 
-**Ideas:** [[morning-flashcards|Morning flashcards]] (dropped)
+**Dropped ideas:** Morning flashcards (dropped 2026-09-30, daily load too high; archived at archive/wiki/self-improvement/ideas/morning-flashcards.md)
 
 ## Gaps
 
