@@ -212,7 +212,7 @@ def main():
     # vault template
     out.append('<div class="sec">' + branch(
         "vault-template/", GHT + "vault-template",
-        "Clone this folder, open it in Obsidian, run /init",
+        "Clone this folder, open it in Obsidian, run /vault-init",
         [row(n, GHT + "vault-template/" + n.rstrip("/") if n.endswith("/")
              else GH + "vault-template/" + n, d) for n, d in VAULT]) + "</div>")
 

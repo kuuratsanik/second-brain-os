@@ -46,9 +46,8 @@ without that file predates 1.0.0.
   there too. Update scheduled tasks and notes that fire the old names. A
   copy install of an earlier version leaves the old files behind in
   `.claude/commands/`; delete them (`/install` lists them). The skill names
-  (`second-brain-review` and so on) are unchanged. The `/review` period
-  argument works as before. `scripts/build_tree.py` still says "run /init" on
-  the site; tooling will update it.
+  (`second-brain-review` and so on) are unchanged. The period argument
+  of `/vault-review` works as `/review`'s did.
 - `second-brain-review` has a lifecycle step and a Self-improvement section in
   its output.
 - `second-brain-privacy` says what each `sensitivity:` value (`normal`,
