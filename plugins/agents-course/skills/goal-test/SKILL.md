@@ -11,8 +11,8 @@ description: >-
 
 # Write done as a script
 
-Theory: [The four parts of a loop](https://undefined-ui.github.io/second-brain-os/#course-2-loop/the-four-parts)
-and the [goal test build page](https://undefined-ui.github.io/second-brain-os/#track-loop/build-goal-test).
+Theory: [The four parts of a loop](https://kuuratsanik.github.io/second-brain-os/#course-2-loop/the-four-parts)
+and the [goal test build page](https://kuuratsanik.github.io/second-brain-os/#track-loop/build-goal-test).
 "Improve the error handling" cannot terminate a loop, because nothing can ever
 say it is finished. The goal must be phrased so that a program — not a person,
 not the model — returns true or false against it.
@@ -39,12 +39,14 @@ not the model — returns true or false against it.
 # goal-loop.sh — run a headless agent until the goal test passes or attempts run out.
 set -u
 MAX_ATTEMPTS=5
+MAX_USD=2   # per attempt
 for i in $(seq 1 "$MAX_ATTEMPTS"); do
   FEEDBACK=$(./goal-test.sh 2>&1) && { echo "done in $i attempt(s)"; exit 0; }
   claude -p "Goal: <the goal>. The goal test currently fails with:
 $FEEDBACK
 Fix the code so the goal test passes." \
-    --permission-mode acceptEdits --output-format json > ".attempt-$i.json"
+    --permission-mode acceptEdits --max-turns 20 --max-budget-usd "$MAX_USD" \
+    --output-format json > ".attempt-$i.json"
 done
 echo "goal test still failing after $MAX_ATTEMPTS attempts — falling back to a human"
 exit 1
@@ -52,8 +54,7 @@ exit 1
 
 Adjust the agent command to whatever CLI the user runs. Keep the three
 brakes visible and named: the checker outside the model (`goal-test.sh`),
-the stop rule (test passes), the budget (`MAX_ATTEMPTS`, plus a dollar cap
-read from the JSON output if they want one).
+the stop rule (test passes), the budget (`MAX_ATTEMPTS`, with `--max-turns` and `--max-budget-usd` capping each attempt; both apply to `-p` runs only). With `acceptEdits` the agent can edit files and run `mkdir`, `touch`, `rm`, `rmdir`, `mv`, `cp` and `sed` inside the working directory; other shell commands still need an entry, and a `-p` run denies whatever would prompt ([permission modes](https://code.claude.com/docs/en/permission-modes#auto-approve-file-edits-with-acceptedits-mode)). If it needs to run the tests itself, add `--allowedTools "Bash(<the test command>)"`. On Claude Code v2.1.259 or later, `--permission-prompts none` tells the agent nobody can answer, so it does not retry a denied command.
 
 ## Rules
 

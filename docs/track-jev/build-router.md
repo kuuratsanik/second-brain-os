@@ -12,7 +12,7 @@ Three rules do all the work:
 
 ## The code
 
-Runnable as-is with `decision.py` from the previous page in the same directory.
+Runnable as-is with `decision.py` from the previous page in the same directory. `claude-opus-5-5` is Claude Opus 5.5, listed at $4 per million input tokens and $20 per million output tokens in the [models overview](https://platform.claude.com/docs/en/about-claude/models/overview); swap in `claude-sonnet-5-5` or `claude-fable-5-1` as the fall-through if your cost or quality needs differ.
 
 ```python
 # router.py
@@ -24,7 +24,7 @@ import anthropic
 from decision import decide
 
 client = anthropic.Anthropic()
-FULL_MODEL = "claude-opus-5"   # the fall-through: full-strength, full price
+FULL_MODEL = "claude-opus-5-5"  # the fall-through: full-strength, full price
 THRESHOLD = 0.8                # start conservative; tune against labels later
 LOG_PATH = "decisions.jsonl"
 

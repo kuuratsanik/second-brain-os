@@ -8,10 +8,19 @@ MCP connects those the same way it connects Obsidian.
 ## Calendar
 
 ```bash
-claude mcp add google-workspace uvx workspace-mcp --tools calendar
+claude mcp add --transport stdio \
+  --env GOOGLE_OAUTH_CLIENT_ID=your-client-id \
+  --env GOOGLE_OAUTH_CLIENT_SECRET=your-client-secret \
+  google-workspace -- uvx workspace-mcp --tools calendar --read-only
 ```
 
-An OAuth sign-in opens in the browser. Grant read access.
+The server needs an OAuth client of your own from the Google Cloud Console, with
+the Calendar API enabled; see the
+[workspace-mcp README](https://github.com/taylorwilsdon/google_workspace_mcp).
+`--read-only` keeps it from writing. The `--` separates Claude Code's options
+from the server command, as described in the
+[Claude Code MCP docs](https://code.claude.com/docs/en/mcp). A sign-in opens in
+the browser on first use.
 
 Then the vault can act on it:
 

@@ -20,6 +20,14 @@ projects. Wait for each answer before the next question. When finished, write
 everything into CLAUDE.md at the vault root, structured with headers.
 ```
 
+If you use the [vault template](../../vault-template/CLAUDE.md), its `CLAUDE.md`
+already holds the rules and has a Profile block of `TODO(interview)` lines. The
+interview fills in only that block. Tell the agent to write just the Profile,
+and run it in a live session: the template's agent offers the interview once
+when it finds a `TODO(interview)` line, never in a scheduled run, and it edits
+nothing else in the file. Any other change it wants to make, it proposes in its
+run report.
+
 Answer as if briefing a co-founder on their first day. Vague answers produce a
 vague file, and every session inherits it.
 
@@ -33,7 +41,9 @@ vague file, and every session inherits it.
 - **Current projects,** one line each, linked to their folders.
 - **The vault's own rules:** folder layout, page contracts, linking rules. The
   version in [`vault-template/CLAUDE.md`](../../vault-template/CLAUDE.md) is a
-  working starting point.
+  working starting point. It is an opinionated one: six domains, mixed
+  languages, a page contract with `domain`, `lang` and `sensitivity`, and an
+  Autonomy section with rails and hard stops.
 
 ## What does not belong in it
 

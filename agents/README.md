@@ -1,7 +1,9 @@
 # agents
 
 Six subagent definitions for Claude Code. Copy into `.claude/agents/` in your
-vault.
+vault, or get them from the `second-brain` plugin, where they are named
+`second-brain:ingestor` and so on ([plugins](../plugins/README.md#second-brain)).
+Use one method per vault.
 
 | Agent | Writes | Runs |
 |---|---|---|

@@ -1,5 +1,9 @@
 # Project: <name>
 
+## Domain
+
+work | learning | personal | creative | self-improvement | systems. Matches the `domain:` on its wiki pages.
+
 ## What this is
 
 One paragraph. What this project produces and for whom.

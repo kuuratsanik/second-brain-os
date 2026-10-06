@@ -3,7 +3,7 @@
 Build the harness from the outside in: containment, guides, sensors, permissions. The order matters because each ring must hold when every ring inside it fails. A guide can be ignored, a sensor can miss, an approval can be misclicked; a wall does not care. So the outermost ring goes up before the first prompt is written.
 
 
-![](fig-four-rings.svg)
+![Nested boxes around the model, from outside in: containment (what it cannot reach at all), guides (AGENTS.md, tool descriptions), sensors (tests, linters, review) and permissions (approval for the irreversible).](fig-four-rings.svg)
 
 ## Ring one: containment
 
@@ -28,11 +28,11 @@ Sensors tell you, deterministically, whether the work is sound. Run the cheap on
 
 ## Ring four: permissions
 
-Anthropic reports that [Claude Code users approve 93% of permission prompts](https://www.anthropic.com/engineering/claude-code-auto-mode). A gate that opens 93 times in 100 trains people to stop reading it. The real protection is ring one — actions that are not available at all — so spend approval prompts only on the truly irreversible: pushing to a shared branch, sending anything, deleting anything. Three prompts a day get read; thirty get clicked.
+Anthropic reports that [Claude Code users approve 93% of permission prompts](https://www.anthropic.com/engineering/claude-code-auto-mode) (March 2026). A gate that opens 93 times in 100 trains people to stop reading it. The real protection is ring one — actions that are not available at all — so spend approval prompts only on the truly irreversible: pushing to a shared branch, sending anything, deleting anything. Three prompts a day get read; thirty get clicked.
 
 ## Hooks: guides with teeth
 
-A guide the model might skim becomes a rule the harness enforces. In Claude Code, a PreToolUse hook runs before every tool call and can block it; this one enforces "never push to main":
+A guide the model might skim becomes a rule the harness enforces. In Claude Code, a [PreToolUse hook](https://code.claude.com/docs/en/hooks) runs before a matching tool call and can block it; this one enforces "never push to main":
 
 ```json
 {
@@ -52,8 +52,8 @@ A guide the model might skim becomes a rule the harness enforces. In Claude Code
 }
 ```
 
-Exit code 2 blocks the call and feeds the message back, so the agent corrects course instead of failing silently.
+Exit code 2 blocks the call and shows the hook's stderr to the model as the reason, so the agent corrects course instead of failing silently. The hooks guide positions hooks as the way to enforce project rules rather than relying on the model to follow them.
 
 ## The bets expire
 
-Every ring component is a bet that the model cannot do something. Anthropic added context resets to a harness because Claude Sonnet 4.5 wrapped up work prematurely near its context limit — then [deleted them entirely](https://www.anthropic.com/engineering/harness-design-long-running-apps) when Opus 4.5 stopped doing it. Your bets will expire the same way. [Harness practice](harness-practice.md) turns that into a quarterly ritual.
+Every ring component is a bet that the model cannot do something. Anthropic added context resets to a harness because Claude Sonnet 4.5 wrapped up work prematurely near its context limit — then [dropped them entirely](https://www.anthropic.com/engineering/harness-design-long-running-apps) when Opus 4.5 largely removed that behaviour. Your bets will expire the same way. [Harness practice](harness-practice.md) turns that into a quarterly ritual.

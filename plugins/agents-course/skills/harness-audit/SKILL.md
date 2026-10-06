@@ -7,12 +7,13 @@ description: >-
   guardrails, or asks what a bad session could break. Read-only: reports the
   blast radius and a hardening list, changes nothing. Do NOT use for context
   layout (context-audit) or cost routing (gate-check).
+disallowed-tools: Edit Write NotebookEdit
 ---
 
 # Audit the four rings
 
-Theory: [The four rings](https://undefined-ui.github.io/second-brain-os/#course-4-harness/the-four-rings)
-and [Harness practice](https://undefined-ui.github.io/second-brain-os/#course-4-harness/harness-practice).
+Theory: [The four rings](https://kuuratsanik.github.io/second-brain-os/#course-4-harness/the-four-rings)
+and [Harness practice](https://kuuratsanik.github.io/second-brain-os/#course-4-harness/harness-practice).
 Build from the outside in: containment, guides, sensors, permissions. The
 order matters because each ring must hold when every ring inside it fails —
 a guide can be ignored, a sensor can miss, an approval can be misclicked;

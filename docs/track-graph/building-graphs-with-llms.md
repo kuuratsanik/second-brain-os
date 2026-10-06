@@ -4,7 +4,7 @@ Extraction is the whole game. A graph store will faithfully persist whatever you
 
 ## Schema before extraction
 
-Unconstrained extraction produces a junk drawer: `WORKS_AT`, `WORKS_FOR`, `EMPLOYED_BY` as three different edges for one fact. Decide the ontology first, even a small one — five entity types and ten relation types cover most personal and agent corpora. Every serious tool lets you pass this as a constraint: LangChain's [LLMGraphTransformer](https://reference.langchain.com/python/langchain-neo4j/graph_transformers/llm/LLMGraphTransformer) takes `allowed_nodes` and `allowed_relationships`; LlamaIndex's [property graph index](https://developers.llamaindex.ai/python/framework/module_guides/indexing/lpg_index_guide/) has a `SchemaLLMPathExtractor` that enforces types at extraction time.
+Unconstrained extraction produces a junk drawer: `WORKS_AT`, `WORKS_FOR`, `EMPLOYED_BY` as three different edges for one fact. Decide the ontology first, even a small one — as a rule of thumb, around five entity types and ten relation types; this is experience, not a measured figure. Every serious tool lets you pass this as a constraint: LangChain's [LLMGraphTransformer](https://reference.langchain.com/python/langchain-neo4j/graph_transformers/llm/LLMGraphTransformer) takes `allowed_nodes` and `allowed_relationships`; LlamaIndex's [property graph index](https://developers.llamaindex.ai/python/framework/module_guides/indexing/lpg_index_guide/) has a `SchemaLLMPathExtractor` that enforces types at extraction time.
 
 Start narrower than feels right. Widening a schema later is cheap; collapsing a zoo of near-duplicate predicates is not.
 
@@ -14,7 +14,7 @@ The mechanics are stable across tools: chunk the source, prompt the model for ty
 
 ## Incremental updates
 
-The original [GraphRAG](graphrag.md) pipeline assumed batch re-indexing, which is unaffordable for a corpus that changes daily. The current generation is built incremental-first. [Graphiti](https://github.com/getzep/graphiti) is the strongest design here: each new episode is extracted, checked against the existing graph, and contradicting edges are not deleted but marked invalid with a timestamp — the graph keeps both "true until March" and "true since March". For agent memory, that temporal layer is the difference between a memory and a cache.
+The original [GraphRAG](graphrag.md) pipeline assumed batch re-indexing, which is unaffordable for a corpus that changes daily. The current generation is built incremental-first. [Graphiti](https://github.com/getzep/graphiti) is the clearest example: its README says facts have validity windows and that changed facts are invalidated, not deleted. Each new episode is extracted, checked against the existing graph, and contradicting edges are not deleted but marked invalid with a timestamp — the graph keeps both "true until March" and "true since March". For agent memory, that temporal layer is the difference between a memory and a cache.
 
 ## Dedup and entity resolution
 

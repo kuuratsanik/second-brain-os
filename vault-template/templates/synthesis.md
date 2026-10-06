@@ -1,6 +1,10 @@
 ---
 title:
 type: synthesis
+domain: []
+lang: en  # ISO 639-1 code
+sensitivity: normal
+maintained_by: agent
 created:
 updated:
 aliases: []

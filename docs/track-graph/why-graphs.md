@@ -16,11 +16,11 @@ Graphs handle both, because edges are joins you computed once at ingest, and the
 
 ## What graphs cannot do
 
-The honest counterweight. Graphs are only as good as the extraction that built them, and extraction is lossy, expensive and occasionally wrong. Vector search needs no schema, tolerates any input, and its failures are visible at query time rather than baked in at ingest. Fuzzy recall — "something about pricing, maybe a podcast" — is embedding territory, and a graph is useless for it.
+The honest counterweight. Graphs are only as good as the extraction that built them, and extraction is lossy, expensive and occasionally wrong. Vector search needs no schema, tolerates any input, and its failures are visible at query time rather than baked in at ingest. Fuzzy recall — "something about pricing, maybe a podcast" — is embedding territory, and a graph is useless for it. The benchmark behind [When to Use Graphs in RAG](https://github.com/GraphRAG-Bench/GraphRAG-Benchmark) (ICLR 2026) starts from the observation that GraphRAG frequently underperforms vanilla RAG on many real-world tasks, which is why its authors set out to map where graphs help.
 
 ## Hybrid is the default now
 
-By 2026 the argument is largely settled: production systems that need both fuzzy recall and structured hops run both. Vectors find the entry points; the graph expands from them. [LightRAG](https://github.com/HKUDS/LightRAG) and [Graphiti](https://github.com/getzep/graphiti) each ship this as the default architecture rather than an option, and agent memory systems like Zep treat the graph as the source of truth with embeddings as an index over it. The design question is no longer graph or vectors but where the graph lives and who writes it — see [graph stores](graph-stores.md).
+The current frameworks mostly run both. Vectors find the entry points; the graph expands from them. [LightRAG](https://github.com/HKUDS/LightRAG) describes a dual-layer architecture that manages a knowledge graph and vector embeddings together, and [Graphiti](https://github.com/getzep/graphiti), the open-source core of Zep's hosted platform, combines semantic embeddings, BM25 keyword search and graph traversal in one retrieval step. The design question is no longer graph or vectors but where the graph lives and who writes it — see [graph stores](graph-stores.md).
 
 ## When not to bother
 

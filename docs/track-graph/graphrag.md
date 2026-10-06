@@ -1,6 +1,6 @@
 # GraphRAG
 
-GraphRAG is retrieval-augmented generation where the index is a graph built from the corpus, not a pile of embedded chunks. The canonical version is Microsoft Research's 2024 paper [From Local to Global](https://arxiv.org/abs/2404.16130), which targeted the question vector RAG answers worst: queries about the corpus as a whole.
+GraphRAG is retrieval-augmented generation where the index is a graph built from the corpus, not a pile of embedded chunks. The canonical version is Microsoft Research's 2024 paper [From Local to Global](https://arxiv.org/abs/2404.16130). This page is the implementation view: stages, costs and tools. For why the idea exists and how it compares with a curated vault, read the guide's [GraphRAG and where it fits](../05-graphs/graphrag.md) first.
 
 ## The pattern
 
@@ -8,16 +8,16 @@ Four stages, all at indexing time:
 
 1. **Entity extraction.** An LLM reads every chunk and emits entities and relationships, usually as `(subject, predicate, object)` triples with descriptions.
 2. **Graph construction.** Triples are merged into a graph; duplicate entities are resolved.
-3. **Community detection.** A clustering algorithm (Leiden, in the original) finds densely connected neighbourhoods.
+3. **Community detection.** A clustering algorithm (hierarchical Leiden, in the [original implementation](https://github.com/microsoft/graphrag/blob/main/docs/index/default_dataflow.md)) finds densely connected neighbourhoods.
 4. **Community summaries.** An LLM writes a report for each community, hierarchically, so the corpus has summaries at several zoom levels.
 
 Local queries walk the graph from matched entities. Global queries map over community summaries and reduce to one answer — which is why "what are the main themes" finally works.
 
 ## Microsoft GraphRAG and its successors
 
-The [microsoft/graphrag](https://github.com/microsoft/graphrag) repository is now in maintenance mode: bug fixes and CVE patches, no new features. Treat it as the reference implementation to read, not the framework to adopt.
+The [microsoft/graphrag](https://github.com/microsoft/graphrag) README says the project is "largely in maintenance mode, and won't be accepting new PRs or implementing new features", with bug fixes and dependency updates, particularly for CVEs. Treat it as the reference implementation to read, not the framework to adopt.
 
-The interesting work moved to cheaper descendants. [LazyGraphRAG](https://www.microsoft.com/en-us/research/blog/lazygraphrag-setting-a-new-standard-for-quality-and-cost/) defers nearly all LLM work to query time — no upfront summarisation — at a claimed 0.1% of the original's indexing cost, though it shipped into Microsoft's Azure products rather than the open library. In open source, [LightRAG](https://github.com/HKUDS/LightRAG) (EMNLP 2025, still actively developed) keeps a dual graph-plus-vector index with incremental updates, and [fast-graphrag](https://github.com/circlemind-ai/fast-graphrag) swaps community summaries for PageRank traversal. Most new 2026 deployments pick one of these; the [tools](tools.md) page surveys the field.
+The interesting work moved to cheaper descendants. [LazyGraphRAG](https://www.microsoft.com/en-us/research/blog/lazygraphrag-setting-a-new-standard-for-quality-and-cost/) defers nearly all LLM work to query time — no upfront summarisation. Microsoft's post claims indexing costs "identical to vector RAG and 0.1% of the costs of full GraphRAG"; an editor's note dated 6 June 2025 says it was integrated into Microsoft Discovery and Azure Local (public preview), and the post does not say it is in the open-source library. In open source, [LightRAG](https://github.com/HKUDS/LightRAG) (EMNLP 2025, still actively developed) keeps a dual graph-plus-vector index with incremental updates, and [fast-graphrag](https://github.com/circlemind-ai/fast-graphrag) explores the graph with personalised PageRank, citing HippoRAG, instead of building community summaries; its last PyPI release is 0.0.5 from April 2025, so check its maintenance before adopting. The [tools](tools.md) page surveys the field.
 
 ## Costs and trade-offs
 
@@ -27,4 +27,4 @@ The quieter trade-off is fidelity. Extraction flattens nuance into triples; a he
 
 ## When it earns its keep
 
-Large, uncurated corpora with genuine multi-hop and thematic questions — see [why graphs](why-graphs.md) for the threshold test. For a curated personal vault, you have already done the extraction by hand; what remains useful is the pipeline's shape, covered in [building graphs with LLMs](building-graphs-with-llms.md).
+Large, uncurated corpora with genuine multi-hop and thematic questions — see [why graphs](why-graphs.md) for the threshold test. For a curated personal vault, you have already done the extraction by hand; the guide's [what your vault already has](../05-graphs/graphrag.md#what-your-vault-already-has) maps each stage onto it. What remains useful is the pipeline's shape, covered in [building graphs with LLMs](building-graphs-with-llms.md).

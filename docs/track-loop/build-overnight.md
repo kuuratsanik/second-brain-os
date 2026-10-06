@@ -14,6 +14,7 @@ import json
 import pathlib
 import re
 import subprocess
+import sys
 
 TASK = ("Open TODO.md. Implement the top unchecked item, add tests for it, "
         "and tick the item off. Do not delete, skip or weaken any existing test.")
@@ -35,6 +36,9 @@ def score():
 
 
 def main():
+    # refuse to run over uncommitted work; the loop's own files are exempt
+    if sh("git status --porcelain -- ':!ratchet.json' ':!MORNING-REPORT.md'").stdout.strip():
+        sys.exit("working tree not clean")
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M")
     sh(f"git checkout -b overnight/{stamp}")  # rail 1: own branch, never pushed
     best = score()
@@ -73,8 +77,10 @@ Run `python overnight.py` before bed; read `MORNING-REPORT.md` with coffee.
 
 ## The rails, spelled out
 
-**Branch, commit, never push.** Every improvement is committed on `overnight/<stamp>`, so the morning decision is a normal code review of a normal branch. The script contains no push and the agent has no git permissions at all — its `--allowedTools` covers reading, editing and pytest, nothing else. `--permission-prompts none` tells the harness nobody is available: anything that would prompt is denied rather than left hanging until dawn.
+**Branch, commit, never push.** Every improvement is committed on `overnight/<stamp>`, so the morning decision is a normal code review of a normal branch. The script contains no push and the agent has no git permissions at all — its `--allowedTools` covers reading, editing and pytest, nothing else. `--permission-prompts none` tells the harness nobody is available: anything that would prompt is denied rather than left hanging until dawn. The flag needs Claude Code v2.1.259 or later; earlier versions reject it ([headless docs](https://code.claude.com/docs/en/headless)).
 
 **Reset on regression.** When the score fails to improve, `git reset --hard` discards the attempt before stopping. Combined with the ratchet, the invariant is strong: the branch only ever contains states measurably better than the last, which is what lets you trust the report without rereading every diff.
+
+**Scope of the git commands.** `git add -A` and `git reset --hard` are safe here only because this runs in a code repository on its own `overnight/<stamp>` branch with a clean working tree. `git reset --hard` also discards uncommitted edits to tracked files, which is why the script refuses to start on a dirty tree. It leaves untracked files behind, so a file the agent created and never added stays in the working directory. Do not copy these two lines into a vault. The guide's rules there are narrower: stage only the paths the run wrote, revert a run by reverting its commit, and retire pages by archiving them instead of deleting. See [guardrails](../06-agents/safety-and-guardrails.md) and [versioning with git](../09-maintenance/versioning-with-git.md).
 
 **The report is the mailbox.** Unattended loops make unattended mistakes; the report is where they surface, per iteration, with the brake that fired. Between iterations, only `TODO.md` and the ratchet file persist — deliberately, per [context hygiene](context-hygiene.md). Each session wakes up cold, reads the todo, and does one bounded thing.

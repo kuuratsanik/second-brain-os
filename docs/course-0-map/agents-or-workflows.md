@@ -14,9 +14,9 @@ Loops belong where the steps are unknowable in advance. Research, where the next
 
 ## The cost reality
 
-The multiplier is not folklore; Anthropic published it against their own traffic. In [How we built our multi-agent research system](https://www.anthropic.com/engineering/built-multi-agent-research-system) they report that agents typically use about 4x the tokens of a chat interaction, and multi-agent systems about 15x — and that multi-agent architectures only make economic sense where the task's value covers the bill. The same post concedes that domains needing shared context or tight coupling between agents, most coding among them, are a poor fit for multi-agent today.
+The multiplier is not folklore; Anthropic published it against their own traffic. In [How we built our multi-agent research system](https://www.anthropic.com/engineering/built-multi-agent-research-system) they report that agents typically use about 4x the tokens of a chat interaction, and multi-agent systems about 15x — and that multi-agent architectures only make economic sense where the task's value covers the bill. The same post concedes that domains where all agents must share the same context, or that have many dependencies between agents, are not a good fit for multi-agent systems today, and notes that most coding tasks have fewer parallelisable pieces than research.
 
-So the ladder runs: one model call, then a workflow, then a single agent, then multiple agents — and every rung must justify the climb to the next. Most systems should stop early. The question the whitepaper never quite asks out loud, this course asks first.
+So the ladder runs: one model call, then a workflow, then a single agent, then multiple agents — and every rung must justify the climb to the next. Most systems should stop early. This course asks that question first.
 
 ## How to take this course
 

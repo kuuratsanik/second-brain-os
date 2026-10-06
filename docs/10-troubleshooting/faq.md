@@ -9,8 +9,10 @@ Obsidian](../02-setup/mcp-obsidian.md).
 
 **Does this work with agents other than Claude Code?**
 
-Yes. The vault is markdown and the skills are `SKILL.md` files, a format several
-agents read. Anything that can read and write files in a folder can maintain the
+Yes. The vault is markdown and the skills are `SKILL.md` files, which the
+[Agent Skills repository](https://github.com/agentskills/agentskills) describes as
+an open format originally developed by Anthropic and adopted by a growing number
+of agent products. Anything that can read and write files in a folder can maintain the
 vault; the instructions in `CLAUDE.md` may need renaming for other tools.
 
 **How much does it cost to run?**
@@ -31,12 +33,14 @@ material and a frontier model for everything else.
 
 No. The vault is a folder of markdown files. Obsidian is a good viewer for the
 graph and has the Web Clipper, which is the strongest practical reason to use it.
-Logseq, Foam, or a plain editor all work.
+[Logseq](https://github.com/logseq/logseq), [Foam](https://github.com/foambubble/foam)
+or a plain editor all work with markdown files.
 
 **What if I already have a Notion or Evernote full of notes?**
 
 Use the official [Importer](https://github.com/obsidianmd/obsidian-importer)
-plugin, which handles Notion, Evernote, Roam, Bear and Apple Notes. Then treat
+plugin, which handles Notion, Evernote, Roam, Bear, Apple Notes and others (see its
+README for the full list). Then treat
 the result as raw material: backfill oldest first. Expect the
 export to be messy. Fix extraction before ingesting rather than hoping the agent
 copes.

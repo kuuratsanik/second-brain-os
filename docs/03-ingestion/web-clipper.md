@@ -6,11 +6,14 @@ decision to save happens. Anything that requires switching windows loses.
 ## Obsidian Web Clipper
 
 The [official extension](https://obsidian.md/clipper) from the Obsidian team.
-Chrome, Firefox, Safari, Edge, Brave and Arc. It extracts the readable content
-of a page using Mozilla Readability, the same engine behind Firefox Reader View,
-and saves it as markdown straight into your vault.
+Per Obsidian's [Web Clipper
+help](https://help.obsidian.md/web-clipper), it is available for Chrome, Brave,
+Arc, Orion and other Chromium-based browsers, for Firefox, for Safari and for
+Edge. It uses [Defuddle](https://github.com/kepano/defuddle) to capture only the
+main content of a page and saves it as markdown straight into your vault.
 
-Install it, open the settings, and set the destination folder to `raw/`.
+Install it, open the settings, and set the destination folder to `raw/clippings/`, which is where the
+[vault template](../../vault-template/raw/README.md) expects web articles.
 
 ## Template
 
@@ -30,6 +33,8 @@ type: article
 {{content}}
 ```
 
+These are Web Clipper's
+[preset variables](https://help.obsidian.md/web-clipper/variables).
 `{{author}}` and `{{published}}` come back empty on plenty of sites. That is
 fine, an empty field is better than a guessed one, and the agent handles the
 gap by saying the source is undated rather than inventing a date.
@@ -55,8 +60,10 @@ source later. If you cannot, do not clip it.
 - **Documentation sites.** Clipping page by page is a losing game. Save the
   entry point and let the agent fetch the rest, or clone the docs repo into
   `raw/` if it is open source.
-- **Single-page apps and dynamic content.** Readability sometimes returns a
-  fragment. Look at the file before ingest.
+- **Single-page apps and dynamic content.** The main-content extraction sometimes
+  returns a fragment (Obsidian's
+  [troubleshooting page](https://help.obsidian.md/web-clipper/troubleshoot) says
+  it can be overly conservative and describes how to bypass it). Look at the file before ingest.
 - **Threads and comment sections.** The value is usually in the replies, which
   the clipper drops. Copy the thread manually or screenshot it into
   `raw/assets/`.

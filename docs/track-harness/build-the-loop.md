@@ -2,7 +2,7 @@
 
 The [anatomy page](what-a-harness-is.md) claims the core of every harness is a while-loop. This page proves it. In roughly seventy lines of Python you get an agent that reads files and runs commands against the live Claude API; the [next part](build-guardrails.md) adds the machinery that makes it a harness. Budget an evening for all three pages, about 150 lines total.
 
-You need Python 3.10+, `pip install anthropic` (the 1.x SDK), and `ANTHROPIC_API_KEY` set in your environment.
+You need Python 3.10+, `pip install anthropic` (the 1.x SDK; [PyPI](https://pypi.org/project/anthropic/) lists 1.11.0 as the latest release as of 5 October 2026 and `>=3.10` as its Python floor), and `ANTHROPIC_API_KEY` set in your environment. `claude-opus-5-5` is the Claude Opus 5.5 API ID from the [models overview](https://platform.claude.com/docs/en/about-claude/models/overview); swap in `claude-sonnet-5-5` for a cheaper run.
 
 ## Two tools
 
@@ -17,7 +17,7 @@ import sys
 
 import anthropic
 
-MODEL = "claude-opus-5"
+MODEL = "claude-opus-5-5"
 SYSTEM = "You are a coding agent working in the current directory. Investigate before you conclude."
 
 TOOLS = [
@@ -93,7 +93,7 @@ if __name__ == "__main__":
 
 ## What each part is doing
 
-The API signals its intent through `stop_reason`. While it says `tool_use`, the response contains `tool_use` blocks — each with an `id`, a `name` and a parsed `input` dict. You append the assistant's entire `response.content` back unchanged (current models include thinking blocks that must travel with it), execute every tool call, and return all results as `tool_result` blocks in a single user message, matched by `tool_use_id`. Failures go back too, flagged with `is_error` — a good error message lets the model recover in one turn instead of guessing.
+The API signals its intent through `stop_reason`. While it says `tool_use`, the response contains `tool_use` blocks — each with an `id`, a `name` and a parsed `input` dict. You append the assistant's entire `response.content` back unchanged (current models may include thinking blocks, which Anthropic's [thinking docs](https://platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost) say to pass back unmodified, particularly during tool use), execute every tool call, and return all results as `tool_result` blocks in a single user message, matched by `tool_use_id`. Failures go back too, flagged with `is_error` — a good error message lets the model recover in one turn instead of guessing.
 
 Save it as `agent.py`, run `python agent.py "find the TODO comments in this repo and summarise them"`, and watch the loop go round. Thorsten Ball's tutorial in [resources](resources.md) does the same in Go; seeing it in your own terminal is the point.
 

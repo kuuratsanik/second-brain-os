@@ -4,7 +4,7 @@ You have `golden.jsonl` from [read your traces](build-traces.md). This page turn
 
 ## The script
 
-Save as `eval_suite.py`. Needs `pip install anthropic` and `ANTHROPIC_API_KEY` set. The judge is a different model to the target, deliberately.
+Save as `eval_suite.py`. Needs `pip install anthropic` and `ANTHROPIC_API_KEY` set. The judge is a different model to the target, deliberately. The IDs are the Claude Opus 5.5 and Sonnet 5.5 API IDs from the [models overview](https://platform.claude.com/docs/en/about-claude/models/overview). `max_tokens` includes any thinking the model does ([steering thinking](https://platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost)), so the judge's cap is set well above the length of its one-line verdict.
 
 ```python
 import argparse
@@ -16,8 +16,8 @@ import anthropic
 
 client = anthropic.Anthropic()
 
-TARGET_MODEL = "claude-opus-5"
-JUDGE_MODEL = "claude-sonnet-5"
+TARGET_MODEL = "claude-opus-5-5"
+JUDGE_MODEL = "claude-sonnet-5-5"
 
 SYSTEM_PROMPT = (
     "You are the support assistant for Acme Invoicing. Answer only from the "
@@ -63,7 +63,7 @@ def grade_code(output: str, checks: dict) -> tuple[bool, str]:
 def grade_judge(output: str, expectation: str) -> tuple[bool, str]:
     response = client.messages.create(
         model=JUDGE_MODEL,
-        max_tokens=1024,
+        max_tokens=4096,
         messages=[{
             "role": "user",
             "content": JUDGE_PROMPT.format(expectation=expectation, output=output),

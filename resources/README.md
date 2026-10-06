@@ -25,4 +25,4 @@ stars measure attention, and the two diverge sharply in this ecosystem.
 **Skills are counted individually.** A repo shipping sixteen skills counts as
 sixteen, because that is what you actually get.
 
-Anything I could not verify is named without a link rather than guessed at.
+Anything that could not be verified is named without a link rather than guessed at.

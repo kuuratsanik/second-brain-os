@@ -11,9 +11,8 @@ description: >-
 
 # Merge duplicate pages
 
-A merge is irreversible in the way that matters: afterwards you cannot tell
-which claim came from which page. Two ideas that look identical from their
-summaries are often a general case and a specific one.
+After a merge you cannot tell which claim came from which page, and two pages
+that look identical are often a general case and a specific one.
 
 ## Core rule
 
@@ -28,9 +27,15 @@ exactly.
 3. **Merge aliases,** including the dead page's title as an alias on the
    survivor. This is what keeps old links and the user's memory working.
 4. **Redirect inbound links** to the survivor. Check every backlink.
-5. **Delete the old page,** or leave a stub only if it was linked from outside
+5. **Archive the old page:** move it with `git mv` (not plain `mv`) to `archive/`, keeping its path
+   below it, after `mkdir -p` on the destination folder and naming the file
+   exactly, with `merged_into: [[survivor]]` in its frontmatter. Delete it only if the vault's
+   CLAUDE.md allows deletion; leave a stub only if it was linked from outside
    the vault.
 6. **Record in `log.md`:** both names, the date, and why.
+7. **Commit the run** by path, following `second-brain-commit`, with the subject
+   `run-YYYY-MM-DD-merge`: the old page's old and new path, the survivor, every
+   page whose links changed, and `log.md`.
 
 ## Output format
 

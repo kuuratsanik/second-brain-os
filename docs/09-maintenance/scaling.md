@@ -7,8 +7,10 @@ which is where personal vaults live for years. Past that, some things strain.
 
 **Not search.** Ripgrep over ten thousand markdown files is still instant.
 
-**Not Obsidian,** although the global graph view stops being usable somewhere
-around a thousand nodes.
+**Not Obsidian,** although the global graph view is hard to read long before
+that: [reading the graph view](../05-graphs/obsidian-graph-view.md) puts the
+hairball at about two hundred pages, and the local graph is the view that keeps
+working.
 
 **Retrieval economy.** The index gets long enough that reading it costs real
 context, which is the first genuine constraint.
@@ -51,8 +53,10 @@ brought back if it turns out to matter again.
 ## Pruning what never mattered
 
 Concept pages with one source and no inbound links after a year were never
-concepts, they were paragraphs. Deleting them improves everything else by
-reducing what queries have to read past.
+concepts, they were paragraphs. Archiving them improves everything else by
+reducing what queries have to read past, and they stay on disk if you were
+wrong. The vault template moves them to `archive/` and takes them out of the
+index; it never hard-deletes.
 
 Run this once a year, not continuously.
 

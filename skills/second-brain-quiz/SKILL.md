@@ -11,8 +11,8 @@ description: >-
 
 # Quiz from your own pages
 
-Reading something is not learning it. A vault of well-written pages nobody
-revisits is a library, and libraries do not make anyone knowledgeable.
+A vault of pages nobody revisits is a library. Testing is how saved becomes
+learned.
 
 ## Core rule
 

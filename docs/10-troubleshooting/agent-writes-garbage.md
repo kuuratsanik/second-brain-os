@@ -51,7 +51,9 @@ pulled it toward summarising.
 Fix the contract, revert the bad pages, re-ingest.
 
 ```bash
-git checkout HEAD~1 -- wiki/
+git revert <run commit>              # the bad run only
+# or restore the paths that run listed, nothing else:
+git checkout HEAD~1 -- wiki/concepts/page-a.md wiki/sources/page-b.md
 ```
 
 Do not patch the bad pages by hand. If the contract was wrong, every page from

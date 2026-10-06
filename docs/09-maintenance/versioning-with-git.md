@@ -8,9 +8,12 @@ mystery; with it, every change is a diff you can read and revert in one command.
 One commit per run, with the run named:
 
 ```
-ingest 2026-09-07: 4 sources, 9 pages
-lint 2026-09-07: 3 broken links, 1 merge
+run-2026-09-07-ingest: 4 sources, 9 pages
+run-2026-09-07-lint: 3 broken links, 1 merge
 ```
+
+The vault template starts the message with a run id in this form, as in
+[guardrails](../06-agents/safety-and-guardrails.md#git-is-the-real-safety-net).
 
 Not one commit per file, which buries the history, and not one commit per week,
 which makes reverting a single bad run impossible without losing the good ones.
@@ -32,13 +35,16 @@ which is usually informative.
 ## Reverting
 
 ```bash
-git revert HEAD          # undo one run, keep the history
-git checkout .           # discard uncommitted work
+git revert <run commit>  # undo one run, keep the history
 git checkout HEAD~3 -- wiki/concepts/some-page.md   # one page back
 ```
 
-The middle one is the reason to commit before any large operation. A backfill
-that went wrong halfway costs you the run rather than the vault.
+Scope every restore to paths. `git checkout .` and `git reset --hard` throw away
+your own uncommitted edits along with the agent's, which is why the vault
+template has the agent commit by path, once per run, and why `/rollback` reverts
+that run's own commit and nothing else. Committing before any large operation is
+what makes this work: a backfill that went wrong halfway costs you the run
+rather than the vault.
 
 ## Branches
 

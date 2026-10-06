@@ -4,20 +4,20 @@ description: >-
   Turn raw source material in a second-brain vault into linked wiki pages:
   read the source, split it into concepts and entities, write or update pages,
   connect them to existing pages, and record the run in the log. Use this skill
-  whenever the user drops a file into raw/, pastes an article, transcript or
-  PDF and asks to add it to the vault, says "ingest this", "add this to my
-  second brain", "process raw", or asks to catch up on unprocessed sources,
+  whenever the user drops a file into raw/, pastes an article, PDF or cleaned
+  transcript and asks to add it to the vault, says "ingest this", "add this to
+  my second brain", "process raw", or asks to catch up on unprocessed sources,
   even if they do not name the ingest command. Do NOT use for answering
-  questions from an existing vault, for linting or repairing pages, or for
-  editing notes the user wrote by hand.
+  questions from an existing vault, for linting or repairing pages, for
+  cleaning a raw transcript first (second-brain-transcript), or for editing
+  notes the user wrote by hand.
 ---
 
 # Ingest a source
 
-An ingest that only writes a summary page produces a vault that grows without
-getting smarter. The whole value is in the second half of the job: connecting
-the new material to what is already there. A page that lands unlinked is
-invisible within a week.
+A summary page alone makes a vault grow without getting smarter. The value is
+in connecting new material to what exists; an unlinked page is invisible
+within a week.
 
 ## Core rule
 
@@ -43,7 +43,9 @@ connected to existing pages in both directions.
    or list them under Gaps in `index.md`.
 6. **Update `index.md` and append to `log.md`** in the same run, because an
    index that lags is how a vault starts drifting.
-7. **Report** what changed.
+7. **Commit the run** by path, following `second-brain-commit`, with the
+   subject `run-YYYY-MM-DD-ingest`.
+8. **Report** what changed.
 
 ## Output format
 

@@ -64,7 +64,7 @@ Most links are plain mentions and should stay plain. Typing every link makes the
 vocabulary meaningless and makes ingestion slower and more error-prone.
 
 Type the links where the relationship is the point: evidence, disagreement,
-extension. Roughly one in five links, in practice.
+extension. As a starting point, aim for about one link in five and adjust.
 
 ## The instruction
 

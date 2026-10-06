@@ -16,7 +16,7 @@ Watch an agent process an inbox and count the decisions. Is this spam. Is this a
 A gate asks one narrow question per item and routes on the answer. The shape is always the same: everything comes in; each item gets a bounded question — one of these labels, yes or no, a score; items the gate answers confidently and routinely are handled by cheap deterministic code; anything the gate is unsure about goes through to the main model. Unsure means escalate. The gate is never the only path, only the fast one.
 
 
-![](fig-gate.svg)
+![Diagram of a gate in front of an expensive model. Every request reaches the gate. Confident cases are answered cheaply, in milliseconds and fractions of a cent. Unsure ones go on to the expensive model, which takes seconds and real money.](fig-gate.svg)
 
 ## The taxonomy of gates
 
@@ -25,7 +25,7 @@ Four tools, in rising order of cost and fallibility:
 - **Rules.** Regular expressions, sender allowlists, "has an unsubscribe link". Free, instant, and blind to anything you did not anticipate. Always the first layer, never the last.
 - **A classic classifier.** Logistic regression or similar over TF-IDF features, trained on a few hundred of your own labelled examples. Runs in microseconds on your own machine, costs nothing per call, and its mistakes are inspectable.
 - **A small LLM.** A Haiku-class model prompted to answer with one word. No training data needed and it copes with novelty, but it is the slowest and dearest of the cheap options, and you must parse text to get your answer.
-- **A System One model.** Jev, released by TypeSafe AI in September 2026, is the first of these: typed decisions — yes/no, one of up to 255 options, or a scalar on an ordered scale — each with a confidence score, and no text generation at all. Background in [system one models](../track-jev/system-one-models.md).
+- **A System One model.** Jev, released in waitlisted early access by TypeSafe AI in September 2026 (see [getting started](../track-jev/getting-started.md)), is the first of these: typed decisions — yes/no, one of up to 255 options, or a scalar on an ordered scale — each with a confidence score, and no text generation at all. Background in [system one models](../track-jev/system-one-models.md).
 
 ## Where gates belong
 

@@ -26,7 +26,7 @@ If the agent needs to install packages or hit APIs, run it in a container with a
 
 ## Step two: write the guides
 
-One AGENTS.md at the repo root, short enough to be read every session:
+One AGENTS.md at the repo root, short enough to be read every session. Claude Code's [memory docs](https://code.claude.com/docs/en/memory#agents-md) say it reads `AGENTS.md` only when there is no `CLAUDE.md` in the working directory or above it; if you already have a `CLAUDE.md`, add the line `@AGENTS.md` to it to import the file.
 
 ```markdown
 - App code in src/, tests in tests/, run everything from the repo root.
@@ -39,7 +39,7 @@ Every line states a rule the agent can act on. No philosophy, no history.
 
 ## Step three: wire the sensors
 
-Make the deterministic checks one command, then have the harness run it after every change rather than hoping the model remembers:
+Make the deterministic checks one command, then have the harness run it after every change rather than hoping the model remembers. In Claude Code a [PostToolUse hook](https://code.claude.com/docs/en/hooks) shows its stderr to the model only when it exits with code 2; a hook that fails with any other code shows the user a one-line error, and its stdout is not shown to the model. So the command below sends the output to stderr and exits 2 on failure:
 
 ```make
 check:
@@ -55,7 +55,7 @@ check:
       {
         "matcher": "Edit|Write",
         "hooks": [
-          { "type": "command", "command": "make check" }
+          { "type": "command", "command": "make check >&2 || exit 2" }
         ]
       }
     ]
@@ -63,11 +63,11 @@ check:
 }
 ```
 
-Failures land in the transcript immediately, while the mistake is one edit old.
+A failing check now reaches the model immediately, while the mistake is one edit old.
 
 ## Step four: strip the permissions
 
-Least privilege, then approvals only for the irreversible:
+Least privilege, then approvals only for the irreversible. Claude Code evaluates [permission rules](https://code.claude.com/docs/en/permissions) in the order deny, ask, allow, and the first match wins, so a broad deny cannot be overridden by a narrower allow:
 
 ```json
 {
@@ -107,7 +107,7 @@ One hook, well chosen, beats ten that fire constantly.
 
 ## The quarterly review
 
-Every harness piece is a bet that the model cannot do something, and the bets expire — Anthropic deleted a whole scaffolding component (context resets for premature wrap-ups) after one model upgrade made it dead weight. So put a recurring entry in the calendar. For each hook, guide line and denied permission, write the sentence "this exists because the model cannot X", then test X against the current model. Delete what no longer earns its keep; a harness that only grows is compensating for a model that no longer exists.
+Every harness piece is a bet that the model cannot do something, and the bets expire — Anthropic deleted a whole scaffolding component (context resets for premature wrap-ups) after [Opus 4.5 largely removed the behaviour it compensated for](https://www.anthropic.com/engineering/harness-design-long-running-apps). So put a recurring entry in the calendar. For each hook, guide line and denied permission, write the sentence "this exists because the model cannot X", then test X against the current model. Delete what no longer earns its keep; a harness that only grows is compensating for a model that no longer exists.
 
 ## Tips
 

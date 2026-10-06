@@ -3,7 +3,7 @@
 The previous modules built an agent that plans, calls tools, and edits your vault. This one is about knowing whether it works — before your users tell you. Everything in agent evaluation rests on one distinction: checks on the outcome versus checks on the behaviour. You need both, and they answer different questions.
 
 
-![](fig-two-checks.svg)
+![Diagram of one agent run with four steps: get_order, ask_approval, refund and reply. Behavioural checks read the steps: it looked up first and asked before acting. The end-to-end check reads only the result: the right outcome.](fig-two-checks.svg)
 
 ## End-to-end checks
 
@@ -19,7 +19,7 @@ The payoff is diagnosis. Two agents that produce the same refund email are not t
 
 ## The trace is the substrate
 
-Behavioural checks run on the trace: the full record of model turns, tool calls with their arguments, tool results, and retries. No trace, no behavioural checks — which is why the whitepaper argues agents should be instrumented for evaluation from the first line of code, with logs, traces, and metrics as the three pillars of observability. If your agent is a Claude Code setup, the transcript already is the trace; log it. What to assert over it — tool choice, argument extraction, ordering constraints, error handling — is covered in depth in [agent evals](../track-evals/agent-evals.md).
+Behavioural checks run on the trace: the full record of model turns, tool calls with their arguments, tool results, and retries. No trace, no behavioural checks — which is why the whitepaper argues agents should be instrumented for evaluation from the first line of code, with logs, traces, and metrics as the three pillars of observability. If your agent is a Claude Code setup, the transcript already is the trace: Claude Code [writes every session](https://code.claude.com/docs/en/agent-sdk/sessions), tool calls and results included, to a JSONL file under `~/.claude/projects/`, so keep it. What to assert over it — tool choice, argument extraction, ordering constraints, error handling — is covered in depth in [agent evals](../track-evals/agent-evals.md).
 
 ## The speed budget
 

@@ -41,7 +41,8 @@ When you approve one:
    survivor.
 4. **Redirect inbound links** to the survivor.
 5. **Leave a stub** at the old path only if it was linked from outside the
-   vault. Otherwise delete it.
+   vault. Otherwise archive it: move it to `archive/` with `merged_into` set to
+   the survivor, rather than deleting it. The vault template does this.
 6. **Record it in `log.md`** with both names, so a page that vanishes is
    traceable.
 
@@ -54,7 +55,7 @@ Merging during an ingest run means the agent is restructuring the vault while
 adding to it, and a bad merge lands in the middle of otherwise good work.
 
 Run dedupe as its own pass, weekly or after a large import, on a clean git
-state. Then a wrong merge is one `git checkout` away from undone.
+state. Then a wrong merge is one revert of its own commit away from undone.
 
 ## Next
 

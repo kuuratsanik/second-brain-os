@@ -10,9 +10,39 @@ cp commands/*.md ~/brain/.claude/commands/ && rm ~/brain/.claude/commands/README
 Leave this README out: anything in `.claude/commands/` becomes a slash command,
 and `/README` is not one you want.
 
+This is the copy install. The kit is also a plugin, where the same commands run as
+`/second-brain:<name>` (for example `/second-brain:ingest`) and nothing is copied
+into the vault: see [plugins](../plugins/README.md#second-brain). Use one method
+per vault.
+
+To update a vault that already has the kit, run `/install` rather than copying
+by hand. It compares your `.claude/skills/VERSION` with the checkout's, shows
+the [CHANGELOG](../CHANGELOG.md) entries since yours, and lists the copy
+commands. Copying over an old install leaves renamed commands behind (for
+example `/schedule`, now `/maintenance-schedule`), which `/install` points out.
+
 Commands are thin on purpose: each one points at a skill and sets its scope. The
 behaviour lives in the skill, so `/ingest-youtube` and a scheduled task and you
 asking in plain language all produce the same result.
+
+Except for the maintenance set, every command sets `disable-model-invocation:
+true`: it runs only when you type it, and the skills handle automatic
+triggering. This also keeps those descriptions out of every session's context.
+The maintenance set can be scheduled and run without you: `/ingest`, `/link`,
+`/lint`, `/review`, `/weekly`, `/monthly`, `/metrics`, `/health`, `/commit`,
+`/stale`, `/orphans`, `/prune`, `/archive`, `/dedupe`, `/backfill` and
+`/index`. A scheduled task can fire only these.
+
+Some commands overlap on purpose, and each says when to use its sibling:
+`/ask`, `/know` and `/trace` (a question, a topic, a question with its reading
+trail); `/contradictions` (the vault's open ones) and `/contradicts` (one claim
+of yours); `/timeline` (the sources over time) and `/changed-my-mind` (your own
+revisions); `/health`, `/graph`, `/metrics` and `/monthly` (a quick look, the
+full report, a recorded snapshot, the monthly review); `/orphans`, `/stale`,
+`/prune` and `/archive` (no inbound links, untouched, removal candidates, the
+move itself); `/ingest-youtube` (someone else's recording) and `/ingest-voice`
+(your own); `/review` (any period) and `/weekly`, which is `/review` with no
+argument.
 
 Most take an optional argument. With none, they default to the sensible whole:
 `/lint` audits everything, `/ingest` takes whatever is waiting in `raw/`.
@@ -23,11 +53,11 @@ Most take an optional argument. With none, they default to the sensible whole:
 |---|---|
 | `/ingest` | Ingest new material from raw/ into the wiki |
 | `/ingest-url` | Clip and ingest a web page |
-| `/ingest-youtube` | Ingest a video or podcast transcript |
+| `/ingest-youtube` | Ingest someone else's video or podcast |
 | `/ingest-pdf` | Ingest a PDF |
 | `/ingest-paper` | Ingest an academic paper |
 | `/ingest-chats` | Import an exported chat history |
-| `/ingest-voice` | Ingest a voice note |
+| `/ingest-voice` | Ingest your own voice note |
 | `/ingest-newsletter` | Ingest newsletters without duplicating |
 | `/ingest-highlights` | Ingest book or article highlights |
 | `/backfill` | Bulk import an archive in batches |
@@ -45,7 +75,7 @@ Most take an optional argument. With none, they default to the sensible whole:
 | `/schema` | Check frontmatter against the schema |
 | `/tags` | Audit the tag vocabulary |
 | `/aliases` | Find missing aliases |
-| `/contradictions` | List unresolved contradictions |
+| `/contradictions` | List every open contradiction |
 | `/index` | Rebuild the index |
 
 ### Graph
@@ -65,30 +95,30 @@ Most take an optional argument. With none, they default to the sensible whole:
 
 | Command | What it does |
 |---|---|
-| `/ask` | Ask a question answered only from the vault |
-| `/know` | What do I know about a topic |
+| `/ask` | Answer a specific question from the vault |
+| `/know` | Inventory what the vault holds on a topic |
 | `/connect` | Find the path between two ideas |
 | `/compare` | Compare two things from your own sources |
 | `/sources` | Show what a claim rests on |
 | `/gaps` | What is missing from my understanding |
-| `/contradicts` | Argue against me |
-| `/timeline` | How my sources developed over time |
-| `/trace` | Show which pages an answer used |
-| `/changed-my-mind` | What I have revised |
+| `/contradicts` | Argue against a claim of mine |
+| `/timeline` | How sources on a topic developed over time |
+| `/trace` | Answer a question and show the pages read |
+| `/changed-my-mind` | What I have revised in my own positions |
 
 ### Maintenance
 
 | Command | What it does |
 |---|---|
 | `/lint` | Audit structure and repair what is mechanical |
-| `/health` | Quick health check |
+| `/health` | Quick health check, no recording |
 | `/metrics` | Record a dated metrics snapshot |
-| `/review` | Periodic review of what the vault learned |
-| `/weekly` | The weekly review |
+| `/review` | Review what the vault learned over any period |
+| `/weekly` | The weekly review (`/review` with no argument) |
 | `/monthly` | The monthly structural review |
-| `/prune` | Find what is safe to remove |
-| `/archive` | Move cold material out of the wiki |
-| `/commit` | Commit the current state with a useful message |
+| `/prune` | Propose what is safe to remove; archives only if CLAUDE.md grants autonomy |
+| `/archive` | Propose cold material to move out of the wiki; moves only if CLAUDE.md grants autonomy |
+| `/commit` | Commit what this run wrote, by path |
 
 ### Outputs
 
@@ -121,7 +151,7 @@ Most take an optional argument. With none, they default to the sensible whole:
 | `/privacy` | Audit what should not be in the vault |
 | `/secrets` | Scan for credentials |
 | `/dry-run` | Preview a run without writing |
-| `/rollback` | Undo the last run |
+| `/rollback` | Undo one run, leaving your edits alone |
 | `/audit` | Audit what an agent did |
 
 ### Setup
@@ -130,14 +160,15 @@ Most take an optional argument. With none, they default to the sensible whole:
 |---|---|
 | `/init` | Scaffold a new vault |
 | `/claude-md` | Build or update your CLAUDE.md |
-| `/install` | Install the skills, commands and agents |
+| `/install` | Install the skills, commands and agents, or update an installed vault |
 | `/doctor` | Check the setup is working |
-| `/schedule` | Set up scheduled maintenance |
+| `/maintenance-schedule` | Propose scheduled maintenance |
 
 ## Why so many
 
-Nine of these do the real work and the rest are scoped entry points into the same
-skills. That is the point: you should not have to remember how to phrase a
+Twenty-four skills do the real work. Most commands are scoped entry points into
+them; a few, such as `/dry-run`, `/audit`, `/index` and `/scope`, carry short
+self-contained instructions instead. That is the point: you should not have to remember how to phrase a
 request for a thing you do every week.
 
 If a command you want is missing, it is usually one line pointing at an existing

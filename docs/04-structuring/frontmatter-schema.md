@@ -27,6 +27,56 @@ published: YYYY-MM-DD
 
 Entity pages add `kind: person | org | product | tool`.
 
+That is the minimum the method needs. The [vault
+template](../../vault-template/CLAUDE.md) makes a stricter choice, because it is
+built for several domains, mixed languages and an agent that works unattended:
+
+```yaml
+---
+title: Canonical name, in the page's own language
+type: source | entity | concept | synthesis | idea | experiment | review | system | hub
+domain: [work | learning | personal | creative | self-improvement | systems]
+lang: ISO 639-1 code, usually en or et
+sensitivity: normal | private | restricted
+maintained_by: human | agent
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+aliases: [other names, including the original spelling]
+tags: [two or three]
+---
+```
+
+The extra fields:
+
+- `domain` says which area of life or work the page belongs to, and which hub
+  links to it. A page can have more than one.
+- `lang` is the language the page is written in. Pages keep the language of their
+  source and are not translated.
+- `sensitivity` decides what may leave the vault. `private` is for health,
+  finance, relationships, journal-derived material and third parties'
+  information; `restricted` is for anything that would hurt someone if it
+  leaked. When unsure, use the higher level.
+- `maintained_by: human` marks pages whose wording the agent must not change. It
+  may add links and fix structure only. The default is `agent`.
+- `status` appears on idea, experiment and system pages and tracks where they
+  are in their lifecycle. Ideas use `new`, `considering`, `promoted` or
+  `dropped`; experiments `planned`, `active`, `reviewing`, `adopted` or
+  `dropped`; systems `draft`, `active` or `retired`. `scope` on a review page names the period
+  it covers (`experiment`, `week`, `month`, `quarter`, `year`).
+- `kind` on a source page is `article`, `video`, `meeting`, `email`, `chat`,
+  `doc`, `ai-chat`, `paper` or `other`. On an entity, `kind: person`.
+- `raw:` on a source page is the path of the raw file it came from, so a page can
+  be traced back and refreshed.
+- `archived`, `archived_reason`, `archived_from` and, for a merge, `merged_into`
+  are written when a page moves to `archive/`. See [safety and
+  guardrails](../06-agents/safety-and-guardrails.md).
+- `publish: true` is the explicit opt-in described in [publishing and
+  export](../08-outputs/publishing-and-export.md). Only the owner sets it, in a
+  live session.
+
+`wiki/index.md` and `wiki/log.md` are exempt from the schema. If you do not need
+several domains or languages, leave these fields out; the method still works.
+
 ## Why each field earns its place
 
 `type` drives every structural query and every lint check. Without it you cannot

@@ -3,7 +3,7 @@
 Every loop that survives production has the same four parts: a goal with a testable definition of done, a checker that lives outside the model, a stop rule, and a budget counted in both turns and dollars. Remove any one and you have not simplified the loop; you have removed its brakes. This page takes each part in depth, then annotates the canonical skeleton.
 
 
-![](fig-four-parts.svg)
+![Diagram of a loop with a goal and a definition of done. The agent acts and a checker tests the result: pass ends the loop, fail retries unless it is stuck or over budget, in which case it falls back to a workflow. The checker lives outside the model.](fig-four-parts.svg)
 
 ## A goal with a testable done
 
@@ -11,7 +11,7 @@ Every loop that survives production has the same four parts: a goal with a testa
 
 ## A checker outside the model
 
-The checker is a test suite, a compiler, a linter, a schema validator — anything mechanical that judges the result without asking the model's opinion. Self-review is not a checker. The evidence here is direct: Huang et al., "Large Language Models Cannot Self-Correct Reasoning Yet" (ICLR 2024), found that models struggle to correct their own reasoning without external feedback, and that performance sometimes gets worse after self-correction. A model grading its own work is the same weights making the same mistake twice, now with more confidence. External checkers are therefore non-negotiable: the feedback that makes a loop converge has to come from outside the thing that produced the error. This is why coding is the best-behaved loop domain — the compiler and the test runner are free, fast, external checkers that come with the territory.
+The checker is a test suite, a compiler, a linter, a schema validator — anything mechanical that judges the result without asking the model's opinion. Self-review is not a checker. The evidence here is direct: Huang et al., ["Large Language Models Cannot Self-Correct Reasoning Yet"](https://arxiv.org/abs/2310.01798) (ICLR 2024), found that models struggle to correct their own reasoning without external feedback, and that performance sometimes gets worse after self-correction. A model grading its own work is the same weights making the same mistake twice, now with more confidence. External checkers are therefore non-negotiable: the feedback that makes a loop converge has to come from outside the thing that produced the error. This is why coding is the best-behaved loop domain — the compiler and the test runner are free, fast, external checkers that come with the territory.
 
 ## A stop rule
 

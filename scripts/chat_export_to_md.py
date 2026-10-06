@@ -16,6 +16,7 @@ import json
 import os
 import re
 import sys
+from datetime import datetime, timezone
 
 
 def slug(text, limit=60):
@@ -37,8 +38,60 @@ def text_of(message):
                 parts.append(c.get("text", ""))
         return "\n".join(p for p in parts if p)
     if isinstance(content, dict):
-        return "\n".join(content.get("parts", []) or [])
+        return "\n".join(p for p in (content.get("parts") or []) if isinstance(p, str))
     return ""
+
+
+def date_of(value):
+    """YYYY-MM-DD from an ISO string or a Unix timestamp, else an empty string."""
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        try:
+            return datetime.fromtimestamp(value, timezone.utc).strftime("%Y-%m-%d")
+        except (OverflowError, OSError, ValueError):
+            return ""
+    return str(value or "")[:10]
+
+
+def mapping_messages(mapping, current=None):
+    """ChatGPT's conversations.json keeps messages in a `mapping` of nodes, each
+    with `parent` and `children`. Walk the tree rather than trusting timestamps,
+    which can be null. With `current_node` we follow the branch the user last saw;
+    otherwise every branch is walked from the root, depth first."""
+    order = []
+    if current in mapping:
+        node = current
+        while isinstance(node, str) and node in mapping and node not in order:
+            order.append(node)
+            n = mapping[node]
+            node = n.get("parent") if isinstance(n, dict) else None
+        order.reverse()
+    else:
+        seen = set()
+        stack = [k for k, n in reversed(list(mapping.items()))
+                 if isinstance(n, dict) and not (isinstance(n.get("parent"), str)
+                                                 and n.get("parent") in mapping)]
+        while stack:
+            k = stack.pop()
+            if not isinstance(k, str) or k in seen or k not in mapping:
+                continue
+            seen.add(k)
+            order.append(k)
+            n = mapping[k]
+            kids = (n.get("children") if isinstance(n, dict) else None) or []
+            stack.extend(reversed(kids if isinstance(kids, list) else []))
+        order += [k for k in mapping if k not in seen]  # detached nodes, file order
+    out = []
+    for k in order:
+        node = mapping.get(k)
+        m = node.get("message") if isinstance(node, dict) else None
+        if not isinstance(m, dict):
+            continue
+        author = m.get("author")
+        role = author.get("role") if isinstance(author, dict) else None
+        if role == "system":
+            continue
+        out.append({"role": role or "unknown", "content": m.get("content", "")})
+    return out
 
 
 def main():
@@ -49,7 +102,7 @@ def main():
                     help="skip conversations shorter than this")
     args = ap.parse_args()
 
-    with open(args.export, encoding="utf-8") as fh:
+    with open(args.export, encoding="utf-8-sig") as fh:
         data = json.load(fh)
 
     if isinstance(data, dict):
@@ -64,8 +117,10 @@ def main():
         if not isinstance(conv, dict):
             continue
         title = conv.get("name") or conv.get("title") or "untitled"
-        created = (conv.get("created_at") or conv.get("create_time") or "")
+        created = date_of(conv.get("created_at") or conv.get("create_time"))
         messages = conv.get("chat_messages") or conv.get("messages") or []
+        if not messages and isinstance(conv.get("mapping"), dict):
+            messages = mapping_messages(conv["mapping"], conv.get("current_node"))
         if isinstance(messages, dict):
             messages = list(messages.values())
 
@@ -83,8 +138,9 @@ def main():
             skipped += 1
             continue
 
-        front = (f"---\ntitle: {title}\nsource: chat export\n"
-                 f"created: {str(created)[:10]}\n---\n\n# {title}\n\n")
+        quoted = json.dumps(str(title), ensure_ascii=False)  # a colon in a title must not break the YAML
+        front = (f"---\ntitle: {quoted}\nsource: chat export\n"
+                 f"created: {created}\n---\n\n# {title}\n\n")
         path = os.path.join(args.outdir, f"{slug(str(title))}.md")
         n = 2
         while os.path.exists(path):

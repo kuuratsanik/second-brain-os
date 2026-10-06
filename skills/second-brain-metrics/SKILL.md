@@ -10,8 +10,7 @@ description: >-
 
 # Record metrics
 
-A single reading tells you almost nothing. Direction over months is the
-information, and nobody remembers what last quarter's orphan rate was.
+One reading says little; direction over months is the information.
 
 ## Core rule
 
@@ -20,7 +19,10 @@ page count or word count.
 
 ## Workflow
 
-1. **Run** `scripts/vault_stats.py` and `scripts/link_check.py`.
+1. **Run** `scripts/vault_stats.py` and `scripts/link_check.py`. If the vault
+   has no `scripts/` folder (the kit is installed as the `second-brain`
+   plugin), run the same files from `${CLAUDE_PLUGIN_ROOT}/scripts/`; Claude
+   Code fills in that path only for a plugin install.
 2. **Record:** orphan rate, average degree, component count, stale-concept rate,
    with the date and total pages for context.
 3. **Append** to the metrics note. Never overwrite previous entries.

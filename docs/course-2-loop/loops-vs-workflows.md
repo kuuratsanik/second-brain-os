@@ -7,7 +7,7 @@ A workflow is a sequence you wrote in advance: step one, step two, step three, d
 That is the entire distinction. In a workflow, you chose every step at design time; the code merely replays your decisions, and the same input takes the same path every run. In a loop, the model chooses at run time, so two runs of the same input can take different paths — which is the point, and also the problem. The Google whitepaper frames it as the developer moving from bricklayer to director: you stop laying each step and instead set the goal, pick the tools, and let the system route itself. Directing costs more than bricklaying, and it is harder to audit.
 
 
-![](fig-workflow-vs-loop.svg)
+![Two diagrams. In a workflow you chose every step, from step 1 to step 2. In a loop the model chooses: think, act, observe, decide.](fig-workflow-vs-loop.svg)
 
 ## When each wins
 
@@ -17,7 +17,7 @@ A loop wins only when the path genuinely cannot be written down: debugging an un
 
 ## The cost math
 
-Autonomy is priced in tokens. Anthropic's engineering write-up of its multi-agent research system (June 2025) measured the ratios directly: agentic loops use roughly four times the tokens of a single chat interaction, and multi-agent systems roughly fifteen times. So a loop must clear a value bar about 4x a plain call, and a crew of agents about 15x, before it earns its keep. The bill compounds with unpredictability: Google's "Prototype to Production" whitepaper notes that because agent trajectories are assembled dynamically, cost and latency are unpredictable per run — and that roughly 80% of production effort goes on infrastructure, security and validation rather than the agent's intelligence. You are not just paying more per run; you are paying for the machinery to keep runs bounded.
+Autonomy is priced in tokens. Anthropic's engineering write-up of its [multi-agent research system](https://www.anthropic.com/engineering/built-multi-agent-research-system) (June 2025) measured the ratios directly: agentic loops use roughly four times the tokens of a single chat interaction, and multi-agent systems roughly fifteen times. So a loop must clear a value bar about 4x a plain call, and a crew of agents about 15x, before it earns its keep. The bill compounds with unpredictability: Google's "Prototype to Production" whitepaper notes that because agent trajectories are assembled dynamically, cost and latency are unpredictable per run — and that roughly 80% of production effort goes on infrastructure, security and validation rather than the agent's intelligence. You are not just paying more per run; you are paying for the machinery to keep runs bounded.
 
 ## A decision rule
 

@@ -1,5 +1,7 @@
 ---
 description: Prepare a handoff brief
+argument-hint: "[project]"
+disable-model-invocation: true
 ---
 
 Write a brief for someone picking up $ARGUMENTS cold: goal, state, decisions and why, open questions, where things live.

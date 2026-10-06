@@ -2,6 +2,6 @@
 description: The weekly review
 ---
 
-Last seven days: what was added, where attention went, what is unresolved, three things to do next.
+Same as `/review` with no argument: the last seven days. What was added, where attention went, what is unresolved, three things to do next. Use `/review` for another period and `/monthly` for the structural review.
 
 Follow the `second-brain-review` skill.

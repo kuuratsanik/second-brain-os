@@ -7,17 +7,23 @@ markdown from docs/track-*/, renders it the same way the main guide was
 rendered, and rewrites three things in place:
 
   1. the JSON blob        - pages, sections (flagged track:true), order
-  2. the hero tracks list - between <!--TRACKS--> and <!--/TRACKS-->
+  2. the hero blocks      - between <!--ENTRIES-->, <!--COURSE--> and
+                            <!--TRACKS--> and their closing markers
   3. nothing else         - the SPA handles tracks generically
 
-Re-running is safe: previous track entries are replaced, not duplicated.
+tools/build_site.py emits the empty marker pairs; this script must run
+after it (scripts/build_all.py does). Re-running is safe: previous course
+and track entries are replaced, not duplicated.
 
-    pip install markdown
+    pip install -r requirements.txt
     python3 scripts/build_tracks.py
 """
-import io, json, os, re, sys
+import glob, io, json, os, re, sys
 
 import markdown
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
+from site_common import dumps, slim_page, word
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -174,17 +180,17 @@ def main():
 
     # replace any previous course and track entries
     gone = lambda k: k.startswith("track-") or k.startswith("course-")
-    D["pages"] = [p for p in D["pages"] if not gone(p["section"])]
+    D["pages"] = [p for p in D["pages"] if not gone(p["id"].split("/")[0])]
     D["sections"] = {k: v for k, v in D["sections"].items() if not gone(k)}
     D["order"] = {k: v for k, v in D["order"].items() if not gone(k)}
 
     course_cards = build_group(D, COURSE, "course")
     cards = build_group(D, TRACKS, "track")
 
-    s = s[:i] + json.dumps(D, ensure_ascii=False) + s[j:]
+    s = s[:i] + dumps(D) + s[j:]
 
     course_block = ('<!--COURSE--><div class="trkhead"><h2>the agents course</h2>'
-                    '<p>Seven modules from a single prompt to a production '
+                    f'<p>{word(len(COURSE), True)} modules from a single prompt to a production '
                     'agent: theory from the whitepapers, a build in every '
                     'module. A path — start at the map, read in order, '
                     'finish with the day-one plan.'
@@ -196,7 +202,27 @@ def main():
                    'when that layer starts hurting, dip in anywhere.</p></div>'
                    '<div class="seclist tracklist">' + "".join(cards)
                    + "</div><!--/TRACKS-->")
-    for marker, block in (("COURSE", course_block), ("TRACKS", track_block)):
+    guide_pages = sum(len(v) for k, v in D["order"].items() if not gone(k))
+    n_course = sum(len(v) for k, v in D["order"].items() if k.startswith("course-"))
+    n_track = sum(len(v) for k, v in D["order"].items() if k.startswith("track-"))
+    n_skills = len(glob.glob(os.path.join(ROOT, "skills", "*", "SKILL.md")))
+    n_tracks = sum(1 for k in D["order"] if k.startswith("track-"))
+    n_guide_secs = sum(1 for k in D["order"] if not gone(k))
+    n_course_secs = sum(1 for k in D["order"] if k.startswith("course-"))
+    first = lambda pre: next(v[0] for k, v in D["order"].items() if k.startswith(pre))
+    entries_block = (
+        '<!--ENTRIES--><div class="entr">'
+        f'<a class="ent e1" href="#{first("01-")}"><span class="ek">the guide &middot; 01&ndash;{n_guide_secs:02d}</span>'
+        '<h2>The second brain</h2><p>A path you follow once: a knowledge base an agent builds and maintains for you, in markdown you own.</p>'
+        f'<span class="em">{guide_pages} pages &middot; starter vault &middot; {n_skills} skills</span></a>'
+        f'<a class="ent e2" href="#{first("course-")}"><span class="ek">the agents course &middot; C0&ndash;C{n_course_secs - 1}</span>'
+        f'<h2>The agents course</h2><p>A path you read in order: {word(n_course_secs)} modules from a single prompt to a production agent, practice in every module.</p>'
+        f'<span class="em">{n_course} lessons &middot; plugin: tools in two commands</span></a>'
+        f'<a class="ent e3" href="#{first("track-")}"><span class="ek">handbooks &middot; T1&ndash;T{n_tracks}</span>'
+        '<h2>The handbooks</h2><p>Not a path &mdash; references: the full menu of techniques, tools and builds for one layer, when it starts hurting.</p>'
+        f'<span class="em">{n_tracks} handbooks &middot; {n_track} pages &middot; dip in anywhere</span></a>'
+        '</div><!--/ENTRIES-->')
+    for marker, block in (("ENTRIES", entries_block), ("COURSE", course_block), ("TRACKS", track_block)):
         pat = f"<!--{marker}-->.*?<!--/{marker}-->"
         if re.search(pat, s, re.S):
             s = re.sub(pat, lambda m: block, s, flags=re.S)
@@ -215,7 +241,7 @@ def build_group(D, group, kind):
             print(f"skip {sec}: missing {', '.join(missing)}")
             continue
         pages = [render_page(sec, f) for f in meta["order"]]
-        D["pages"].extend(pages)
+        D["pages"].extend(slim_page(p) for p in pages)
         D["sections"][sec] = {"title": meta["title"], "blurb": meta["blurb"],
                               kind: True}
         D["order"][sec] = [p["id"] for p in pages]

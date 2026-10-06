@@ -10,7 +10,7 @@ Your budget drops old turns and leaves a one-line gist. That loses decisions, fi
 
 ## Gap two: parallel tool execution
 
-Current models routinely return several `tool_use` blocks in one turn. Your loop executes them one after another, which is correct but slow — three thirty-second commands take ninety seconds. The SDK runs independent tool calls concurrently, and adds subagents for the bigger version of the same idea: delegated work in a fresh context window, with only the final report returned to the parent.
+Current models routinely return several `tool_use` blocks in one turn. Your loop executes them one after another, which is correct but slow — three thirty-second commands take ninety seconds. The SDK can run read-only tool calls (`Read`, `Glob`, `Grep`) concurrently while state-changing ones (`Edit`, `Write`, `Bash`) run sequentially, per the [agent loop docs](https://code.claude.com/docs/en/agent-sdk/agent-loop), and adds subagents for the bigger version of the same idea: delegated work in a fresh context window, with only the final report returned to the parent.
 
 ## Gap three: sandboxing
 
@@ -18,7 +18,7 @@ Part two admitted its gate is leaky: prefix matching waves through shell metacha
 
 ## Gap four: resume
 
-Kill your agent mid-task and everything is gone; the transcript lived in a Python list. The SDK's sessions persist state across exchanges and let you resume or fork a conversation later. Combined with memory files loaded from `.claude/`, the agent starts each session knowing the project instead of rediscovering it.
+Kill your agent mid-task and everything is gone; the transcript lived in a Python list. The SDK's [sessions](https://code.claude.com/docs/en/agent-sdk/sessions) persist the conversation to disk and let you resume or fork it later; they do not snapshot the filesystem. Combined with memory files loaded from `.claude/`, the agent starts each session knowing the project instead of rediscovering it.
 
 ## The decision rule
 

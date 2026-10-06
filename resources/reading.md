@@ -16,10 +16,12 @@ it.
 ## The pattern at company scale
 
 **[An organizational second brain: AI that learns from experts](https://engineering.fb.com/2026/09/02/ml-applications/organizational-second-brain-ai-learns-from-experts/)**,
-Meta Engineering, September 2026. The same pattern this guide teaches, run
-inside Meta with a whole domain team as the user.
+Meta Engineering, September 2026. Reported to describe the same pattern this
+guide teaches, run inside Meta with a whole domain team as the user.
 
-Worth reading for the architecture alone: 200+ structured knowledge files with
+Last checked September 2026; not re-checked on 5 October 2026 because the page could not be fetched. Open the article before relying on the summary below.
+
+It was reported to describe: 200+ structured knowledge files with
 YAML frontmatter forming a dependency graph — position files, taxonomies,
 routing indexes, gateway files — kept apart from "recipes", the reasoning
 procedures that reference knowledge without containing it. Fixes stay
@@ -27,9 +29,9 @@ surgical: a knowledge edit touches no procedure, a methodology fix touches no
 facts. Their split rule matches ours: dense, frequently-used knowledge lives
 in the wiki; sparse reference material stays behind retrieval. Expert
 corrections flow through a diagnose-compile-validate-land loop with regression
-tests, no retraining. Six weeks in: assessment time down from days to minutes,
-zero regressions. The strongest public evidence yet that a maintained wiki
-beats rediscovery-by-RAG at scale.
+tests, no retraining. After six weeks, assessment time was reported as down from days to minutes,
+with zero regressions. These are Meta's own figures, and the article, not this
+guide, is the source for them.
 
 ## The tradition it comes from
 

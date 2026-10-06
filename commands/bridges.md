@@ -1,5 +1,6 @@
 ---
 description: Find the pages holding the graph together
+disable-model-invocation: true
 ---
 
 Compute betweenness and list the pages connecting otherwise separate clusters. Say what stops informing what if each one is wrong.

@@ -1,7 +1,8 @@
 # The LLM wiki pattern
 
 The specific pattern this guide implements, published by Andrej Karpathy as a
-gist on 2026-04-04.
+[gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) on
+2026-04-04.
 
 The inversion in one sentence: instead of you maintaining notes and occasionally
 asking an AI about them, the AI maintains the wiki and you read it.
@@ -17,8 +18,9 @@ pages rather than added beside them as another summary. A page about a concept
 improves as sources accumulate; it does not turn into a list of what each source
 said.
 
-**Three operations.** Ingest brings new material in. Lint keeps the structure
-sound. Query answers from the wiki. Everything else is variation on those.
+**Three operations.** Ingest brings new material in. Query answers from the
+wiki. Lint is a periodic health check of the wiki. The gist names these three;
+everything else here is variation on them.
 
 ## Why it holds up
 
@@ -33,7 +35,8 @@ service to depend on.
 ## Where the gist stops
 
 It describes intent, not implementation. Integrate new sources, lint
-periodically, treat the wiki as primary.
+periodically, treat the wiki as primary. It suggests an `index.md` and a
+`log.md` and a schema file such as `CLAUDE.md`, and calls all of it optional.
 
 The mechanics are left open, which is why every implementation of it differs.
 How integration handles contradictions, what a page must contain, when lint
@@ -43,9 +46,8 @@ pattern itself.
 
 ## What people build on top
 
-The common extensions are a journal layer, a project layer, and scheduled
-automation. This guide covers the second and third as [the two
-layers](two-layers.md) and [Agents](../06-agents/README.md).
+The gist does not cover a project layer or scheduled automation. This guide adds
+them: see [the two layers](two-layers.md) and [Agents](../06-agents/README.md).
 
 The pattern also spread quickly because the primitives are ordinary: anyone with
 an agent and a folder can run it, and the implementations are all readable

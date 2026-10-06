@@ -1,11 +1,16 @@
 {
   "name": "second-brain-os",
   "owner": {
-    "name": "undefinedKi",
-    "url": "https://x.com/undefinedKi"
+    "name": "kuuratsanik",
+    "url": "https://github.com/kuuratsanik"
   },
   "description": "Plugins from the Second Brain OS repo and its agents course.",
   "plugins": [
+    {
+      "name": "second-brain",
+      "source": "./",
+      "description": "The Second Brain OS kit as a plugin: 24 skills, 72 slash commands and 6 agents for an LLM-maintained markdown vault, plus the vault scripts."
+    },
     {
       "name": "agents-course",
       "source": "./plugins/agents-course",

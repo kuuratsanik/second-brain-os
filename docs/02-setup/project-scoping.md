@@ -13,9 +13,10 @@ that project's files, and does the job in front of it.
 
 ## How to scope
 
-In Obsidian, click the vault name in the bottom left, then:
+In Obsidian, click the vault profile (your vault's name) in the bottom left, then
+([Manage vaults](https://help.obsidian.md/manage-vaults)):
 
-**Manage vaults → Open folder as a vault → pick your project folder → Trust**
+**Manage Vaults... → Open folder as vault → Open → pick your project folder**
 
 From a terminal, the same thing is just:
 

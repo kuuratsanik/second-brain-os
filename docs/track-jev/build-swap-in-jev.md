@@ -16,23 +16,27 @@ from decision import decide  # today: the LLM stand-in
 Change `router.py` to `from decider import decide` and the swap is staged. The Jev side maps schema shapes onto its primitives — enums become a `Choice`, booleans a `Noul`, and anything open-ended is refused, because Jev only answers bounded questions:
 
 ```python
-# jev_decider.py — written from TypeSafe's published docs, UNTESTED until you
-# have quota. Verify call shapes against docs.typesafe.ai before relying on it.
-from typesafe import TypeSafe, Choice, Noul  # pip install typesafe-sdk
+# jev_decider.py — checked against the typesafe-sdk 0.7.2 source and README, but
+# never run against the live API. Verify against docs.typesafe.ai once you have quota.
+from typesafe_sdk import Choice, Noul, TypeSafeClient  # pip install typesafe-sdk
 
-client = TypeSafe()  # reads TYPESAFE_API_KEY
+client = TypeSafeClient()  # reads TYPESAFE_API_KEY
 
 def decide(schema: dict, question: str, state: str) -> dict:
     if "enum" in schema:
         q = Choice(instructions=question,
-                   criteria={str(o): str(o) for o in schema["enum"]})
-    elif schema.get("type") == "boolean":
+                   criteria={str(o): None for o in schema["enum"]})
+        answer = client.system_one(state=state, questions={"value": q}).choices["value"]
+        return {"value": answer.choice,
+                "confidence": answer.probabilities[answer.choice]}
+    if schema.get("type") == "boolean":
         q = Noul(instructions=question)
-    else:
-        raise ValueError("Jev answers bounded questions only; keep this on the LLM.")
-    answer = client.decide(state=state, questions={"value": q})["value"]
-    return {"value": answer.value, "confidence": answer.probability}
+        p = client.system_one(state=state, questions={"value": q}).nouls["value"].noul
+        return {"value": p >= 0.5, "confidence": max(p, 1 - p)}
+    raise ValueError("Jev answers bounded questions only; keep this on the LLM.")
 ```
+
+Two details from the SDK source. A `Choice` answer carries `choice`, a per-option `probabilities` dict and a separate `confidence` field; this seam returns the probability of the chosen option so it is comparable with the stand-in's vote fraction. A `Noul` answer is a single probability of yes, so the code turns it into a value and a confidence by hand.
 
 ## Shadow mode first
 

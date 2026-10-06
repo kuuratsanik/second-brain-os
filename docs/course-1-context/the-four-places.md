@@ -3,15 +3,15 @@
 [How models read](how-models-read.md) established the physics: attention favours the start and end of the window, every token costs, and caching only pays when the prefix never moves. The discipline that follows is simple to state. Every piece of context belongs in exactly one of four places, and most agent problems trace back to something sitting in the wrong one.
 
 
-![](fig-four-places.svg)
+![Diagram of the context window in order: a byte-stable system prompt, a frozen tool set, history that grows and compacts, the goal, then a tail. Files on disk sit outside the window, and only their paths enter.](fig-four-places.svg)
 
 ## One: the system prompt
 
-Only what is true on every call. Persona, hard rules, output format — nothing else. It must be byte-stable: no timestamps, no user names, no retrieved memories, no "current task". Anything dynamic in the system prompt breaks the cache on every request (system sits above messages in the cache hierarchy) and squanders the primacy slot on content that did not need it. Treat edits to it as releases, not tweaks.
+Only what is true on every call. Persona, hard rules, output format — nothing else. It must be byte-stable: no timestamps, no user names, no retrieved memories, no "current task". Anything dynamic in the system prompt breaks the cache on every request (system sits above messages in the [cache hierarchy](https://platform.claude.com/docs/en/build-with-claude/prompt-caching): tools, then system, then messages) and squanders the primacy slot on content that did not need it. Treat edits to it as releases, not tweaks.
 
 ## Two: the tools
 
-The tool set is fixed for the whole conversation. Never add or remove definitions mid-run: tools sit first in the cache hierarchy, so touching one invalidates the entire cached prefix, and the model's behaviour shifts under it. When a tool must become unavailable, block the call instead — intercept it and return "this tool is disabled for this task" — leaving the definitions untouched.
+The tool set is fixed for the whole conversation. Never add or remove definitions mid-run: tools sit first in the cache hierarchy, so touching one invalidates the entire cached prefix, and the model's behaviour shifts under it. When a tool must become unavailable, block the call instead — intercept it and return "this tool is disabled for this task" — leaving the definitions untouched. One sanctioned way to grow the visible tool set is tool search: deferred tools are appended inline as `tool_reference` blocks and, per the [API docs](https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool), the cached prefix is untouched. The `inline-tools-2026-09-15` beta header is another: per the [prompt-caching docs](https://platform.claude.com/docs/en/build-with-claude/prompt-caching), it lets you send a new definition in a `tool_addition` block in a mid-conversation system message, leaving `tools` as first sent, so the cached prefix still matches.
 
 Definitions are expensive. Anthropic's [Advanced tool use](https://www.anthropic.com/engineering/advanced-tool-use) post (November 2025) measured a routine five-server MCP setup at 58 tools consuming roughly 55K tokens before the conversation starts, and saw 134K tokens of definitions internally before optimisation. Under about twenty tools, keep them all loaded; past that, switch to tool search, covered in [Context in practice](context-practice.md).
 

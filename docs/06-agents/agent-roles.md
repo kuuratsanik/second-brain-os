@@ -61,7 +61,10 @@ one should notice everything, the other should touch as little as possible.
 Read-only. Proposes what to prune, archive or merge, quarterly.
 
 Proposals only, never actions. Deletion is the one operation you cannot recover
-from by reading a diff, so it stays a decision the owner makes.
+from by reading a diff, so it stays a decision the owner makes. The vault
+template relaxes this for one case: an unattended curator may archive, not
+delete, behind a checkpoint commit and a log line, because archiving is
+reversible.
 
 ## Roles not worth creating
 

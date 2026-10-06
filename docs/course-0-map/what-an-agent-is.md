@@ -9,7 +9,7 @@ The whitepaper names four components. The model is the brain: the reasoning engi
 The loop is the part people underestimate. The paper describes a think–act–observe cycle: the agent receives a mission, surveys what it has, plans a step, takes it, looks at what happened, and goes round again until the goal is met. Strip away the branding and an agent is a loop that keeps rebuilding the model's context between steps.
 
 
-![](fig-agent-loop.svg)
+![Diagram of the agent loop: a request goes to the model, which calls tools and gets results back, repeating until the goal is met, then returns an answer.](fig-agent-loop.svg)
 
 ## Five levels of agency
 
@@ -21,11 +21,11 @@ Rather than a binary, the paper grades systems:
 - Level 3 — the collaborative multi-agent system: specialist agents that treat each other as tools.
 - Level 4 — the self-evolving system: builds new tools or agents when it finds a capability gap.
 
-Most of what ships in production today sits at levels 1 and 2. That is not a criticism; it is where the return is.
+Most agents you will build sit at levels 1 and 2. That is not a criticism; it is where the return is.
 
 ## Not a chatbot, not a workflow
 
-A chatbot answers one message at a time and the human decides every next step. A workflow — in Anthropic's definition — is a system where model calls and tools run along code paths you wrote in advance. An agent is a system where the model directs its own process: it decides the next step from what it just observed. The dividing question is always the same: who decides what happens next — the human, your code, or the model?
+A chatbot answers one message at a time and the human decides every next step. A workflow — in Anthropic's [Building effective agents](https://www.anthropic.com/engineering/building-effective-agents) — is a system where LLMs and tools are orchestrated through predefined code paths. An agent is a system where LLMs dynamically direct their own processes and tool use: the model decides the next step from what it just observed. The dividing question is always the same: who decides what happens next — the human, your code, or the model?
 
 ## Where agents pay off
 

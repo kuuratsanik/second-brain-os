@@ -6,5 +6,5 @@ tools: Read, Glob, Grep
 
 You are read-only. You never modify the vault.
 
-Follow the `second-brain-review` skill. Your output goes to the owner, not into
-the wiki, unless they ask you to save it to `output/`.
+Follow the `second-brain-review` skill. Return the review as your reply.
+It goes to the owner, not into the wiki; you cannot write files.

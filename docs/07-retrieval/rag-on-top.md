@@ -18,8 +18,8 @@ embeddings solve.
 without a human deciding what mattered has no reliable structure to navigate,
 so similarity is what is left.
 
-Most personal vaults never hit all three. Mine has not, and I would not add the
-maintenance for two out of three.
+Most personal vaults never hit all three, and two out of three is not enough to
+justify the maintenance.
 
 ## What to embed
 

@@ -6,17 +6,22 @@ that, and a transcript is just text, which is exactly what the vault wants.
 
 ## Pulling a transcript
 
-Most videos have captions, auto-generated or uploaded. Two dependable routes:
+Most videos have captions, auto-generated or uploaded. Two dependable routes
+(flags per the [yt-dlp README](https://github.com/yt-dlp/yt-dlp#subtitle-options),
+API per the [youtube-transcript-api
+README](https://github.com/jdepoix/youtube-transcript-api)):
 
 ```bash
 # yt-dlp: subtitles only, no video download
-yt-dlp --write-auto-sub --skip-download --sub-format vtt --sub-lang en URL
+yt-dlp --write-auto-subs --skip-download --sub-format vtt --sub-langs en URL
 ```
 
 ```python
 # youtube-transcript-api, if you want it in a script
 from youtube_transcript_api import YouTubeTranscriptApi
-lines = YouTubeTranscriptApi.get_transcript("VIDEO_ID")
+lines = YouTubeTranscriptApi().fetch("VIDEO_ID")  # pass the video ID, not the URL
+for snippet in lines:
+    print(snippet.start, snippet.text)
 ```
 
 Save the result into `raw/` with frontmatter naming the video, the channel and
@@ -38,7 +43,7 @@ Auto-captions have no punctuation, no speaker labels, and mangle technical
 terms. Have the agent do a pass first:
 
 ```
-Read raw/talk-transcript.md. Add punctuation and paragraph breaks, label
+Read raw/youtube/talk-transcript.md. Add punctuation and paragraph breaks, label
 speakers where they change, and fix obvious mistranscriptions of technical
 terms. Do not summarise, do not cut anything, and flag anything you could not
 make sense of.

@@ -10,8 +10,8 @@ description: >-
 
 # Bootstrap the eval suite
 
-Theory: [Two kinds of checks](https://undefined-ui.github.io/second-brain-os/#course-5-evals/two-kinds-of-checks)
-and the full walkthrough in [Evals practice](https://undefined-ui.github.io/second-brain-os/#course-5-evals/evals-practice).
+Theory: [Two kinds of checks](https://kuuratsanik.github.io/second-brain-os/#course-5-evals/two-kinds-of-checks)
+and the full walkthrough in [Evals practice](https://kuuratsanik.github.io/second-brain-os/#course-5-evals/evals-practice).
 An eval suite is the same test after every change. Behavioural checks read
 the steps of a trace; end-to-end checks read only the result. Start
 behavioural: they are deterministic, run in seconds, and diagnose instead of
@@ -28,9 +28,7 @@ just scoring.
    behaviour that should have happened and did not. Failures cluster into
    four to eight behaviours; name them.
 3. **Ensure traces exist.** Each run must be stored as `traces/<id>.json` —
-   a list of events including tool calls. If the user's harness is Claude
-   Code, the transcript already is the trace; wire up whatever copies or
-   converts it. No trace, no behavioural checks.
+   a list of events including tool calls. If the user's harness is Claude Code, it already writes each session as JSONL under `~/.claude/projects/`, but the entry format is internal and changes between versions ([sessions docs](https://code.claude.com/docs/en/sessions#where-transcripts-are-stored)). Convert it to the `traces/<id>.json` shape in one small script, so a format change breaks one file. No trace, no behavioural checks.
 4. **Write `cases.yaml`.** One entry per failure:
 
 ```yaml

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kuuratsanik.github.io/second-brain-os/sitemap.xml

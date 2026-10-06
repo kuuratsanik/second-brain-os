@@ -13,7 +13,7 @@ Note what is absent: the agent's own opinion. "The agent said it's done" is neve
 Goal tests stop successful runs. Budgets stop everything else, and you want at least three, because they fail differently:
 
 - **Iterations** — a hard cap on attempts. Start small; five attempts finds most tractable problems, and problem twenty attempts can solve but five cannot is rare.
-- **Tokens or money** — a spend ceiling per run. Headless CLIs report cost per invocation (`--output-format json` includes `total_cost_usd` in Claude Code), so the wrapper can add it up and quit.
+- **Tokens or money** — a spend ceiling per run. Headless CLIs report cost per invocation (`--output-format json` includes `total_cost_usd` in Claude Code, a [client-side estimate](https://code.claude.com/docs/en/headless) that can differ from the bill), so the wrapper can add it up and quit.
 - **Wallclock** — a timeout on the whole run and on each attempt. An agent stuck waiting on a hung command burns hours, not tokens.
 
 Budgets are cheap insurance; the only mistake is setting them generously "to give it room". Generous budgets convert bugs into invoices.

@@ -13,9 +13,8 @@ description: >-
 
 # Lint the vault
 
-Structural rot is silent. Nothing errors, nothing crashes, the vault just
-slowly stops answering questions well because a third of its pages are
-unreachable. Linting is the only thing that catches it before the owner does.
+Structural rot is silent: the vault stops answering well because pages become
+unreachable.
 
 ## Core rule
 
@@ -32,7 +31,7 @@ owner may have written it by hand.
    into `index.md` under Gaps.
 3. **Orphans.** Pages with no inbound links. For each, either find where it
    should be linked from and add the link, or flag it as a candidate for
-   deletion.
+   archiving (`second-brain-archive` covers the move).
 4. **Stubs.** Pages under roughly 40 words with no links. Usually a failed
    ingest. Flag for re-ingest from the original source in `raw/`.
 5. **Schema.** Missing or malformed frontmatter, wrong `type`, missing dates,
@@ -42,6 +41,8 @@ owner may have written it by hand.
 7. **Index drift.** Pages missing from `index.md`, index entries pointing
    nowhere.
 8. **Repair**, then append the run to `log.md`.
+9. **Commit the run** by path, following `second-brain-commit`, with the subject
+   `run-YYYY-MM-DD-lint`. Nothing changed means no commit.
 
 ## Output format
 

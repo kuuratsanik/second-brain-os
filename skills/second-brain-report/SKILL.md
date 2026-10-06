@@ -11,8 +11,7 @@ description: >-
 
 # Write a research report
 
-A report that presents only findings looks stronger and is less useful, because
-the reader cannot tell where it is load-bearing and where it is thin.
+Findings alone hide where a report is load-bearing and where it is thin.
 
 ## Core rule
 

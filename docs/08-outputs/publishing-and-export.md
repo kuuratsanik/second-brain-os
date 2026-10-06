@@ -6,7 +6,9 @@ mechanics of that split are worth setting up before you publish anything.
 ## Deciding what is public
 
 The simplest reliable approach is an explicit opt-in: a `publish: true` field in
-frontmatter, and nothing without it ever leaves.
+frontmatter, and nothing without it ever leaves. In the vault template only you set it, in a
+live session: publishing is one of its hard stops, so the agent never adds
+`publish: true` or publishes on its own, and a scheduled run skips it.
 
 Opt-out is the alternative and it is a mistake. Under opt-out, one forgotten flag
 publishes something private, and the failure is silent and permanent because it
@@ -14,10 +16,15 @@ is already indexed.
 
 ## Static site options
 
-Obsidian Publish is the official route and the least work. Quartz and Obsidian
-Digital Garden are the common open-source ones, both build a static site from a
-vault and both understand wikilinks and backlinks, which matters because a
-published wiki with broken links is worse than a blog.
+[Obsidian Publish](https://help.obsidian.md/publish) is the official route and
+the least work: a hosted service where you select notes and press Publish.
+[Quartz](https://github.com/jackyzha0/quartz) (MIT-licensed) and [Obsidian
+Digital Garden](https://github.com/oleeskild/obsidian-digital-garden) are
+open-source routes that build a static site from a vault, and both document
+wikilink and backlink support. That matters because a published wiki with broken
+links is worse than a blog. Digital Garden has its own opt-in, `dg-publish: true`
+in frontmatter; it does not read the template's `publish: true`, so map one to
+the other in your build step.
 
 Whatever you use, check what happens to a link pointing at an unpublished page.
 It should degrade to plain text rather than to a 404.

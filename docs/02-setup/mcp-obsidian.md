@@ -12,25 +12,31 @@ you are working from the desktop app rather than a terminal in the vault.
 
 The [Local REST API
 plugin](https://github.com/coddingtonbear/obsidian-local-rest-api) now ships a
-built-in MCP server at `/mcp/`, so a separate server is no longer required.
+built-in MCP server at `https://127.0.0.1:27124/mcp/` (HTTP on port 27123 if you
+enable it), so a separate server is no longer required. Its README gives a
+`claude mcp add --transport http` command for it.
 Check its README first: if the built-in server covers what you need, skip
 straight to registering it with your client and ignore step 2 below.
 
-The third-party route described here, `mcp-obsidian` over the plugin's REST API,
-is still the most widely documented and is what most guides describe. Both end
-up in the same place.
+The third-party route described here is
+[`mcp-obsidian`](https://github.com/MarkusPfundstein/mcp-obsidian), which talks
+to the plugin's REST API. Both end up in the same place.
 
 ## Step 1: enable the plugin
 
 In Obsidian: **Settings** (gear, bottom left) → **Community plugins** → **Turn
 on community plugins** → **Browse** → search `Local REST API` → **Install** →
-**Enable**.
+**Enable**. Obsidian's
+[community plugins page](https://help.obsidian.md/community-plugins) has the
+steps.
 
 Open the plugin's settings. There is an **API Key**, a long string of letters
 and numbers. Copy it.
 
-Obsidian displays the key with the word `Bearer` in front of it. That word is
-not part of the key. Copy only the string after it. This is the single most
+The plugin's settings page also shows the key inside a ready-made
+`Authorization` header value, with the word `Bearer` in front of it
+([source](https://github.com/coddingtonbear/obsidian-local-rest-api/blob/main/src/main.ts)).
+That word is not part of the key. Copy only the string after it. This is the single most
 common reason the connection fails on the first try.
 
 ## Step 2: register the server
@@ -69,14 +75,14 @@ If the agent reads your notes back, the connection works.
 - **`Bearer` in the key.** Strip it.
 - **Wrong port.** Check the port shown in the plugin settings against the value
   in your config. The default is 27124.
-- **Plugin disabled.** Community plugins get turned off when restricted mode is
-  re-enabled after an update.
+- **Plugin disabled.** Turning on Obsidian's
+  [Restricted mode](https://help.obsidian.md/plugin-security#Restricted+mode)
+  makes it ignore every community plugin.
 
 ## Do you need this at all
 
-One maintained fork of `mcp-obsidian` was archived with the reasoning that
-routing through a REST plugin adds complexity when a vault is just markdown
-files on disk. That is the same argument this guide makes for starting on the
+Routing through a REST plugin adds a moving part when a vault is just markdown
+files on disk. That is the argument this guide makes for starting on the
 filesystem, and it is worth taking seriously: MCP earns its place when you need
 the vault reachable from sessions not running inside it, and not before.
 

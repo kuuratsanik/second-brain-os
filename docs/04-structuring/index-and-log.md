@@ -41,10 +41,23 @@ usually a precise map of what to read next.
 One line per operation, appended, newest at the bottom.
 
 ```
-2026-09-07 ingest raw/karpathy-gist.md -> 1 source, 2 concepts, 1 entity, 9 links
+2026-09-07 ingest raw/clippings/karpathy-gist.md -> 1 source, 2 concepts, 1 entity, 9 links
 2026-09-07 merge [[RAG]] <- [[Retrieval-augmented generation]]
 2026-09-08 lint -> 3 broken links fixed, 2 orphans flagged
 ```
+
+The [vault template](../../vault-template/CLAUDE.md) is stricter, because its
+agent runs unattended. The format is `DATE OPERATION target -> result`, and a
+destructive operation also names the checkpoint commit and the reason, so you
+can undo it:
+
+```
+2026-10-05 archive wiki/concepts/x.md -> archive/wiki/concepts/x.md (reason; checkpoint a1b2c3d)
+```
+
+Its operations are ingest, pull, link, merge, archive, rename, split, retype,
+lint, review, rollback and skip. `skip` records an item the agent left alone
+because it hit a hard stop, and sent to the owner's queue instead.
 
 The log is what makes an agent-maintained vault auditable. When a page says
 something you do not recognise, the log tells you which run produced it. When

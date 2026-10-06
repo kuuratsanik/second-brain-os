@@ -1,0 +1,13 @@
+{
+  "attachmentFolderPath": "raw/assets",
+  "newFileLocation": "folder",
+  "newFileFolderPath": "raw/inbox",
+  "useMarkdownLinks": false,
+  "newLinkFormat": "shortest",
+  "alwaysUpdateLinks": true,
+  "userIgnoreFilters": [
+    "archive/",
+    "scripts/",
+    ".claude/"
+  ]
+}

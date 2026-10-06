@@ -44,7 +44,8 @@ hundred fragments is not.
 ## Length
 
 A concept page under about eighty words is usually a stub that failed, not a
-page that was efficient. Either the source did not really cover it, or the agent
+page that was efficient. (The lint check flags any page under about forty words
+with no links; the eighty-word figure is the stricter bar for concept pages.) Either the source did not really cover it, or the agent
 gave up. Both are worth catching in a lint pass.
 
 A page over roughly a thousand words is usually two ideas that grew together.

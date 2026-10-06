@@ -41,9 +41,14 @@ concept page; the thing being linked sometimes is.
 The useful pattern is to let the agent read the digests and hand you a shortlist:
 
 ```
-Read this week's newsletters in raw/newsletters/. List anything worth reading in
+Read this week's newsletters in raw/inbox/. List anything worth reading in
 full, with one line on why. Ingest nothing yet.
 ```
+
+The vault template has no folder of its own for newsletters, so they land in
+`raw/inbox/`, or in `raw/workspace/email/` if they arrive through a Gmail pull.
+Add a `raw/newsletters/` folder, and a row in `wiki/systems/routing.md`, if you
+get enough of them to want one.
 
 Then clip the two or three primary sources properly and ingest those. The
 newsletter did its job as a filter, and the vault ends up with the actual source

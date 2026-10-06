@@ -23,7 +23,8 @@ entirely.
 
 Two reasons not to. Attention is uneven across a long context, and material in
 the middle is used less reliably than material at the edges, which is the finding
-in "Lost in the Middle" and the reason position matters at all. And an answer
+in ["Lost in the Middle"](https://arxiv.org/abs/2307.03172) (Liu et al., 2023)
+and the reason position matters at all. And an answer
 built from everything cannot be checked: you have no idea which pages it actually
 used.
 

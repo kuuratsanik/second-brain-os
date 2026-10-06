@@ -1,5 +1,7 @@
 # AI Second Brain
 
+Forked from [undefined-ui/second-brain-os](https://github.com/undefined-ui/second-brain-os), MIT licensed.
+
 A knowledge base that an AI agent builds and maintains for you, in plain
 markdown files you own. Everything you read, watch and save gets turned into
 linked wiki pages, connected to everything already there, and you can ask it
@@ -9,11 +11,11 @@ This repo is the full version of the guide: the concepts, the setup, the vault
 template, the agent skills, the scripts, and the resources. Free, no signup,
 nothing to install beyond Obsidian and an agent.
 
-**Read it on the web:** [undefined-ui.github.io/second-brain-os](https://undefined-ui.github.io/second-brain-os/) — the full guide with search and navigation, plus [every vetted link](https://undefined-ui.github.io/second-brain-os/resources.html) in one filterable page.
+**Read it on the web:** [kuuratsanik.github.io/second-brain-os](https://kuuratsanik.github.io/second-brain-os/) — the full guide with search and navigation, plus [every vetted link](https://kuuratsanik.github.io/second-brain-os/resources.html) in one filterable page.
 
 Three things live here — pick your entrance:
 
-- **[The second-brain guide](#the-guide)** — a path you follow once: build a knowledge base an agent maintains for you. 65 pages, a starter vault, 18 skills.
+- **[The second-brain guide](#the-guide)** — a path you follow once: build a knowledge base an agent maintains for you. 65 pages, a starter vault, 24 skills.
 - **[The agents course](#the-agents-course)** — a path you read in order: seven modules from a single prompt to a production agent, with [tools you install in two commands](plugins/README.md).
 - **[The handbooks](#the-handbooks)** — not a path, references: the full menu of techniques, tools and builds for one layer. Open one when that layer starts hurting.
 
@@ -32,7 +34,7 @@ One evening. Nine steps, each with a full page behind it.
 
 ```bash
 # copy the starter vault, skills, commands and agents
-git clone https://github.com/undefined-ui/second-brain-os.git
+git clone https://github.com/kuuratsanik/second-brain-os.git
 cp -r second-brain-os/vault-template ~/brain
 
 mkdir -p ~/brain/.claude
@@ -44,13 +46,49 @@ cp -r second-brain-os/scripts  ~/brain/scripts
 # the folder READMEs are for reading on GitHub, not for the agent
 rm ~/brain/.claude/*/README.md ~/brain/scripts/README.md
 
-cd ~/brain && claude
+# make the vault its own git repository, once, and commit the template
+cd ~/brain
+git init
+git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw .obsidian \
+  .claude/settings.json .claude/hooks .claude/skills .claude/commands .claude/agents scripts
+git commit -m "Initial vault"
+
+claude
 ```
+
+The vault must be its own git repository, not a folder inside another one. The
+template's safety rails commit a checkpoint before any destructive step and one
+commit per run, and the agent will not run `git init` for you or touch a parent
+repository. The `.gitignore` in the template already keeps `raw/workspace/`
+(email, chat, docs, calendar) and editor state out of git, and the first commit
+names its paths instead of using `git add .` so nothing unreviewed goes in. It
+includes `.obsidian/` (the template's Obsidian preset), `.claude/` (settings,
+hooks, skills, commands, agents) and `scripts/`: the
+vault's agent setup is worth versioning, and a revert then covers it too. The
+template's `.claude/settings.json` and `.claude/hooks/guard.py` are what turn
+some of the rules in `CLAUDE.md` into enforced ones. They arrive with the
+`vault-template` copy, and the later `cp` commands add to `.claude/` without
+replacing them. See [what is enforced](vault-template/README.md#what-is-enforced-and-what-is-not). `raw` is included so
+the empty subfolders are tracked; `raw/workspace/` stays ignored.
 
 The `scripts/` copy is what lets `/metrics`, `/health` and `/graph-export` run
 `scripts/vault_stats.py` and friends from inside the vault. On Windows, use
 `python` where this guide says `python3`: the `python3` name usually resolves to
 the Microsoft Store stub and does nothing.
+
+**Or install the kit as a plugin.** Instead of the `cp -r` lines for `skills/`,
+`commands/` and `agents/`, add this repo as a plugin marketplace. Still copy
+`vault-template` (the rules and the guard live there), and copy `scripts/` so the
+scripts run without a permission prompt:
+
+```bash
+claude plugin marketplace add kuuratsanik/second-brain-os
+claude plugin install second-brain@second-brain-os
+```
+
+Commands then run as `/second-brain:ingest` instead of `/ingest`, and
+`claude plugin update` replaces `/install` for updates. Use one method per vault,
+never both. [Which to use, and what changes](plugins/README.md#second-brain).
 
 1. [Install Obsidian](docs/02-setup/obsidian-install-and-vault.md) and open
    the `~/brain` folder you just copied with "Open folder as vault"
@@ -65,7 +103,7 @@ the Microsoft Store stub and does nothing.
 6. [Scope down to one project](docs/02-setup/project-scoping.md) when you want
    to ship something
 7. Install the [Web Clipper](https://obsidian.md/clipper), clip an article to
-   `raw/`, run `/ingest`
+   `raw/clippings/`, run `/ingest`
 8. [Connect live data](docs/02-setup/live-data.md): calendar, email, chat
 9. [Put maintenance on a schedule](docs/06-agents/scheduled-maintenance.md) and
    wake up to a vault that filed itself
@@ -108,14 +146,14 @@ them separate matters more than it sounds.
 | [`docs/`](docs/README.md) | The guide. Ten sections, from the concept to troubleshooting |
 | [`docs/course-*/`](docs/course-0-map/README.md) | The agents course: seven modules, prompt to production |
 | [`docs/track-*/`](docs/track-graph/README.md) | Five handbooks on the wider craft: graphs, Jev, harnesses, loops, evals |
-| [`vault-template/`](vault-template/) | A starter vault: wiki structure, project pipeline, `CLAUDE.md` and page templates |
-| [`skills/`](skills/README.md) | 18 agent skills, one per workflow in the guide |
-| [`commands/`](commands/README.md) | 72 slash commands, scoped entry points into those skills |
+| [`vault-template/`](vault-template/) | An opinionated starter vault, tuned for an agent that works without asking first, for several domains (work, learning, personal, creative, self-improvement, systems) and for notes in more than one language. It ships with no personal facts: the [CLAUDE.md interview](docs/02-setup/claude-md.md) fills in your profile |
+| [`skills/`](skills/README.md) | 24 agent skills, one per workflow in the guide |
+| [`commands/`](commands/README.md) | 72 slash commands, scoped entry points into those skills. The scheduling command is `/maintenance-schedule`, so it does not shadow Claude Code's built-in `/schedule` |
 | [`agents/`](agents/README.md) | 6 subagents, four of them read-only by design |
 | [`plugins/`](plugins/README.md) | Claude Code plugins — the course's tools, installable in two commands |
 | [`scripts/`](scripts/README.md) | Dependency-free Python for link checking, stats and graph export |
 | [`resources/`](resources/README.md) | Tools, repos, papers and reading worth your time |
-| [`examples/`](examples/README.md) | Real vaults and real output |
+| [`examples/`](examples/README.md) | A fictional demo vault with link-check and stats output |
 
 ## The guide
 
@@ -160,7 +198,7 @@ an evals bootstrapper and a loop critic, each doing one module's practice
 page in your repo:
 
 ```bash
-claude plugin marketplace add undefined-ui/second-brain-os
+claude plugin marketplace add kuuratsanik/second-brain-os
 claude plugin install agents-course@second-brain-os
 ```
 
@@ -179,7 +217,7 @@ build you can finish in an evening.
 | [Loop engineering](docs/track-loop/README.md) | stop conditions, critics, context hygiene, unattended runs | an overnight loop with a ratchet and a morning report |
 | [Eval engineering](docs/track-evals/README.md) | golden sets, LLM judges, agent trajectories, CI gates | your first eval suite, wired into CI |
 
-Read them on the site: [handbooks on undefined-ui.github.io](https://undefined-ui.github.io/second-brain-os/).
+Read them on the site: [handbooks on kuuratsanik.github.io](https://kuuratsanik.github.io/second-brain-os/).
 
 ## Design decisions
 
@@ -233,56 +271,58 @@ Full notes: [reading.md](resources/reading.md) and [papers.md](resources/papers.
 
 ## Tools and plugins
 
-Obsidian plugins ranked by installs from the official community stats, September
-2026. The full catalog is in [plugins.md](resources/plugins.md) and
+Obsidian plugins from the official community stats, as of 5 October 2026. The full catalog is in
+[plugins.md](resources/plugins.md) and
 [tools.md](resources/tools.md).
 
 | Purpose | Pick | Installs |
 |---|---|---|
-| Agent in the editor | [Claudian](https://github.com/yishentu/claudian) | 2.0M |
-| Agent in the editor | [Copilot](https://github.com/logancyang/obsidian-copilot) | 1.8M |
+| Agent in the editor | [Claudian](https://github.com/yishentu/claudian) | 2.3M |
+| Agent in the editor | [Copilot](https://github.com/logancyang/obsidian-copilot) | 2.3M |
 | Suggests links | [Smart Connections](https://github.com/brianpetro/obsidian-smart-connections) | 1.2M |
-| MCP access | [Local REST API with MCP](https://github.com/coddingtonbear/obsidian-local-rest-api) | 712K |
-| Queries over frontmatter | [Dataview](https://github.com/blacksmithgu/obsidian-dataview) | 4.9M |
-| Templates | [Templater](https://github.com/SilentVoid13/Templater) | 5.5M |
-| Version control | [Git](https://github.com/Vinzent03/obsidian-git) | 3.1M |
-| Migrating in | [Importer](https://github.com/obsidianmd/obsidian-importer) | 1.6M |
-| Broken links and orphans | [Find unlinked files](https://github.com/Vinzent03/find-unlinked-files) | 225K |
-| Flashcards from notes | [Spaced Repetition](https://github.com/st3v3nmw/obsidian-spaced-repetition) | 592K |
-| Structured mind-map | [ExcaliBrain](https://github.com/zsviczian/excalibrain) | 336K |
-| Interactive graph | [Juggl](https://github.com/HEmile/juggl) | 136K |
+| MCP access | [Local REST API with MCP](https://github.com/coddingtonbear/obsidian-local-rest-api) | 767K |
+| Queries over frontmatter | [Dataview](https://github.com/blacksmithgu/obsidian-dataview) | 5.1M |
+| Templates | [Templater](https://github.com/SilentVoid13/Templater) | 5.8M |
+| Version control | [Git](https://github.com/Vinzent03/obsidian-git) | 3.2M |
+| Migrating in | [Importer](https://github.com/obsidianmd/obsidian-importer) | 1.8M |
+| Broken links and orphans | [Find unlinked files](https://github.com/Vinzent03/find-unlinked-files) | 230K |
+| Flashcards from notes | [Spaced Repetition](https://github.com/st3v3nmw/obsidian-spaced-repetition) | 609K |
+| Structured mind-map | [ExcaliBrain](https://github.com/zsviczian/excalibrain) | 348K |
+| Interactive graph | [Juggl](https://github.com/HEmile/juggl) | 138K |
 
 Outside Obsidian: [Web Clipper](https://obsidian.md/clipper) for capture,
 [Claude Code](https://code.claude.com/docs/en/setup) for maintenance,
 [yt-dlp](https://github.com/yt-dlp/yt-dlp) and
 [OCRmyPDF](https://github.com/ocrmypdf/OCRmyPDF) for processing,
 [ripgrep](https://github.com/BurntSushi/ripgrep),
-[NetworkX](https://networkx.org), [Kuzu](https://kuzudb.com) and
+[NetworkX](https://networkx.org), [Kuzu](https://kuzudb.com) (repository archived October 2025) and
 [Gephi](https://gephi.org) for the graph, and
 [Quartz](https://github.com/jackyzha0/quartz) to publish.
 
 ## Skills and other implementations
 
-This repo ships **18 skills, 72 commands, 6 subagents and 4 scripts**: one skill
+This repo ships **24 skills, 72 commands, 6 subagents and 4 scripts**: one skill
 per workflow in the guide, and a command for every scoped version of it you would
 actually run.
 
-Other implementations, counted the same way. A repo shipping sixteen skills
-counts as sixteen. Stars from the GitHub API, September 2026.
+Other implementations, counted the same way. A repo shipping fifteen skills
+counts as fifteen. Stars from the GitHub API, as of 5 October 2026. Counts for
+other repositories were read from their folder listings or READMEs on the same
+date.
 
 | Repo | Stars | Ships |
 |---|---|---|
-| [AgriciDaniel/claude-obsidian](https://github.com/AgriciDaniel/claude-obsidian) | 14.7K | 16 skills, 3 subagents, role presets |
-| [Astro-Han/karpathy-llm-wiki](https://github.com/Astro-Han/karpathy-llm-wiki) | 2.2K | 1 skill covering ingest, compile, query, lint |
-| [ballred/obsidian-claude-pkm](https://github.com/ballred/obsidian-claude-pkm) | 1.9K | 13 skills, 4 subagents, full starter kit |
-| [coleam00/second-brain-starter](https://github.com/coleam00/second-brain-starter) | 768 | 1 skill that interviews you first |
-| [NicholasSpisak/second-brain](https://github.com/NicholasSpisak/second-brain) | 704 | 4 skills, npm installer |
-| [eugeniughelbur/obsidian-second-brain](https://github.com/eugeniughelbur/obsidian-second-brain) | small | 47 commands, works across three agents |
-| [micuintus/llm-wiki](https://github.com/micuintus/llm-wiki) | small | 1 skill, deliberately minimal |
+| [AgriciDaniel/claude-obsidian](https://github.com/AgriciDaniel/claude-obsidian) | 15.4K | 15 skills, 3 subagents, role presets |
+| [eugeniughelbur/obsidian-second-brain](https://github.com/eugeniughelbur/obsidian-second-brain) | 4.7K | 47 commands on eight platforms, per its README |
+| [Astro-Han/karpathy-llm-wiki](https://github.com/Astro-Han/karpathy-llm-wiki) | 2.4K | 1 skill covering ingest, compile, query, lint |
+| [ballred/obsidian-claude-pkm](https://github.com/ballred/obsidian-claude-pkm) | 1.9K | 10 skills, 4 subagents, full starter kit |
+| [coleam00/second-brain-starter](https://github.com/coleam00/second-brain-starter) | 795 | 1 skill that interviews you first |
+| [NicholasSpisak/second-brain](https://github.com/NicholasSpisak/second-brain) | 735 | 4 skills, npm installer |
+| [micuintus/llm-wiki](https://github.com/micuintus/llm-wiki) | 28 | 1 skill, deliberately minimal |
 
 Where the format itself is defined:
-[anthropics/skills](https://github.com/anthropics/skills) (20 skills),
-[obra/superpowers](https://github.com/obra/superpowers) (14),
+[anthropics/skills](https://github.com/anthropics/skills) (19 skills),
+[obra/superpowers](https://github.com/obra/superpowers) (15),
 [VoltAgent/awesome-agent-skills](https://github.com/VoltAgent/awesome-agent-skills)
 (index of 1,000+). Notes on each: [skills.md](resources/skills.md).
 
@@ -290,16 +330,16 @@ Where the format itself is defined:
 
 | Purpose | Repo | Stars |
 |---|---|---|
-| Build a graph from any folder | [Graphify](https://github.com/Graphify-Labs/graphify) | 116K |
-| Graph RAG, incremental | [LightRAG](https://github.com/HKUDS/LightRAG) | 39K |
+| Build a graph from any folder | [Graphify](https://github.com/Graphify-Labs/graphify) | 124K |
+| Graph RAG, incremental | [LightRAG](https://github.com/HKUDS/LightRAG) | 40K |
 | Graph RAG, reference | [microsoft/graphrag](https://github.com/microsoft/graphrag) | 36K |
 | Graph RAG, readable | [nano-graphrag](https://github.com/gusye1234/nano-graphrag) | 4.0K |
 | Multi-hop retrieval | [HippoRAG](https://github.com/OSU-NLP-Group/HippoRAG) | 4.0K |
-| The landscape | [Awesome-GraphRAG](https://github.com/DEEP-PolyU/Awesome-GraphRAG) | 2.6K |
-| Agent memory | [mem0](https://github.com/mem0ai/mem0) | 65K |
+| The landscape | [Awesome-GraphRAG](https://github.com/DEEP-PolyU/Awesome-GraphRAG) | 2.7K |
+| Agent memory | [mem0](https://github.com/mem0ai/mem0) | 67K |
 | Temporal knowledge graphs | [graphiti](https://github.com/getzep/graphiti) | 31K |
 | Graph plus vector memory | [cognee](https://github.com/topoteretes/cognee) | 31K |
-| MCP server index | [awesome-mcp-servers](https://github.com/punkpeye/awesome-mcp-servers) | 95K |
+| MCP server index | [awesome-mcp-servers](https://github.com/punkpeye/awesome-mcp-servers) | 96K |
 
 Alternative homes for a vault, from Logseq to AFFiNE, plus RAG frameworks and
 AI-native note apps: [repositories.md](resources/repositories.md) and

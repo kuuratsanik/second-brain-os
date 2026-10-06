@@ -1,6 +1,6 @@
 # Eval Resources
 
-A short list, deliberately. Everything here earns its place; everything it links to is optional. The concepts they teach map onto [why evals](why-evals.md) and the rest of this handbook.
+A short list, deliberately. Everything here earns its place; everything it links to is optional. Anthropic, GitHub and Claude Code docs entries were re-checked on 5 October 2026; the Hamel Husain, Maven, arXiv and OpenAI entries were last checked September 2026 and not re-checked on 5 October 2026 because the pages could not be fetched. The concepts they teach map onto [why evals](why-evals.md) and the rest of this handbook.
 
 ## The canon
 
@@ -8,13 +8,13 @@ A short list, deliberately. Everything here earns its place; everything it links
 - [AI Evals FAQ](https://hamel.dev/blog/posts/evals-faq/) — Husain and Shreya Shankar's running answers to the questions every team asks: binary vs Likert, how many labels, who should annotate, build vs buy. Dense and free.
 - [AI Evals for Engineers & PMs](https://maven.com/parlance-labs/evals) — the Maven course behind the FAQ; several thousand engineers and PMs through it, cohorts still running in 2026. Paid, and the one course worth the money in this space.
 - [Who Validates the Validators?](https://arxiv.org/abs/2404.12272) — Shankar et al. The research grounding for aligning LLM judges with human labels; explains why rubric criteria drift as humans grade more outputs.
-- [Demystifying Evals for AI Agents](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents) — Anthropic's engineering guide (January 2026): task selection, trajectory vs outcome grading, judge calibration, evals as CI. The closest thing to an official playbook for [agent evals](agent-evals.md).
+- [Demystifying Evals for AI Agents](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents) — Anthropic's engineering guide (9 January 2026): task selection, trajectory vs outcome grading, judge calibration, evals as CI. The closest thing to an official playbook for [agent evals](agent-evals.md).
 - [Evaluation Best Practices](https://developers.openai.com/api/docs/guides/evaluation-best-practices) — OpenAI's guide; complements the above and pairs with the [evals cookbook section](https://developers.openai.com/cookbook/topic/evals) for worked judge examples.
 
 ## Repos worth reading
 
-- [inspect_evals](https://github.com/UKGovernmentBEIS/inspect_evals) — 200+ evaluations implemented under UK AISI's Inspect. Read a few scorers and solvers to see what production-grade eval code looks like.
-- [terminal-bench](https://github.com/laude-institute/terminal-bench) — hand-audited tasks in Docker with executable graders. The cleanest reference for building environment-based evals of your own; more context in [agent evals](agent-evals.md).
+- [inspect_evals](https://github.com/UKGovernmentBEIS/inspect_evals) — about 130 evaluation directories (roughly 250 `@task` definitions) implemented under UK AISI's Inspect, with new evals to be registered externally (announced for 8 May 2026). Read a few scorers and solvers to see what production-grade eval code looks like.
+- [terminal-bench](https://github.com/laude-institute/terminal-bench) and [terminal-bench-2](https://github.com/laude-institute/terminal-bench-2) — containerised tasks with executable graders (the original repo's README now points new users to the harbor framework for 2.0). The cleanest reference for building environment-based evals of your own; more context in [agent evals](agent-evals.md).
 
 ## Start here: three steps
 

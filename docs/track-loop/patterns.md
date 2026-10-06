@@ -4,7 +4,7 @@ Five loop shapes keep reappearing under different names. Each earns its keep on 
 
 ## Run-in-a-loop (Ralph)
 
-Geoffrey Huntley's July 2025 original: `while :; do cat PROMPT.md | claude-code ; done`. No orchestration at all — when a session ends, another starts cold, reads the same prompt file and the same repo, and picks up where the last one left off through files on disk. It is the purest demonstration that fresh context plus persistent files beats one long degrading session, and Anthropic now ships it as the `ralph-wiggum` plugin in the Claude Code repo.
+Geoffrey Huntley's July 2025 original: `while :; do cat PROMPT.md | claude-code ; done`. No orchestration at all — when a session ends, another starts cold, reads the same prompt file and the same repo, and picks up where the last one left off through files on disk. It is the purest demonstration that fresh context plus persistent files beats one long degrading session, and Anthropic ships a variant as the [`ralph-wiggum` plugin](https://github.com/anthropics/claude-code/blob/main/plugins/ralph-wiggum/README.md) in the Claude Code repo. The plugin differs from the original in one respect that matters here: a Stop hook blocks the session from exiting and feeds the same prompt back, so the loop runs inside your current session rather than starting cold each time, and `--max-iterations` defaults to unlimited.
 
 Failure modes, admitted by the author himself: placeholder implementations that satisfy the compiler and nothing else; waking up to a tree that does not build; and it suits greenfield work — Huntley's own line is that he would not run Ralph on an existing codebase. Ralph gets you roughly 90% of a first version, with a human stop button as the only brake.
 

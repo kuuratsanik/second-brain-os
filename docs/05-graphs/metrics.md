@@ -1,6 +1,7 @@
 # Graph metrics worth tracking
 
-Four numbers, checked monthly. Their direction over time tells you whether the
+Four numbers, checked monthly. The thresholds below are this guide's rules of
+thumb, not published benchmarks; adjust them to your own vault. Their direction over time tells you whether the
 system is working, which is not obvious from using it day to day.
 
 ```bash

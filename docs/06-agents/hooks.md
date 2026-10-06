@@ -1,6 +1,9 @@
 # Hooks
 
-Hooks fire on events rather than on a schedule. They are the right tool for
+Hooks are shell commands that Claude Code runs at set points in its lifecycle
+(the [hooks guide](https://code.claude.com/docs/en/hooks-guide) lists the
+events, such as `PreToolUse`, `PostToolUse` and `Stop`). They fire on events
+rather than on a schedule. They are the right tool for
 things that must happen every time, which is exactly the set of things a prompt
 instruction will eventually miss.
 
@@ -40,6 +43,11 @@ Decide explicitly whether a failing hook blocks the operation.
 Validation hooks should block: a page that fails schema validation should not be
 written. Notification hooks should not: a failed notification is not a reason to
 lose the work.
+
+In Claude Code, a hook blocks by exiting with code 2; per the hooks guide, other
+failures show up as non-blocking errors and the action proceeds. Which events
+can be blocked at all differs, and `PreToolUse` is the one that can stop a tool
+call before it runs.
 
 The bad case is a blocking hook that fails for an unrelated reason and silently
 stops your scheduled ingest for a week. Whatever blocks must be simple enough

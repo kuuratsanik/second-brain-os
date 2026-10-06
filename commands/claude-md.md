@@ -1,5 +1,6 @@
 ---
 description: Build or update your CLAUDE.md
+disable-model-invocation: true
 ---
 
 Interview the user one question at a time, then write CLAUDE.md at the vault root: who they are, goals with dates, how to talk to them, projects, and the vault's own rules.

@@ -1,0 +1,13 @@
+# Editor state
+.obsidian/workspace*
+.obsidian/cache
+.trash/
+
+# Pulled from email, Slack, Notion, Drive and Calendar: other people's words.
+# Ignored by default. To version it, delete this line.
+raw/workspace/
+
+# Opt-in: uncomment to keep these out of git too.
+# raw/meetings/
+# raw/ai-chats/
+# journal/

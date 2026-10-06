@@ -10,8 +10,9 @@ python3 scripts/graph_export.py ~/brain edges.csv
 python3 scripts/graph_export.py ~/brain graph.graphml --format graphml
 ```
 
-The script parses every wikilink into an edge list, carries the page `type` as a
-node attribute, and has no dependencies. CSV for code, GraphML for Gephi.
+The script parses every wikilink into an edge list and has no dependencies. CSV
+is a two-column `source,target` list for code. GraphML is for Gephi and also
+carries each page's `type` as a node attribute.
 
 ## Analysis
 
@@ -51,8 +52,11 @@ stop informing each other.
 
 ## Graph databases
 
-Kuzu is embedded, no server, reads CSV directly, and Cypher queries over your
-own notes are genuinely fun for an evening. Neo4j is the full version and is
+[Kuzu](https://github.com/kuzudb/kuzu) is an embedded, serverless graph database
+with Cypher queries, and querying your own notes with it is a fun evening. Its
+repository was archived by its owner on 10 October 2025 and is read-only; earlier
+releases still work, but do not build anything long-lived on it without checking
+the current state. [Neo4j](https://neo4j.com) is the full server version and is
 overkill unless you are building something on top.
 
 Be clear about what this is: an analysis layer, not a replacement. The markdown

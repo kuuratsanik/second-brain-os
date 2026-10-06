@@ -18,13 +18,14 @@ material you chose, at the depth you recorded it.
 
 ## Spaced repetition, without the card-writing
 
-The reason spaced repetition has low adoption is that writing cards is tedious.
-The vault removes that step: concept pages are the source material, and the agent
-can generate cards from them.
+Writing cards by hand is the tedious part of spaced repetition. The vault removes
+that step: concept pages are the source material, and the agent can generate
+cards from them.
 
 The [Spaced Repetition](https://github.com/st3v3nmw/obsidian-spaced-repetition)
-plugin reads cards written inside your notes, so they live alongside the concept
-rather than in a separate app that drifts out of sync.
+plugin reads cards written inside your notes (for example `Question::Answer` on
+one line, in a note tagged `#flashcards`, per its README), so they live
+alongside the concept rather than in a separate app that drifts out of sync.
 
 Keep it to a small number of pages that actually matter. Reviewing everything you
 ever saved is a job, not a habit.

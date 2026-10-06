@@ -9,8 +9,8 @@ clumps, a single dominant hub, a scatter of unconnected dots around the edge.
 
 ## Local graph
 
-This is the view that does work. Open a page, show the local graph, set depth to
-two.
+This is the view that does work. Open a page, run the **Open local graph**
+command, and set the depth slider to two.
 
 You are looking for two things. What is one hop away should be obviously
 related; anything surprising there is either a decorative link to delete or a
@@ -22,15 +22,18 @@ there is, and it takes five seconds.
 
 ## Filters that make the global view usable
 
-- **Filter by type.** `-path:sources` hides source pages and leaves the concept
-  graph, which is the part with meaning in it. Sources outnumber concepts
-  heavily and drown them visually.
-- **Groups by colour.** Colour concepts, entities and synthesis differently. A
+- **Filter by path.** In the graph's **Search files** filter,
+  [`-path:sources`](https://help.obsidian.md/plugins/search) hides every page
+  whose path contains `sources` and leaves the concept graph, which is the part
+  with meaning in it. Sources outnumber concepts heavily and drown them visually.
+- **Groups by colour.** Colour concepts, entities and synthesis differently, with
+  a search term per group (see the [Graph
+  view](https://help.obsidian.md/plugins/graph) help). A
   cluster with no concept pages in it is a pile of sources nobody has processed.
 - **Orphan toggle.** Turn orphans on deliberately, look at what appears, then
   fix or delete them.
-- **Depth and forces.** Lower link force spreads clusters apart enough to see
-  bridges.
+- **Forces.** Lowering the link force loosens the pull along each link, which can
+  spread clusters apart enough to see bridges.
 
 ## What to look for
 

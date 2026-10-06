@@ -1,18 +1,18 @@
 # Repositories
 
-Graph, retrieval and memory projects worth knowing. Stars from the GitHub API,
-September 2026. For agent skills see [skills.md](skills.md); for Obsidian
+Graph, retrieval and memory projects worth knowing. Stars from the GitHub
+API (repository search), as of 5 October 2026. For agent skills see [skills.md](skills.md); for Obsidian
 plugins see [plugins.md](plugins.md).
 
 ## GraphRAG and graph retrieval
 
 | Repo | Stars | What it is |
 |---|---|---|
-| [HKUDS/LightRAG](https://github.com/HKUDS/LightRAG) | 39,467 | Dual-layer graph plus vectors, aimed at cheap incremental updates. EMNLP 2025 |
-| [microsoft/graphrag](https://github.com/microsoft/graphrag) | 35,875 | The reference implementation of the [paper](papers.md) |
-| [gusye1234/nano-graphrag](https://github.com/gusye1234/nano-graphrag) | 3,983 | The same idea in about 1,100 readable lines. Open this one to understand the pipeline |
-| [OSU-NLP-Group/HippoRAG](https://github.com/OSU-NLP-Group/HippoRAG) | 3,985 | The NeurIPS'24 paper's implementation. Personalised PageRank over a knowledge graph |
-| [DEEP-PolyU/Awesome-GraphRAG](https://github.com/DEEP-PolyU/Awesome-GraphRAG) | 2,635 | Curated map of surveys, benchmarks and projects in the area |
+| [HKUDS/LightRAG](https://github.com/HKUDS/LightRAG) | 39,987 | Dual-layer graph plus vectors, aimed at cheap incremental updates. EMNLP 2025 |
+| [microsoft/graphrag](https://github.com/microsoft/graphrag) | 36,232 | The reference implementation of the [paper](papers.md) |
+| [OSU-NLP-Group/HippoRAG](https://github.com/OSU-NLP-Group/HippoRAG) | 4,041 | The NeurIPS'24 paper's implementation. Personalised PageRank over a knowledge graph |
+| [gusye1234/nano-graphrag](https://github.com/gusye1234/nano-graphrag) | 3,991 | The same idea in about 1,100 readable lines. Open this one to understand the pipeline |
+| [DEEP-PolyU/Awesome-GraphRAG](https://github.com/DEEP-PolyU/Awesome-GraphRAG) | 2,663 | Curated map of surveys, benchmarks and projects in the area |
 
 ## Agent memory
 
@@ -22,10 +22,10 @@ even if you never run one.
 
 | Repo | Stars | What it is |
 |---|---|---|
-| [mem0ai/mem0](https://github.com/mem0ai/mem0) | 64,863 | Drop-in memory layer for agents and apps |
-| [getzep/graphiti](https://github.com/getzep/graphiti) | 30,680 | Real-time temporal knowledge graphs for agents |
-| [topoteretes/cognee](https://github.com/topoteretes/cognee) | 30,568 | Turns data into knowledge graphs, combining graph and vector retrieval |
-| [doobidoo/mcp-memory-service](https://github.com/doobidoo/mcp-memory-service) | 1,928 | Persistent memory over MCP, REST API plus knowledge graph |
+| [mem0ai/mem0](https://github.com/mem0ai/mem0) | 66,607 | Drop-in memory layer for agents and apps |
+| [getzep/graphiti](https://github.com/getzep/graphiti) | 31,456 | Real-time temporal knowledge graphs for agents |
+| [topoteretes/cognee](https://github.com/topoteretes/cognee) | 31,399 | Turns data into knowledge graphs, combining graph and vector retrieval |
+| [doobidoo/mcp-memory-service](https://github.com/doobidoo/mcp-memory-service) | 1,985 | Persistent memory over MCP, REST API plus knowledge graph |
 
 ## RAG frameworks
 
@@ -35,17 +35,17 @@ vaults never reach.
 
 | Repo | Stars | What it is |
 |---|---|---|
-| [infiniflow/ragflow](https://github.com/infiniflow/ragflow) | 90,216 | Full RAG engine with document understanding |
-| [run-llama/llama_index](https://github.com/run-llama/llama_index) | 52,058 | Document agent and ingestion framework |
-| [neuml/txtai](https://github.com/neuml/txtai) | 12,931 | Embeddings database and LLM workflows, small enough to read |
+| [infiniflow/ragflow](https://github.com/infiniflow/ragflow) | 91,701 | Full RAG engine with document understanding |
+| [run-llama/llama_index](https://github.com/run-llama/llama_index) | 52,412 | Document agent and ingestion framework |
+| [neuml/txtai](https://github.com/neuml/txtai) | 12,990 | Embeddings database and LLM workflows, small enough to read |
 
 ## MCP
 
 | Repo | Stars | What it is |
 |---|---|---|
-| [punkpeye/awesome-mcp-servers](https://github.com/punkpeye/awesome-mcp-servers) | 94,575 | The index of MCP servers |
-| [modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers) | 90,141 | The official reference servers, including filesystem and memory |
-| [MarkusPfundstein/mcp-obsidian](https://github.com/MarkusPfundstein/mcp-obsidian) | 4,376 | Third-party MCP server for Obsidian over the REST plugin |
+| [punkpeye/awesome-mcp-servers](https://github.com/punkpeye/awesome-mcp-servers) | 95,845 | The index of MCP servers |
+| [modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers) | 91,022 | The official reference servers, including filesystem and memory |
+| [MarkusPfundstein/mcp-obsidian](https://github.com/MarkusPfundstein/mcp-obsidian) | 4,459 | Third-party MCP server for Obsidian over the REST plugin |
 
 Since the Local REST API plugin now ships its own MCP server, a separate one is
 optional. See [MCP for Obsidian](../docs/02-setup/mcp-obsidian.md).
