@@ -32,7 +32,8 @@ connected to existing pages in both directions.
 2. **Check what already exists.** Search the wiki for the main entities and
    concepts. Ingesting into an empty vault and ingesting into a vault of 300
    pages are different jobs: in the second, most of your work is updating
-   pages, not creating them.
+   pages, not creating them. Compare names by the key under "Slugs and
+   aliases" below, not by eye.
 3. **Write the source page** in `wiki/sources/`. Record claims as claims, with
    the source attached.
 4. **Extract concepts and entities.** One page per idea. If a concept page
@@ -47,6 +48,31 @@ connected to existing pages in both directions.
    subject `run-YYYY-MM-DD-ingest`.
 8. **Report** what changed.
 
+## Slugs and aliases
+
+Two names are the same page when their keys match. The key is the name
+normalised to Unicode NFC, case-folded, with everything but letters and digits
+removed, which is how `scripts/link_check.py --duplicates` compares file names,
+`title:` and `aliases:`. `LLM wiki`, `LLM-Wiki` and `llm_wiki` share one key.
+
+- Before creating a page, compute the key of the proposed file name and title
+  and look for it among every page's file name, title and aliases. A match means
+  update that page. A match you are unsure about is not a reason to create a
+  second page: add the new name as an alias and flag it in the report.
+- The key keeps diacritics, so `Õppimine` and `Oppimine` differ under it.
+  Search both spellings by hand, as the vault `CLAUDE.md` says, before you
+  create.
+- The file name follows the vault `CLAUDE.md` (lowercase ASCII, hyphens). The
+  key ignores the hyphens, so two titles that differ only in punctuation or
+  case will collide: give the second a disambiguating word.
+- Set `aliases:` whenever a title has a common variant: an acronym and its
+  expansion, a spelling or hyphenation variant, the original-language name, a
+  short form people use in text. Include the title as it appears in the source.
+  An alias that already belongs to another page is a duplicate, not an alias:
+  stop and update or merge instead (`second-brain-merge`).
+- Alias changes to existing pages are mechanical: add and log them. A page
+  marked `maintained_by: human` keeps its wording; frontmatter only.
+
 ## Output format
 
 End every run with this exact shape:
@@ -58,6 +84,7 @@ Updated pages: <n> (list)
 Links added: <n>
 Contradictions found: <none | description>
 Gaps created: <list of linked pages that do not exist yet>
+Aliases added: <n> (list; name collisions found: <none | description>)
 ```
 
 ## Calibration
