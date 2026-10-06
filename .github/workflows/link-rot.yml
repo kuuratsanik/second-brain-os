@@ -3,6 +3,11 @@ name: link-rot
 # Advisory only: a weekly look at the external links in docs/ and resources/.
 # It never fails the run and never opens issues (they are disabled here); read
 # the report in the run summary.
+#
+# GitHub disables scheduled workflows in a repository with no activity for 60
+# days; re-enable it under the Actions tab, or run it by hand with
+# workflow_dispatch. From memory of the GitHub Actions docs ("Events that
+# trigger workflows", schedule); not re-checked against the live page.
 on:
   schedule:
     - cron: "37 5 * * 1"   # Mondays 05:37 UTC; not on the hour, when runners are busiest
@@ -29,12 +34,17 @@ jobs:
         run: python3 tools/check_external_links.py --selftest
       - name: Check external links
         continue-on-error: true
+        # timeout 15m is below the job's 20, and --budget 780 (13 min) below that,
+        # so the summary is written even when hosts are slow. 2>&1 puts a crash
+        # in the summary too.
         run: |
-          python3 tools/check_external_links.py > "$RUNNER_TEMP/report.txt" || true
+          timeout 15m python3 tools/check_external_links.py --markdown --budget 780 > "$RUNNER_TEMP/report.md" 2>&1 || true
           {
             echo "## External link check"
             echo
-            echo '```'
-            cat "$RUNNER_TEMP/report.txt"
-            echo '```'
+            if [ -s "$RUNNER_TEMP/report.md" ]; then
+              cat "$RUNNER_TEMP/report.md"
+            else
+              echo "No report was produced (the check timed out or crashed)."
+            fi
           } >> "$GITHUB_STEP_SUMMARY"

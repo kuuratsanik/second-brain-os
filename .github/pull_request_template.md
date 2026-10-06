@@ -12,6 +12,7 @@ the page could not be fetched". Write "none" if there are no factual claims.>
 
 - [ ] `python3 tools/check_kit.py --selftest && python3 tools/check_kit.py`
 - [ ] `python3 tools/doc_links.py --selftest && python3 tools/doc_links.py`
+- [ ] `python3 tools/check_external_links.py --selftest` (no network)
 - [ ] `python3 -m unittest discover -s tests -t .`
 - [ ] `python3 vault-template/.claude/hooks/test_guard.py`
 - [ ] `python3 scripts/link_check.py vault-template`

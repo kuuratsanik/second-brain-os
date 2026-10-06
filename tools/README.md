@@ -46,6 +46,16 @@ JSON writer. Change the repository owner or the credit line there.
 in `docs/` and `README.md`. CI runs it; run it locally before committing docs.
 `python3 tools/doc_links.py --selftest` checks the checker.
 
+`check_external_links.py` is a stdlib-only, advisory check for link rot in the
+external URLs of `docs/` and `resources/`. It sends HEAD (then GET) requests,
+8 at a time with a time budget, and reports broken URLs with the `file:line`
+that cites them, redirects to another host, https-to-http downgrades,
+inconclusive results and blocked ones (401, 403, 429) to check by hand. It exits
+0 unless `--strict` is given and has `--json` and `--markdown` output. A weekly
+workflow (`.github/workflows/link-rot.yml`) writes the report to the run
+summary. `python3 tools/check_external_links.py --selftest` tests it against a
+local server and needs no network; CI runs that.
+
 `check_kit.py` is a stdlib-only validator for what ships to users' vaults:
 `skills/`, `commands/`, `agents/` and `plugins/`. It checks that frontmatter
 parses, required fields are present and no key is outside the list in the
