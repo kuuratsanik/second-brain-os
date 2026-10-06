@@ -13,6 +13,7 @@ vault-relative path first and falls back to the file name.
 """
 import argparse
 import datetime
+import errno
 import json
 import os
 import re
@@ -184,16 +185,16 @@ def _field(text, key):
     return _scalar(m.group(1)) if m else ""
 
 
-_DAY = re.compile(r"(\d{4})-(\d{1,2})-(\d{1,2})(?:$|[T\s])", re.ASCII)
+_DAY = re.compile(r"(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)", re.ASCII)
 
 
 def _day(value):
-    """A YYYY-MM-DD date, or None. `[[2020-01-05]]` brackets are stripped, `2020-1-5`
+    """A YYYY-MM-DD date, or None. `[[2020-01-05]]` and `[[2020-01-05|alias]]` are unwrapped, `2020-1-5`
     is accepted, and a time after the date is ignored. Checked by hand rather than
     with fromisoformat, whose accepted forms differ between 3.9 and 3.11."""
     v = value.strip()
     if v.startswith("[[") and v.endswith("]]"):
-        v = v[2:-2].strip()
+        v = v[2:-2].split("|", 1)[0].strip()
     m = _DAY.match(v)
     if not m:
         return None
@@ -206,14 +207,14 @@ def _day(value):
 def page_date(path, text, warn=None):
     """`updated:`, else `created:`, else the file's mtime. A missing, empty or
     unparseable value falls through to the next source; an unparseable one is
-    passed to `warn(path)`."""
+    passed to `warn(path, key)`."""
     for key in ("updated", "created"):
         value = _field(text, key)
         d = _day(value)
         if d:
             return d
         if value and warn:
-            warn(path)
+            warn(path, key)
     return datetime.date.fromtimestamp(os.path.getmtime(path))
 
 
@@ -239,7 +240,8 @@ def norm_name(s):
 def duplicate_groups(pages):
     """[(kind, key, [paths])]. One table holds every page's file name, `title:`
     and aliases under the normalised name; two or more pages on one key is a
-    group. The kind is 'alias' if any alias contributed to it, else 'title'."""
+    group. The kind is 'title' if two or more pages are in it by file name or
+    `title:`, else 'alias'."""
     table = {}
     for path in sorted(pages):
         text = pages[path]
@@ -253,8 +255,8 @@ def duplicate_groups(pages):
     out = []
     for k in sorted(table):
         if len(table[k]) > 1:
-            kinds = set().union(*table[k].values())
-            out.append(("alias" if "alias" in kinds else "title", k, sorted(table[k])))
+            by_name = sum("title" in kinds for kinds in table[k].values())
+            out.append(("title" if by_name > 1 else "alias", k, sorted(table[k])))
     return out
 
 
@@ -277,7 +279,7 @@ def main():
     pages = collect(args.vault)
     if args.stale is not None or args.duplicates:
         rel = lambda p: os.path.relpath(p, args.vault).replace(os.sep, "/")
-        warn = lambda p: print(f"unparseable date: {rel(p)}", file=sys.stderr)
+        warn = lambda p, k: print(f"unparseable {k}: {rel(p)}", file=sys.stderr)
         stale = dup = None
         if args.stale is not None:
             stale = stale_pages(pages, args.stale, warn=warn)
@@ -302,8 +304,10 @@ def main():
             for line in lines:
                 print(line)
             sys.stdout.flush()
-        except BrokenPipeError:
-            # the reader (head, a closed pager) went away; stop quietly
+        except OSError as e:
+            # the reader (head, a closed pager) went away: EPIPE, or EINVAL on Windows
+            if e.errno not in (errno.EPIPE, errno.EINVAL):
+                raise
             try:
                 os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
             except (OSError, ValueError):

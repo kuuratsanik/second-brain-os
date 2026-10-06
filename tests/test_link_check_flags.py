@@ -70,12 +70,23 @@ class Flags(VaultCase):
         self.assertEqual(rows, {"wiki/link.md": "2001-01-05", "wiki/short.md": "2002-01-05",
                                 "wiki/time.md": "2003-01-05", "wiki/junk.md": "2005-01-05"})
 
+    def test_stale_alias_pipe_and_suffix_forms(self):
+        self.page("wiki/pipe.md", "updated: [[2020-01-05|Jan 5]]")
+        self.page("wiki/zed.md", "updated: 2020-01-06Z")
+        self.page("wiki/long.md", "updated: 2004-01-055\ncreated: 2005-01-05")
+        rows = {r[0]: r[1] for r in self.run_flag("--stale", "30")}
+        self.assertEqual(rows, {"wiki/pipe.md": "2020-01-05", "wiki/zed.md": "2020-01-06",
+                                "wiki/long.md": "2005-01-05"})  # 055 is not a day
+
     def test_stale_warns_on_unparseable_date(self):
         self.page("wiki/bad.md", "updated: sometime\ncreated: 2001-02-03")
+        self.page("wiki/both.md", "updated: x\ncreated: y")
         self.page("wiki/blank.md", "updated:")
         p = run_script("link_check.py", self.v, "--stale", "30")
         self.assertEqual(p.returncode, 0)
-        self.assertEqual(p.stderr.strip().splitlines(), ["unparseable date: wiki/bad.md"])
+        self.assertEqual(sorted(p.stderr.strip().splitlines()),
+                         ["unparseable created: wiki/both.md", "unparseable updated: wiki/bad.md",
+                          "unparseable updated: wiki/both.md"])
 
     def test_json_output(self):
         import json
@@ -132,6 +143,14 @@ class Flags(VaultCase):
         rows = self.run_flag("--duplicates")
         self.assertIn(["alias", "pg", "wiki/pg.md", "wiki/postgres.md"], rows)
         self.assertIn(["title", "caf\u00e9", "wiki/cafe-composed.md", "wiki/unicode-cafe.md"], rows)
+
+    def test_group_kind_is_title_when_two_pages_share_a_name(self):
+        self.page("people/Foo.md", "aliases: [bar]")
+        self.page("wiki/foo.md", "aliases: [Bar]")  # also a shared alias, but the names already match
+        self.page("people/zed.md", "aliases: [foo]")
+        rows = self.run_flag("--duplicates")
+        self.assertIn(["title", "foo", "people/Foo.md", "people/zed.md", "wiki/foo.md"], rows)
+        self.assertIn(["alias", "bar", "people/Foo.md", "wiki/foo.md"], rows)
 
     def test_duplicates_by_shared_alias(self):
         self.page("wiki/one.md", "aliases: [LLM Wiki, one-thing]")
