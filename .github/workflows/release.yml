@@ -48,8 +48,8 @@ jobs:
       - name: Check the tagged commit is on main
         run: |
           set -euo pipefail
-          git fetch --no-tags origin main
-          if ! git merge-base --is-ancestor "$GITHUB_SHA" FETCH_HEAD; then
+          # origin/main comes from the checkout above (fetch-depth: 0).
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
             echo "::error::the tagged commit is not in main"
             exit 1
           fi
@@ -84,5 +84,9 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "::notice::release $TAG already exists; nothing to do"
+            exit 0
+          fi
           python3 tools/release_notes.py "$TAG" > "$RUNNER_TEMP/notes.md"
           gh release create "$TAG" --verify-tag --title "$TAG" --notes-file "$RUNNER_TEMP/notes.md"

@@ -9,7 +9,10 @@ Usage:
     python3 tools/bench_kv_slots.py --selftest
 
 The server must run with `--slot-save-path DIR` (slot save and restore are
-disabled without it) and the default `--slots`. Per repetition it measures the
+disabled without it); the slots endpoint is on by default per the README, so
+do not pass `--no-slots`. The prefix must fit the server's context (`-c`),
+with room for `--n-predict` tokens; the default 3000 words is several
+thousand tokens. Per repetition it measures the
 time to the first streamed token (TTFT), and reads `timings.cache_n` (prompt
 tokens reused from the cache) and `timings.prompt_n` (prompt tokens processed)
 from the last streamed event, for three states:
@@ -353,7 +356,9 @@ def main(argv=None):
                    nonce=not args.no_nonce, log=lambda m: print(m, file=sys.stderr))
     except BenchError as e:
         print(f"bench_kv_slots: {e}", file=sys.stderr)
-        print("Is llama-server running with --slot-save-path DIR and slots enabled?", file=sys.stderr)
+        if "slots/" in str(e) and "HTTP" in str(e):
+            print("Slot save and restore need llama-server started with --slot-save-path DIR "
+                  "and slots not disabled.", file=sys.stderr)
         return 2
     print(json.dumps(rows, indent=2) if args.json else table(rows, args.repeat))
     return 0

@@ -17,7 +17,7 @@ Checks, as `path:line: message`, exit status 1 on any problem:
   plugin sources resolve;
 * the root plugin (`.claude-plugin/plugin.json` next to `marketplace.json`,
   which packages `skills/`, `commands/` and `agents/`): its version equals
-  `skills/VERSION`, which is `X.Y.Z` and has a `## [X.Y.Z]` heading in
+  `skills/VERSION`, which is `X.Y.Z` and has a non-empty `## [X.Y.Z]` section in
   `CHANGELOG.md` (the release workflow publishes that section), its `commands` and `agents` lists name exactly the files in
   those folders except `README.md` (a plugin loads every `.md` in a listed
   folder, and a folder README would become a bogus command or agent), the
@@ -428,6 +428,8 @@ class Checker:
                     self.err(changelog, 1, "missing CHANGELOG.md")
                 elif find_section(text, want) is None:
                     self.err(changelog, 1, f"no heading '## [{want}]' for the version in skills/VERSION")
+                elif not find_section(text, want):
+                    self.err(changelog, 1, f"the '## [{want}]' section is empty")
         for key, folder, names in (("commands", "commands", commands), ("agents", "agents", agents)):
             listed = data.get(key)
             if not (isinstance(listed, list) and all(isinstance(x, str) for x in listed)):
@@ -737,6 +739,7 @@ def selftest():
     case("root plugin passes", ROOT, None)
     case("root plugin version differs from skills/VERSION", dict(ROOT, **{"skills/VERSION": "1.0.1\n"}), "differs from skills/VERSION")
     case("changelog has no heading for skills/VERSION", dict(ROOT, **{"CHANGELOG.md": "## [Unreleased]\n\n## [0.9.0] - x\n"}), "no heading '## [1.0.0]'")
+    case("changelog section for skills/VERSION is empty", dict(ROOT, **{"CHANGELOG.md": "## [Unreleased]\n\n## [1.0.0] - x\n\n## [0.9.0] - y\n\n- Old.\n"}), "section is empty")
     case("changelog is missing", dict(ROOT, **{"CHANGELOG.md": None}), "missing CHANGELOG.md")
     case("skills/VERSION is not X.Y.Z", dict(ROOT, **{"skills/VERSION": "1.0\n", RP: rp(version="1.0")}), "is not X.Y.Z")
     case("root plugin lists a missing command", dict(ROOT, **{RP: rp(commands=["./commands/one.md"])}), "does not list ./commands/two.md")

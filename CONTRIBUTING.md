@@ -46,7 +46,7 @@ python3 scripts/link_check.py vault-template
 
 # lint, as in .github/workflows/lint.yml (pinned versions; any finding fails CI)
 pip install ruff==0.16.10 zizmor==1.30.1
-ruff check .                             # rules and the py39 target are in ruff.toml
+python3 -m ruff check .                  # rules and the py39 target are in ruff.toml
 zizmor --offline --no-progress .github   # workflow security audit
 actionlint                               # workflow syntax; see the actionlint note below
 
@@ -88,7 +88,7 @@ release whose body is that version's section of `CHANGELOG.md`.
 2. In `CHANGELOG.md`, move the entries under `## [Unreleased]` to a new
    `## [X.Y.Z] - YYYY-MM-DD` heading.
 3. Run the checks above. `python3 tools/check_kit.py` fails if the two version
-   files differ or the changelog has no heading for the version, and
+   files differ or the changelog has no heading, or an empty section, for the version, and
    `python3 tools/release_notes.py X.Y.Z` prints the text the release will carry.
 4. Open a pull request and merge it to `main`.
 5. Tag the merge commit and push the tag:
@@ -100,5 +100,14 @@ release whose body is that version's section of `CHANGELOG.md`.
 
 The workflow publishes nothing and fails if the tag is not `vX.Y.Z`, differs
 from `skills/VERSION` or `plugin.json`, is not in `main`, or has no changelog
-section. To redo a failed release, delete the tag locally and on `origin`, fix
-the cause, and tag again.
+section. If a release for the tag already exists, the job skips creating one. To
+redo a failed release, delete any half-made release with
+`gh release delete vX.Y.Z --yes`, delete the tag locally and on `origin`, fix the
+cause, and tag again.
+
+Consider a repository ruleset for `v*` tags (under Settings, Rules) that
+restricts who can create, update and delete them, since a pushed tag publishes a
+release.
+
+The Dependabot `cooldown` setting in `.github/dependabot.yml` was checked against
+zizmor's documentation, not GitHub's own Dependabot reference.
