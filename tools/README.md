@@ -96,9 +96,10 @@ anything. Run `python3 tools/check_kit.py` and `python3 tools/check_kit.py
 --selftest`; when the Claude Code docs add a frontmatter field, a settings key
 or a hook event, update the key sets at the top of the script.
 
-`tests/` holds `unittest` tests for the six vault scripts, using a fixture vault
+`tests/` holds `unittest` tests for the seven vault scripts, using a fixture vault
 built in a temp dir (CRLF and BOM files, aliases, piped links, skip folders and
-`--include`, CSV and GraphML shape, and ChatGPT and Claude chat exports). Run
+`--include`, CSV and GraphML shape, and ChatGPT and Claude chat exports). The MCP
+server, `vault_mcp.py`, is tested by driving it as a subprocess over stdio. Run
 `python3 -m unittest discover -s tests -t .` from the repo root. No installs.
 CI runs these on Linux with Python 3.9 and on Windows with Python 3.13, because
 the vault scripts must work on plain Python 3 everywhere.

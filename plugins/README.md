@@ -71,7 +71,7 @@ that variable in skill, command and agent text for plugin components
 ([manifest reference](https://code.claude.com/docs/en/plugins/manifest-reference#where-each-variable-resolves)).
 In a vault that has the folder, the vault's own copy is used.
 
-Copy the six scripts into the vault anyway if you want `/second-brain:metrics`,
+Copy the seven scripts into the vault anyway if you want `/second-brain:metrics`,
 `/second-brain:health` or `/second-brain:graph` to run without a prompt, or
 from a scheduled task:
 
@@ -88,7 +88,7 @@ Code asks first, and a scheduled run has nobody to ask.
 
 | | Copy into the vault (Quickstart) | Plugin |
 |---|---|---|
-| Install | `cp -r` of `skills/`, `commands/`, `agents/`, plus the six vault scripts from `scripts/` | `claude plugin install second-brain@second-brain-os`, plus the template copy |
+| Install | `cp -r` of `skills/`, `commands/`, `agents/`, plus the seven vault scripts from `scripts/` | `claude plugin install second-brain@second-brain-os`, plus the template copy |
 | Names | `/ingest`, `curator` | `/second-brain:ingest`, `second-brain:curator` |
 | Where the files live | In the vault, versioned with your notes | In `~/.claude/plugins/`, outside the vault |
 | Edit a skill for this vault | Edit the file | Not durable: an update replaces the plugin's copy. Copy the skill into `.claude/skills/` under another name, or use the Quickstart |

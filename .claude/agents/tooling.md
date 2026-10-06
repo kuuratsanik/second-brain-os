@@ -14,7 +14,7 @@ matches the sources.
 
 Keep the scripts dependency-free except for `markdown`, which the site
 generators need. The vault scripts (`link_check.py`, `vault_stats.py`,
-`graph_export.py`, `chat_export_to_md.py`, `vault_search.py`, `dashboard.py`) ship to users and must run on plain
+`graph_export.py`, `chat_export_to_md.py`, `vault_search.py`, `dashboard.py`, `vault_mcp.py`) ship to users and must run on plain
 Python 3 with no installs, including on Windows.
 
 Before you mark a task complete, run the pipeline from a clean checkout to

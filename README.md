@@ -47,7 +47,7 @@ cp -r second-brain-os/skills   ~/brain/.claude/skills
 cp -r second-brain-os/commands ~/brain/.claude/commands
 cp -r second-brain-os/agents   ~/brain/.claude/agents
 mkdir -p ~/brain/scripts
-cp second-brain-os/scripts/{chat_export_to_md,dashboard,graph_export,link_check,vault_search,vault_stats}.py ~/brain/scripts/
+cp second-brain-os/scripts/{chat_export_to_md,dashboard,graph_export,link_check,vault_mcp,vault_search,vault_stats}.py ~/brain/scripts/
 
 # the folder READMEs are for reading on GitHub, not for the agent
 rm ~/brain/.claude/*/README.md
@@ -85,7 +85,7 @@ New-Item -ItemType Directory -Force $HOME\brain\.claude, $HOME\brain\scripts | O
 Copy-Item -Recurse second-brain-os\skills   $HOME\brain\.claude\skills
 Copy-Item -Recurse second-brain-os\commands $HOME\brain\.claude\commands
 Copy-Item -Recurse second-brain-os\agents   $HOME\brain\.claude\agents
-foreach ($f in 'chat_export_to_md','dashboard','graph_export','link_check','vault_search','vault_stats') {
+foreach ($f in 'chat_export_to_md','dashboard','graph_export','link_check','vault_mcp','vault_search','vault_stats') {
   Copy-Item "second-brain-os\scripts\$f.py" $HOME\brain\scripts\
 }
 Remove-Item $HOME\brain\.claude\skills\README.md, $HOME\brain\.claude\commands\README.md, $HOME\brain\.claude\agents\README.md
@@ -115,14 +115,14 @@ some of the rules in `CLAUDE.md` into enforced ones. They arrive with the
 replacing them. See [what is enforced](vault-template/README.md#what-is-enforced-and-what-is-not). `raw` is included so
 the empty subfolders are tracked; `raw/workspace/` stays ignored.
 
-The `scripts/` copy is only the six vault scripts, not the site builders
+The `scripts/` copy is only the seven vault scripts, not the site builders
 (`build_*.py`), and it is what lets `/metrics`, `/health` and `/graph-export` run
 `scripts/vault_stats.py` and friends from inside the vault. On Windows, see the
 [Windows](#windows) subsection above.
 
 **Or install the kit as a plugin.** Instead of the `cp -r` lines for `skills/`,
 `commands/` and `agents/`, add this repo as a plugin marketplace. Still copy
-`vault-template` (the rules and the guard live there), and copy the six vault
+`vault-template` (the rules and the guard live there), and copy the seven vault
 scripts (the `scripts/` lines of the block above) so they run without a
 permission prompt:
 
@@ -196,7 +196,7 @@ them separate matters more than it sounds.
 | [`commands/`](commands/README.md) | 78 slash commands, scoped entry points into those skills. The scheduling command is `/maintenance-schedule`, so it does not shadow Claude Code's built-in `/schedule` |
 | [`agents/`](agents/README.md) | 6 subagents, four of them read-only by design |
 | [`plugins/`](plugins/README.md) | Claude Code plugins — the course's tools, installable in two commands |
-| [`scripts/`](scripts/README.md) | Dependency-free Python for link checking, stats, graph export, search and a health dashboard |
+| [`scripts/`](scripts/README.md) | Dependency-free Python for link checking, stats, graph export, search, a health dashboard and a read-only MCP server |
 | [`resources/`](resources/README.md) | Tools, repos, papers and reading worth your time |
 | [`examples/`](examples/README.md) | A fictional demo vault with link-check and stats output |
 
@@ -346,7 +346,7 @@ Outside Obsidian: [Web Clipper](https://obsidian.md/clipper) for capture,
 
 ## Skills and other implementations
 
-This repo ships **29 skills, 78 commands, 6 subagents and 6 scripts**: one skill
+This repo ships **29 skills, 78 commands, 6 subagents and 7 scripts**: one skill
 per workflow in the guide, and a command for every scoped version of it you would
 actually run.
 

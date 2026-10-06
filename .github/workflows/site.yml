@@ -91,3 +91,24 @@ jobs:
           python scripts/vault_search.py examples/demo-vault "oppimise plaan" --json
           python scripts/dashboard.py examples/demo-vault --out "${{ runner.temp }}/dashboard.html"
           python scripts/dashboard.py examples/demo-vault --json
+      # An MCP client's first calls, as a round trip: initialize, then tools/list.
+      # Stdout must hold exactly the two responses and nothing else.
+      - name: Smoke-test the MCP server
+        shell: bash
+        run: |
+          set -e
+          printf '%s\n' \
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"ci","version":"0"}}}' \
+            '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
+            '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' \
+            | python scripts/vault_mcp.py examples/demo-vault > "${{ runner.temp }}/mcp.out"
+          python - "${{ runner.temp }}/mcp.out" <<'PY'
+          import json, sys
+          lines = open(sys.argv[1], encoding="utf-8").read().splitlines()
+          assert len(lines) == 2, lines
+          init, tools = (json.loads(x) for x in lines)
+          assert init["id"] == 1 and init["result"]["protocolVersion"] == "2025-11-25", init
+          assert init["result"]["capabilities"] == {"tools": {}}, init
+          assert tools["id"] == 2 and len(tools["result"]["tools"]) == 7, tools
+          print("MCP round trip ok:", ", ".join(t["name"] for t in tools["result"]["tools"]))
+          PY
