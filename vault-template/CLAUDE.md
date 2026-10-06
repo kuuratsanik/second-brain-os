@@ -208,10 +208,12 @@ skip the item and queue it.
   Archive nothing you cannot explain in one sentence.
 
 **Enforced.** `.claude/settings.json` and `.claude/hooks/guard.py` block pushes,
-deletes, moves out of the vault, uploads, connector writes (by tool name), edits
-to existing `raw/` files, writes to `journal/`, `scripts/` and `.claude/`,
-CLAUDE.md edits outside Profile and staging `raw/workspace/`. A blocked call is
-final: queue the item. They read command text only, so scripts that delete,
-unmatched connector tools and some PowerShell forms get through; the rest,
-including (b), (d), (f) and the rails, is prompt-only. Archive with `git mv`,
-never `mv`. See `README.md`.
+deletes (including `node -e`, `perl -e` and similar one-liners), moves out of
+the vault, uploads, connector writes (by tool name), edits to existing `raw/`
+files, writes to `journal/`, `scripts/`, `.obsidian/` and `.claude/`, CLAUDE.md
+edits outside Profile, staging `raw/workspace/`, `git mv` into `archive/` before
+the page is committed (rail 1), and keys, tokens or private keys written to a
+file (d). A blocked call is final: queue the item. They read command text only,
+so script files that delete, unmatched connector tools and some PowerShell
+forms get through; the rest, including (b), (f) and the other rails, is
+prompt-only. Archive with `git mv`, never `mv`. See `README.md`.

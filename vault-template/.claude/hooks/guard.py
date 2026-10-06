@@ -11,8 +11,11 @@ Registered in .claude/settings.json for two events:
 
 What it blocks:
   - changing an existing file under raw/ (new files are allowed)
-  - any write under journal/, scripts/ or .claude/ (settings, hooks, skills,
-    commands, agents), all owner-maintained
+  - any write under journal/, scripts/, .obsidian/ or .claude/ (settings,
+    hooks, skills, commands, agents), all owner-maintained
+  - writing a credential (GitHub, AWS, Anthropic, OpenAI-style, Slack, Stripe
+    keys, private key blocks) into a file or a shell redirect (hard stop d)
+  - git mv into archive/ of a page with uncommitted changes (rail 1)
   - CLAUDE.md edits outside the "## Profile" block
   - shell commands that delete files, discard work, push, add remotes,
     rewrite history, upload data with curl or wget, or stage raw/workspace/
@@ -21,8 +24,9 @@ What it blocks:
     vault or clobber protected pages
 
 It is a safety net, not a sandbox. It reads the command text, so a script that
-deletes files from inside (for example `python3 x.py`) is not seen. For
-OS-level enforcement use Claude Code's sandbox.
+deletes files from inside (for example `python3 x.py`) is not seen; one-liners
+(`python3 -c`, `node -e`, `perl -e`, `ruby -e`, `php -r`, `deno eval`) are
+matched by pattern only. For OS-level enforcement use Claude Code's sandbox.
 
 Hook protocol: https://code.claude.com/docs/en/hooks
 Permission rule syntax: https://code.claude.com/docs/en/permissions
@@ -44,11 +48,13 @@ SHELLS = {"sh", "bash", "zsh", "dash", "ksh", "pwsh", "powershell"}
 GIT_OPTS_WITH_VALUE = {"-C", "-c", "--git-dir", "--work-tree", "--namespace",
                        "--exec-path", "--super-prefix", "--config-env"}
 # Owner-maintained: the agent may not write here at all.
-OWNER_DIRS = frozenset({".claude", "journal", "scripts"})
+# .obsidian is Obsidian's own settings folder.
+OWNER_DIRS = frozenset({".claude", "journal", "scripts", ".obsidian"})
 # Never moved away or archived (rail 2), and never overwritten once they exist.
 KEEP_PAGES = ["wiki/systems", "wiki/hubs", "wiki/index.md", "wiki/log.md"]
 # A source of a move may not be (or contain) any of these.
-MOVE_SOURCE_BLOCKED = ["raw", "archive", "journal", ".claude", "scripts", "claude.md", ".gitignore"] + KEEP_PAGES
+MOVE_SOURCE_BLOCKED = ["raw", "archive", "journal", ".claude", "scripts", ".obsidian",
+                       "claude.md", ".gitignore"] + KEEP_PAGES
 MOVE_CMDS = {"mv", "move", "move-item", "mi", "rename-item", "rni", "ren", "rename"}
 RENAME_CMDS = {"rename-item", "rni", "ren", "rename"}
 COPY_CMDS = {"cp", "copy", "copy-item", "cpi", "copy-item", "install", "ln"}
@@ -58,6 +64,26 @@ WEB_CMDS = {"invoke-webrequest", "iwr", "invoke-restmethod", "irm", "curl", "wge
 PS_WEB_FLAGS = {"headers", "header", "uri", "outfile", "method", "useb", "usebasicparsing",
                 "contenttype", "timeoutsec", "credential", "proxy", "useragent",
                 "maximumredirection", "skipcertificatecheck", "body", "infile", "form"}
+
+# Hard stop (d): credentials never go into a file. To adjust, edit
+# SECRET_PATTERNS (each is (kind, regex)); to turn the check off, set
+# SECRET_CHECK = False. The message names the kind, never the value.
+SECRET_CHECK = True
+SECRET_PATTERNS = [
+    ("a GitHub token", r"\bgh[pousr]_[A-Za-z0-9]{36,}"),
+    ("a GitHub token", r"\bgithub_pat_[A-Za-z0-9_]{40,}"),
+    ("an AWS access key id", r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b"),
+    ("an Anthropic API key", r"\bsk-ant-[A-Za-z0-9_-]{20,}"),
+    ("an API key (sk-)", r"\bsk-[A-Za-z0-9]{20,}"),
+    ("an API key (sk-)", r"\bsk-(?:proj|svcacct|admin)-[A-Za-z0-9_-]{20,}"),
+    ("a private key", r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----\s+(?:[A-Za-z0-9+/]{40,}|Proc-Type)"),
+    ("a Slack token", r"\bxox[baprs]-[A-Za-z0-9-]{20,}"),
+    ("a Slack webhook URL", r"hooks\.slack\.com/services/T[A-Z0-9]{8,}/B[A-Z0-9]{8,}/[A-Za-z0-9]{20,}"),
+    ("a Stripe live key", r"\b[spr]k_live_[A-Za-z0-9]{20,}"),
+]
+# A match containing one of these is a documented placeholder, not a credential.
+SECRET_PLACEHOLDER = re.compile(r"fake|demo|example|placeholder|redacted|dummy|sample|your|"
+                                r"x{4,}|0{4,}|\*{3,}|\.{3,}", re.I)
 
 BLOCK_MSG = "Blocked by vault guard (.claude/hooks/guard.py): "
 
@@ -150,6 +176,36 @@ def check_claude_md(tool, tool_input, real_path):
                     "(hard stop e). Propose other changes in the run report.")
 
 
+def find_secret(text):
+    """Kind of the first credential-looking string in text, or None."""
+    if not SECRET_CHECK or not isinstance(text, str):
+        return None
+    for kind, pat in SECRET_PATTERNS:
+        for m in re.finditer(pat, text):
+            if not SECRET_PLACEHOLDER.search(m.group(0)):
+                return kind
+    return None
+
+
+def check_secrets(texts):
+    for t in texts:
+        kind = find_secret(t)
+        if kind:
+            raise Block(f"the content contains {kind} (hard stop d). Never write "
+                        "credentials into a file: leave it out and report the file "
+                        "and kind to the owner.")
+
+
+def written_texts(tool, tin):
+    """Every piece of new text a file tool would write."""
+    out = [tin.get("content"), tin.get("file_text"), tin.get("new_string"),
+           tin.get("new_str"), tin.get("new_text"), tin.get("new_source")]
+    for e in tin.get("edits") or []:
+        if isinstance(e, dict):
+            out += [e.get("new_string"), e.get("new_str"), e.get("new_text")]
+    return [x for x in out if isinstance(x, str)]
+
+
 def check_path(tool, path, tool_input, cwd, root):
     """Raise Block if `tool` may not write `path`. tool 'Bash' means no
     content-level checks are possible, so CLAUDE.md is fully blocked."""
@@ -168,10 +224,10 @@ def check_path(tool, path, tool_input, cwd, root):
     real = os.path.realpath(jp(cwd, os.path.expanduser(path)))
     if r.lower() == ".gitignore":
         raise Block(".gitignore is owner-maintained (it decides what is versioned).")
-    if first in {".claude", "scripts"}:
+    if first in {".claude", "scripts", ".obsidian"}:
         raise Block(f"'{r}' is owner-maintained configuration or tooling (settings, "
-                    "hooks, skills, commands, agents, scripts). Only the owner "
-                    "changes it (hard stop e).")
+                    "hooks, skills, commands, agents, scripts, Obsidian settings). "
+                    "Only the owner changes it (hard stop e).")
     if first == "journal":
         raise Block(f"'{r}' is the owner's journal, read-only for the agent. "
                     "Put your writing on a wiki page.")
@@ -465,6 +521,32 @@ def check_git(args, cwd, root):
         if "-f" in flags or "--force" in flags or "f" in letters:
             raise Block("git mv --force can overwrite pages (hard stop c).")
         check_move("git mv", pos, [], cwd, root, is_move=True)
+        check_archive_checkpoint(pos, cwd, root)
+
+
+def check_archive_checkpoint(pos, cwd, root):
+    """Rail 1: a page moved into archive/ must be committed first. Fails closed
+    when git cannot answer."""
+    if len(pos) < 2:
+        return
+    dfull, _ = lit_rel(pos[-1], cwd, root)
+    if dfull is None or dfull.split("/")[0] != "archive":
+        return
+    for s in pos[:-1]:
+        spec = s if FUZZY.search(s) else ":(literal)" + os.path.join(cwd or "", os.path.expanduser(s))
+        try:
+            p = subprocess.run(["git", "status", "--porcelain", "--", spec], cwd=root,
+                               capture_output=True, text=True, timeout=10)
+        except (OSError, subprocess.SubprocessError):
+            raise Block("could not run git status to check for uncommitted changes "
+                        "before archiving; commit the checkpoint first (rail 1).")
+        if p.returncode != 0:
+            raise Block("git status failed, so the checkpoint cannot be verified "
+                        "(is this folder a git repository with a commit?); "
+                        "commit the checkpoint first (rail 1).")
+        if p.stdout.strip():
+            raise Block(f"'{s}' has uncommitted changes: commit the checkpoint "
+                        "first (rail 1), then git mv it into archive/.")
 
 
 PS_PARAMS = ("method", "body", "infile")
@@ -657,6 +739,37 @@ def nested_script(name, args):
     return None
 
 
+SCRIPT_INTERP = re.compile(r"^(node|nodejs|deno|bun|perl|ruby|php)[0-9.\-]*$")
+SCRIPT_DELETE = re.compile(
+    r"\b(rmSync|unlinkSync|rmdirSync|rmtree|remove_tree|rmdir|unlink|"
+    r"File\.(delete|unlink)|FileUtils\.(rm|rm_r|rm_rf|rm_f|remove\w*)|Dir\.(rmdir|delete|unlink)|"
+    r"fs\.(promises\.)?rm|fsPromises\.rm|Deno\.remove(Sync)?)\b", re.I)
+SCRIPT_WRITE = re.compile(
+    r"\b(writeFile(Sync)?|appendFile(Sync)?|createWriteStream|copyFile(Sync)?|"
+    r"rename(Sync)?|file_put_contents|File\.(write|open|rename)|IO\.write|"
+    r"Deno\.write\w*|open)\b", re.I)
+PROTECTED_WORD = re.compile(r"raw|journal|scripts|\.claude|\.obsidian|claude\.md|\.gitignore|"
+                            r"wiki[/\\](systems|hubs|index|log)", re.I)
+
+
+def script_oneliner(name, args):
+    """Code text of a node/deno/bun/perl/ruby/php one-liner, or None. Fuzzy on
+    purpose: the whole argument list after the interpreter is searched."""
+    if not SCRIPT_INTERP.match(name):
+        return None
+    base = re.sub(r"[0-9.\-]+$", "", name)
+    if base == "deno":
+        hit = "eval" in args
+    elif base == "php":
+        hit = any(a == "-r" or re.fullmatch(r"-[A-Za-z]*r", a) for a in args)
+    elif base in {"perl", "ruby"}:
+        hit = any(re.fullmatch(r"-[A-Za-z]*[eE]", a) for a in args)
+    else:  # node, bun
+        hit = any(a in {"-e", "--eval", "-p", "--print"} or a.startswith(("--eval=", "--print="))
+                  for a in args)
+    return " ".join(args) if hit else None
+
+
 def check_segment(tokens, cwd, root, depth):
     for target in redirect_targets(tokens):
         check_path("Bash", target, {}, cwd, root)
@@ -712,6 +825,13 @@ def check_segment(tokens, cwd, root, depth):
         code = " ".join(args[args.index("-c") + 1:])
         if re.search(r"\b(rmtree|os\.remove|os\.unlink|os\.rmdir|\.unlink\(|\.rmdir\()", code):
             raise Block("python one-liner that deletes files (hard stop c).")
+    code = script_oneliner(name, args)
+    if code is not None:
+        if SCRIPT_DELETE.search(code):
+            raise Block(f"{name} one-liner that deletes files (hard stop c).")
+        if SCRIPT_WRITE.search(code) and PROTECTED_WORD.search(code):
+            raise Block(f"{name} one-liner that writes to a protected path "
+                        "(raw/, journal/, scripts/, .claude/, .obsidian/, CLAUDE.md).")
     # writes to protected places
     if name == "tee" or name in PS_WRITE_CMDS:
         for p in pos:
@@ -791,8 +911,14 @@ def pre_tool_use(data):
             raise Block("no file path in the tool input")
         for p in paths:
             check_path(tool, p, tin, cwd, root)
+        check_secrets(written_texts(tool, tin))
     elif tool in SHELL_TOOLS:
-        check_shell(tin.get("command") or "", cwd, root)
+        cmd = tin.get("command") or ""
+        check_shell(cmd, cwd, root)
+        # Redirects, heredocs, tee and PowerShell writers carry content in the text.
+        if re.search(r">|<<|\btee\b|set-content|add-content|out-file|\bsc\b|\bac\b",
+                     cmd, re.I):
+            check_secrets([cmd])
 
 
 def stop(data):

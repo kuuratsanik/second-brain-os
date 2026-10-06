@@ -75,16 +75,18 @@ are copied with the template into `.claude/`:
 | Hard stop or rail | Enforced by | Still prompt-only |
 |---|---|---|
 | Never push, send, add a remote, hard-reset or amend | deny rules and hook | Push routes the hook does not know |
-| Never delete (`rm`, `rmdir`, `unlink`, `git rm`, `find -delete`, `git clean`) | deny rules and hook | Deleting from inside a script the agent runs |
+| Never delete (`rm`, `rmdir`, `unlink`, `git rm`, `find -delete`, `git clean`) | deny rules and hook; the hook also pattern-matches one-liners (`python3 -c`, `node -e`, `perl -e`, `ruby -e`, `php -r`, `deno eval`) that call a delete function | Deleting from inside a script file the agent runs, and one-liners the patterns miss |
 | Moves and copies stay in the vault and never clobber protected paths | hook (`mv`, `cp`, `git mv`, `install`, `ln`, PowerShell equivalents) | |
 | Writing to connected services (a) | deny rules on MCP tool names | Connectors whose tool names do not match, and MCP file tools (Obsidian REST and similar) whose names the patterns miss |
 | Sending vault content out (b) | deny rules and hook for curl, wget and PowerShell web uploads; ask for WebFetch, WebSearch, curl, wget | What goes into a search query or a read, and other upload routes: `scp`, `rsync` to a host, `ssh`, `nc`, `gh api` and `gh gist`, and Python, Node or other one-liners that open a socket |
 | `raw/` is append-only | hook (new files allowed, existing files and folders cannot be changed, moved or renamed) | |
-| `journal/`, `scripts/`, `.claude/` and `.gitignore` are yours | deny rules and hook | |
+| `journal/`, `scripts/`, `.claude/`, `.obsidian/` (Obsidian's settings) and `.gitignore` are yours | deny rules and hook | |
 | `CLAUDE.md` only changes in Profile (e) | hook; ask rule | Schedule prompts, which live outside the vault |
 | `raw/workspace/` never staged | hook (also blocks `git add -A`, `.`, the vault root, `raw`, `-f`, `commit -a`) | |
-| Checkpoint, log, report, queue, run commit | | All of it; the Stop hook only warns about uncommitted paths |
-| Secrets (d), merging people (f) | | All of it |
+| Checkpoint before archive (rail 1) | hook: `git mv` into `archive/` is blocked while the source has uncommitted changes, and when git cannot say (no repository, no commit, git missing) | Checkpoints before other operations (merge, rename, split); plain `mv`, which the hook does not check |
+| Log, report, queue, run commit | | All of it; the Stop hook only warns about uncommitted paths |
+| Secrets (d) | hook: Write, Edit and MultiEdit content, and shell redirects, heredocs and `tee`, are blocked when they contain a GitHub, AWS, Anthropic, OpenAI-style, Slack or Stripe live key or a private key block; the message names the kind, not the value | Other credential formats, passwords, account numbers, secrets that arrive through a script or a connector, and anything already in a file |
+| Merging people (f) | | All of it |
 
 The permission rules cannot express "existing files only", so the `raw/` and
 `CLAUDE.md` checks live in the hook. Both layers run: a call must pass the hook
@@ -94,6 +96,8 @@ the rules leave unmatched without a prompt and disables Claude Code's other
 safety checks, so do not run the vault in it. A hook blocks only by exiting with code 2: a hook that crashes, cannot
 start or times out does not block, and the deny rules are then the only layer.
 `guard.py` itself fails closed on bad input.
+
+**Secret patterns.** The check looks for known key shapes with realistic lengths: `ghp_`, `gho_`, `ghu_`, `ghs_` and `ghr_` tokens, `github_pat_`, `AKIA` and `ASIA` key ids, `sk-ant-`, `sk-` followed by 20 or more letters or digits (and `sk-proj-` style keys), PEM private key blocks, `xox[baprs]-` tokens, Slack webhook URLs and Stripe live keys. A page that only mentions a prefix ("`ghp_` tokens") or holds a short value passes, and so does any match containing `fake`, `demo`, `example`, `placeholder`, `redacted`, `dummy`, `sample`, `your`, a run of four `x` or four `0`, so a placeholder like `FAKE-DEMO-TOKEN-0000` is fine. To add a format, change a length or switch the check off, edit `SECRET_PATTERNS`, `SECRET_PLACEHOLDER` or `SECRET_CHECK` near the top of `.claude/hooks/guard.py`, then run `test_guard.py`.
 Neither layer is a sandbox. They read the command text, so a script that
 deletes files itself is not seen; for that, turn on Claude Code's sandbox.
 PowerShell coverage is partial: the hook knows the common cmdlets

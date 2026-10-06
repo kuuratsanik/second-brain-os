@@ -2,7 +2,8 @@
 """Feeds guard.py sample hook payloads and checks the exit codes.
 
 Run from anywhere:  python3 .claude/hooks/test_guard.py
-Builds a throwaway vault in a temp folder; touches nothing else. Stdlib only.
+Builds throwaway vaults in temp folders (one is a real git repository, for the
+archive checkpoint cases); touches nothing else. Stdlib only. Needs git.
 """
 import json
 import os
@@ -26,10 +27,16 @@ six domains
 """
 
 
-def make_vault():
+def git(root, *args):
+    subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@example.com",
+                    "-c", "commit.gpgsign=false"] + list(args), cwd=root, check=True,
+                   capture_output=True)
+
+
+def make_vault(use_git=True):
     root = tempfile.mkdtemp(prefix="vault-guard-test-")
     for d in ("raw/clippings", "raw/workspace/email", "journal", "wiki/systems",
-              "wiki/hubs", ".claude", "archive"):
+              "wiki/hubs", "wiki/concepts", ".claude", ".obsidian", "archive"):
         os.makedirs(os.path.join(root, d))
     for f, text in (("raw/clippings/a.md", "original"), ("journal/2026-01-01.md", "mine"),
                     ("wiki/x.md", "page"), ("wiki/log.md", "log"), ("wiki/a.md", "a"),
@@ -37,6 +44,15 @@ def make_vault():
                     ("CLAUDE.md", CLAUDE_MD)):
         with open(os.path.join(root, f), "w", encoding="utf-8") as fh:
             fh.write(text)
+    if use_git:
+        git(root, "init", "-q")
+        git(root, "add", "--", "wiki", "CLAUDE.md")
+        git(root, "commit", "-q", "-m", "init")
+        # uncommitted pages for the archive checkpoint cases
+        with open(os.path.join(root, "wiki/concepts/new.md"), "w") as fh:
+            fh.write("new")
+        with open(os.path.join(root, "wiki/a.md"), "w") as fh:
+            fh.write("a, edited")
     return root
 
 
@@ -366,11 +382,87 @@ def main():
         (2, "PATH before git", bash("PATH=/tmp:$PATH git status")),
         (0, "HOME before a non-git command", bash("HOME=/tmp ls wiki")),
 
+        # script one-liners (audit gap 1)
+        (2, "node -e rmSync", bash("""node -e "require('fs').rmSync('wiki/x.md')" """)),
+        (2, "node --eval unlinkSync", bash("""node --eval "require('fs').unlinkSync('wiki/x.md')" """)),
+        (2, "node -e fs.rm recursive", bash("""node -e "fs.rm('wiki',{recursive:true},()=>{})" """)),
+        (2, "node -p rmdirSync", bash("""node -p "fs.rmdirSync('wiki')" """)),
+        (2, "node -e writeFileSync raw", bash("""node -e "fs.writeFileSync('raw/clippings/a.md','x')" """)),
+        (2, "node -e writeFileSync journal", bash("""node -e "require('fs').writeFileSync('journal/2026-01-01.md','')" """)),
+        (2, "perl -e unlink", bash("""perl -e "unlink q(wiki/x.md)" """)),
+        (2, "perl -E unlink", bash("""perl -E 'unlink "wiki/x.md"'""")),
+        (2, "perl -ne rmtree", bash("""perl -MFile::Path -e 'rmtree("wiki")'""")),
+        (2, "ruby -e File.delete", bash("""ruby -e "File.delete('wiki/x.md')" """)),
+        (2, "ruby -e FileUtils.rm_rf", bash("""ruby -rfileutils -e "FileUtils.rm_rf('wiki')" """)),
+        (2, "php -r unlink", bash("""php -r "unlink('wiki/x.md');" """)),
+        (2, "deno eval remove", bash("""deno eval "Deno.removeSync('wiki/x.md')" """)),
+        (2, "nodejs via sudo", bash("""sudo nodejs -e "fs.unlinkSync('wiki/x.md')" """)),
+        (2, "node -e inside bash -c", bash("""bash -c "node -e \\"fs.rmSync('wiki')\\"" """)),
+        (0, "node -e print", bash("""node -e "console.log(1+1)" """)),
+        (0, "node -e write to wiki", bash("""node -e "fs.writeFileSync('wiki/new.md','x')" """)),
+        (0, "node script file", bash("node tools/x.js")),
+        (0, "perl -e print", bash("""perl -e 'print "hi\\n"'""")),
+        (0, "ruby -e puts", bash("""ruby -e "puts 1" """)),
+        (0, "php -r echo", bash("""php -r "echo 1;" """)),
+        (0, "deno eval print", bash("""deno eval "console.log(1)" """)),
+        (0, "python -c print", bash("""python3 -c "print(1)" """)),
+        # .obsidian is owner-only (gap 4)
+        (2, "Write .obsidian/app.json", write(P(".obsidian", "app.json"))),
+        (2, "Edit .obsidian/core-plugins.json", edit(P(".obsidian", "app.json"), "a", "b")),
+        (2, "redirect into .obsidian", bash("echo {} > .obsidian/app.json")),
+        (2, "cp into .obsidian", bash("cp wiki/x.md .obsidian/x.md")),
+        (2, "mv .obsidian away", bash("mv .obsidian /tmp/")),
+        (0, "ls .obsidian", bash("ls .obsidian")),
+        # archive needs a checkpoint (gap 2)
+        (2, "git mv uncommitted new page to archive", bash("git mv wiki/concepts/new.md archive/wiki/concepts/new.md")),
+        (2, "git mv modified page to archive", bash("git mv wiki/a.md archive/wiki/a.md")),
+        (2, "git mv uncommitted page into archive dir", bash("git mv wiki/concepts/new.md archive/")),
+        (0, "git mv committed page to archive", bash("git mv wiki/x.md archive/wiki/x.md")),
+        (0, "git mv uncommitted page within wiki", bash("git mv wiki/concepts/new.md wiki/concepts/newer.md")),
+        # secrets on write (gap 3)
+        (2, "Write ghp token", write(P("wiki", "n.md"), "token ghp_" + "a1B2c3D4e5F6g7H8i9J0k1L2m3N4o5P6q7R8")),
+        (2, "Write github_pat token", write(P("wiki", "n.md"), "github_pat_" + "11ABCDEFG0abcdefghij_KLMNOPQRSTUVWXYZ0123456789abcdefgh")),
+        (2, "Write AWS key id", write(P("wiki", "n.md"), "id: AKIA" + "Q3RTZ6MXNP4WVB7E")),
+        (2, "Write sk-ant key", write(P("wiki", "n.md"), "sk-ant-" + "api03-Zx9Qw8Er7Ty6Ui5Op4As3Df2Gh1Jk0")),
+        (2, "Write sk- key", write(P("wiki", "n.md"), "key sk-" + "Zx9Qw8Er7Ty6Ui5Op4As3Df2Gh1Jk0")),
+        (2, "Write sk-proj key", write(P("wiki", "n.md"), "sk-proj-" + "Zx9Qw8Er7Ty6Ui5Op4As3Df2Gh1Jk0")),
+        (2, "Write private key block", write(P("wiki", "n.md"), "-----BEGIN RSA PRIVATE KEY-----\n" + "MIIEowIBAAKCAQEA" * 5 + "\n-----END RSA PRIVATE KEY-----")),
+        (2, "Write Slack token", write(P("wiki", "n.md"), "xoxb-" + "1234567890-0987654321-AbCdEfGhIjKlMnOpQrStUvWx")),
+        (2, "Write Stripe live key", write(P("wiki", "n.md"), "sk_live_" + "4eC39HqLyjWDarjtT1zdp7dc")),
+        (2, "Edit new_string with secret", edit(P("wiki", "x.md"), "page", "ghp_" + "a1B2c3D4e5F6g7H8i9J0k1L2m3N4o5P6q7R8")),
+        (2, "MultiEdit new_string with secret", {"tool_name": "MultiEdit", "tool_input": {
+            "file_path": P("wiki", "x.md"),
+            "edits": [{"old_string": "page", "new_string": "AKIA" + "Q3RTZ6MXNP4WVB7E"}]}}),
+        (2, "redirect with secret", bash("echo ghp_" + "a1B2c3D4e5F6g7H8i9J0k1L2m3N4o5P6q7R8 > wiki/n.md")),
+        (2, "tee with secret", bash("echo sk-ant-" + "api03-Zx9Qw8Er7Ty6Ui5Op4As3Df2Gh1Jk0 | tee wiki/n.md")),
+        (2, "heredoc with secret", bash("cat > wiki/n.md <<EOF\nAKIA" + "Q3RTZ6MXNP4WVB7E\nEOF")),
+        (0, "prose about ghp_ prefix", write(P("wiki", "n.md"), "GitHub `ghp_` tokens are classic personal access tokens.")),
+        (0, "prose about sk- prefix", write(P("wiki", "n.md"), "Keys start with sk- followed by letters; AKIA marks an AWS key id.")),
+        (0, "short sk-1", write(P("wiki", "n.md"), "see sk-1 and sk-12345")),
+        (0, "hyphenated word with sk-", write(P("wiki", "n.md"), "the sk-learn-pipeline-for-text-classification notes")),
+        (0, "placeholder token", write(P("wiki", "n.md"), "token FAKE-DEMO-TOKEN-0000 (placeholder)")),
+        (0, "placeholder ghp_", write(P("wiki", "n.md"), "ghp_" + "EXAMPLE" * 6)),
+        (0, "AWS docs example id", write(P("wiki", "n.md"), "AKIAIOSFODNN7EXAMPLE")),
+        (0, "BEGIN PRIVATE KEY header only", write(P("wiki", "n.md"), "A file starts with -----BEGIN PRIVATE KEY----- and ends with END.")),
+        (0, "short AKIA in prose", write(P("wiki", "n.md"), "AKIA1234 is not a full key")),
+        (0, "redirect without secret", bash("echo hello > wiki/n.md")),
+        (0, "grep for a pattern", bash("grep -rE 'ghp_[A-Za-z0-9]{36}' wiki")),
+
     ]
     stop_case = {"hook_event_name": "Stop", "stop_hook_active": False}
     failed = 0
     for want, label, payload in cases:
         got = run(root, payload)
+        ok = got == want
+        failed += not ok
+        print(f"{'ok  ' if ok else 'FAIL'} exit {got} (want {want})  {label}")
+    # not a git repository: the archive checkpoint fails closed
+    nogit = make_vault(use_git=False)
+    extra = [(2, "git mv to archive without a repo (fails closed)",
+              bash("git mv wiki/x.md archive/wiki/x.md")),
+             (0, "git mv within wiki without a repo", bash("git mv wiki/x.md wiki/y.md"))]
+    for want, label, payload in extra:
+        got = run(nogit, payload)
         ok = got == want
         failed += not ok
         print(f"{'ok  ' if ok else 'FAIL'} exit {got} (want {want})  {label}")
@@ -385,7 +477,7 @@ def main():
     p = subprocess.run([sys.executable, GUARD], input="not json", capture_output=True, text=True)
     print(f"{'ok  ' if p.returncode == 2 else 'FAIL'} exit {p.returncode} (want 2)  bad JSON fails closed")
     failed += p.returncode != 2
-    total = len(cases) + 5
+    total = len(cases) + len(extra) + 5
     print(f"\n{total - failed}/{total} passed")
     return 1 if failed else 0
 
