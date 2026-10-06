@@ -78,8 +78,8 @@ the Microsoft Store stub and does nothing.
 
 **Or install the kit as a plugin.** Instead of the `cp -r` lines for `skills/`,
 `commands/` and `agents/`, add this repo as a plugin marketplace. Still copy
-`vault-template` (the rules and the guard live there) and, for the scripts,
-`scripts/`:
+`vault-template` (the rules and the guard live there), and copy `scripts/` so the
+scripts run without a permission prompt:
 
 ```bash
 claude plugin marketplace add kuuratsanik/second-brain-os

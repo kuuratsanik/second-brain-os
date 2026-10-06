@@ -14,10 +14,12 @@ without that file predates 1.0.0.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-06
+
 ### Added
 
 - The kit as a Claude Code plugin, `second-brain` (version taken from
-  `skills/VERSION`, so 1.0.0): `claude plugin marketplace add
+  `skills/VERSION`, so 1.1.0): `claude plugin marketplace add
   kuuratsanik/second-brain-os`, then `claude plugin install
   second-brain@second-brain-os`. It packages the existing `skills/`,
   `commands/` and `agents/` from the repository root, with no second copy of
@@ -34,7 +36,6 @@ without that file predates 1.0.0.
   both. A copied vault is unaffected.
 - `vault-template/CLAUDE.md`: the autonomy override also covers the names with
   the `second-brain:` prefix.
-
 - agents-course plugin 0.4.0: an eval suite for `claude plugin eval`, in
   `plugins/agents-course/evals/`. Twelve cases: a trigger case and a
   must-not-fire case for each of the five skills and the `loop-critic` agent,

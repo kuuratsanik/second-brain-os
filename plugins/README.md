@@ -35,7 +35,7 @@ copies of `skills/`, `commands/` and `agents/`.
 
 Claude Code puts every plugin component under the plugin's name
 ([plugins reference](https://code.claude.com/docs/en/plugins-reference): an agent `reviewer` in plugin `deploy-tools` appears as `deploy-tools:reviewer`; plugin skills are `/plugin-name:skill-name` on the [skills page](https://code.claude.com/docs/en/skills)).
-Checked with Claude Code 2.1.290, the plugin exposes:
+I checked this by installing the plugin from a local copy of this repo with Claude Code 2.1.290 and reading the component names in the session's init event, with no model call:
 
 | Component | Copied into `.claude/` | As the plugin |
 |---|---|---|
@@ -46,12 +46,20 @@ Checked with Claude Code 2.1.290, the plugin exposes:
 Skills still trigger from their descriptions, so you rarely type the long
 name. Commands are the part you type, and they now carry the prefix. A command
 with `disable-model-invocation: true` keeps it: the field is part of the file,
-not of the name. The sixteen commands that a scheduled task can fire are the
-same sixteen, as `/second-brain:ingest`, `/second-brain:lint` and so on. The
+not of the name. The sixteen commands that a scheduled task can fire should be
+the same sixteen, as `/second-brain:ingest`, `/second-brain:lint` and so on.
+That is inferred from the skills documentation, not stated in the scheduled-tasks
+documentation, so check the first run of a task before relying on it. The
 vault template's autonomy override names commands, skills and agents by their
 short names, and its text says the `second-brain:` prefix is covered too. A
 file under `.claude/commands/` in your vault would still run as `/ingest`; a
 plugin command never does.
+
+`claude plugin details second-brain@second-brain-os` lists the 24 skills but shows
+0 agents and no commands. It reads only the default directories, and the manifest
+lists files, so it undercounts. The components still load, because the manifest
+accepts file paths for `commands` and `agents`
+([manifest reference](https://code.claude.com/docs/en/plugins/manifest-reference#path-rules)).
 
 ### Scripts
 
@@ -114,7 +122,7 @@ plugin's copy of `vault_stats.py`, which is a read.
 ### Versions
 
 `plugin.json` carries the version from [`skills/VERSION`](../skills/VERSION),
-which is the kit version, so plugin 1.0.0 is kit 1.0.0. Claude Code takes a
+which is the kit version, so the plugin and the kit always carry the same number. Claude Code takes a
 manifest `version` over the commit SHA
 ([loading reference](https://code.claude.com/docs/en/plugins/loading#how-claude-code-computes-the-version)),
 so `claude plugin update` finds nothing new until the version is bumped. Bump
