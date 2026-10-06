@@ -59,7 +59,9 @@ Rules for applying it:
 - In a report, name the file and the label, never the content.
 - Labels are advice to you and to the skills, not a lock. A label stops nothing
   the vault's guard hook does not already block, so a page that must never
-  leave the machine also belongs out of any synced or backed-up folder.
+  leave the machine also belongs out of any synced or backed-up folder. The one
+  exception is that the hook blocks a `restricted` page, or a 200-character
+  verbatim excerpt of one, going to `output/`, outside the vault or to the web.
 
 ## Output format
 

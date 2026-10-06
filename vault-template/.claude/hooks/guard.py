@@ -3,7 +3,8 @@
 
 Registered in .claude/settings.json for two events:
 
-  PreToolUse  Write|Edit|MultiEdit|NotebookEdit and Bash|PowerShell
+  PreToolUse  Write|Edit|MultiEdit|NotebookEdit, Bash|PowerShell, and
+              WebFetch|WebSearch|mcp__.*
               Exit 2 blocks the call and sends stderr to the agent.
               Exit 0 lets the normal permission flow decide.
   Stop        Warns (does not block) when the run ends with uncommitted
@@ -11,8 +12,8 @@ Registered in .claude/settings.json for two events:
 
 What it blocks:
   - changing an existing file under raw/ (new files are allowed)
-  - any write under journal/, scripts/, .obsidian/ or .claude/ (settings,
-    hooks, skills, commands, agents), all owner-maintained
+  - any write under journal/, scripts/, .obsidian/ or .claude/ (settings, hooks,
+    skills, commands, agents, the audit log), all owner-maintained
   - writing a credential (GitHub, AWS, Anthropic, OpenAI-style, Slack, Stripe
     keys, private key blocks) into a file or a shell redirect (hard stop d)
   - git mv into archive/ of a page with uncommitted changes (rail 1)
@@ -22,6 +23,15 @@ What it blocks:
   - shell writes (redirects, tee, sed -i, mv, cp, git mv, truncate, PowerShell
     Set-Content and friends) to those places, and moves or copies that leave the
     vault or clobber protected pages
+  - pages marked `sensitivity: restricted` leaving the vault: a verbatim excerpt
+    of 200 or more characters headed for output/, a path outside the vault, a
+    web request or an MCP tool; and shell commands that copy, pipe or send such a
+    page (see the "sensitivity: restricted" section below for exact limits)
+
+Every block appends one JSON line {ts, tool, rule, target} to .claude/guard.log
+(rotated at about 1 MB to guard.log.1). It holds a rule name and a path or the
+tool name, never a command, a secret or an excerpt. The guard also refuses any
+write to the log, its rotation and its cache, so the agent cannot edit it.
 
 It is a safety net, not a sandbox. It reads the command text, so a script that
 deletes files from inside (for example `python3 x.py`) is not seen; one-liners
@@ -31,11 +41,14 @@ matched by pattern only. For OS-level enforcement use Claude Code's sandbox.
 Hook protocol: https://code.claude.com/docs/en/hooks
 Permission rule syntax: https://code.claude.com/docs/en/permissions
 """
+import fnmatch
 import json
 import os
 import re
 import subprocess
 import sys
+import time
+import zlib
 
 WRITE_TOOLS = {"Write", "Edit", "MultiEdit", "NotebookEdit"}
 SHELL_TOOLS = {"Bash", "PowerShell"}
@@ -91,7 +104,43 @@ BLOCK_MSG = "Blocked by vault guard (.claude/hooks/guard.py): "
 
 
 class Block(Exception):
-    pass
+    """A refusal. `rule` names the rule for the audit log; when it is None the
+    message is classified (RULE_PATTERNS). `target` is the path that triggered it."""
+
+    def __init__(self, msg, rule=None, target=None):
+        super().__init__(msg)
+        self.rule, self.target = rule, target
+
+
+# Rule names for the audit log (.claude/guard.log), matched against the message.
+# The log records the rule name and a path or tool name, never the message text.
+RULE_PATTERNS = [
+    (r"audit log", "audit-log"),
+    (r"not a git repository|uncommitted changes|could not run git status", "archive-checkpoint"),
+    (r"^'?CLAUDE\.md|CLAUDE\.md (may|can|has|is|cannot)|the edit does not match", "claude-md"),
+    (r"\.gitignore", "gitignore"),
+    (r"owner-maintained configuration", "owner-config"),
+    (r"owner's journal", "journal"),
+    (r"already exists in raw/", "raw-append-only"),
+    (r"glob, brace or variable|cannot tell where|cannot be checked|cannot check", "unresolvable-path"),
+    (r"git -c |git config|GIT_CONFIG", "git-config"),
+    (r"sends the vault out|git remote|adding or repointing", "push-or-remote"),
+    (r"uploads data|upload flag|non-GET", "upload"),
+    (r"outside the vault", "outside-vault"),
+    (r"protected path|system, hub, index or log", "protected-move"),
+    (r"pathspec|never staged|stage by explicit|stages every tracked", "staging"),
+    (r"deletes files|one-liner that deletes|find -delete", "delete"),
+    (r"git (reset|revert|checkout|restore|clean|rm|rebase|commit|mv)|amending|--no-verify|rewrites history", "git-destructive"),
+    (r"PowerShell -EncodedCommand|no file path|internal error", "unreadable-input"),
+]
+LOG_MAX = 1_000_000
+
+
+def classify(msg):
+    for pat, name in RULE_PATTERNS:
+        if re.search(pat, msg):
+            return name
+    return "other"
 
 
 # --------------------------------------------------------------- paths
@@ -195,7 +244,7 @@ def check_secrets(texts):
         if kind:
             raise Block(f"the content contains {kind} (hard stop d). Never write "
                         "credentials into a file: leave it out and report the file "
-                        "and kind to the owner.")
+                        "and kind to the owner.", rule="secret")
 
 
 def written_texts(tool, tin):
@@ -226,6 +275,10 @@ def check_path(tool, path, tool_input, cwd, root):
     real = os.path.realpath(jp(cwd, os.path.expanduser(path)))
     if r.lower() == ".gitignore":
         raise Block(".gitignore is owner-maintained (it decides what is versioned).")
+    if r.lower().startswith(".claude/guard"):
+        # guard.log, guard.log.1 and the restricted-page cache: written by the hook only
+        raise Block(f"'{r}' is the guard's audit log or cache. Only the hook writes it; "
+                    "the agent never edits, moves or deletes it.", rule="audit-log")
     if first in {".claude", "scripts", ".obsidian"}:
         raise Block(f"'{r}' is owner-maintained configuration or tooling (settings, "
                     "hooks, skills, commands, agents, scripts, Obsidian settings). "
@@ -782,7 +835,9 @@ SCRIPT_WRITE = re.compile(
     r"\b(writeFile(Sync)?|appendFile(Sync)?|createWriteStream|copyFile(Sync)?|"
     r"rename(Sync)?|file_put_contents|File\.(write|open|rename)|IO\.write|"
     r"Deno\.write\w*|open)\b", re.I)
-PROTECTED_WORD = re.compile(r"raw|journal|scripts|\.claude|\.obsidian|claude\.md|\.gitignore|"
+PY_WRITE = re.compile(r"open\s*\([^)]*,\s*['\"][^'\"]*[wax+]|write_text|write_bytes|"
+                     r"shutil\.(copy|move)|os\.(rename|replace|truncate)|\.touch\s*\(|\bwrite\s*\(")
+PROTECTED_WORD = re.compile(r"raw|journal|scripts|\.claude|guard\.log|\.obsidian|claude\.md|\.gitignore|"
                             r"wiki[/\\](systems|hubs|index|log)", re.I)
 
 
@@ -827,6 +882,8 @@ def check_segment(tokens, cwd, root, depth):
     name = cmd_name(t)
     args = t[1:]
     pos = paths_in_segment(t)
+    if _CTX:
+        note_segment(tokens, name, args, pos, cwd, root)
     if (name == "git" or name.startswith("git-")) and any(
             GIT_ENV_BLOCKED.match(x) for x in assigns):
         raise Block("GIT_CONFIG*, GIT_DIR, GIT_WORK_TREE, GIT_SSH* and GIT_EXEC_PATH "
@@ -859,6 +916,9 @@ def check_segment(tokens, cwd, root, depth):
         code = " ".join(args[args.index("-c") + 1:])
         if re.search(r"(?<![A-Za-z0-9_])(rmtree|os\.remove|os\.unlink|os\.rmdir)|\.unlink\s*\(|\.rmdir\s*\(", code):
             raise Block("python one-liner that deletes files (hard stop c).")
+        if PY_WRITE.search(code) and PROTECTED_WORD.search(code):
+            raise Block("python one-liner that writes to a protected path (raw/, journal/, "
+                        "scripts/, .claude/ and the audit log, .obsidian/, CLAUDE.md).")
     code = script_oneliner(name, args)
     if code is not None:
         if SCRIPT_DELETE.search(code) or (SCRIPT_SHELL.search(code) and SHELL_DELETE.search(code)):
@@ -928,13 +988,417 @@ def check_shell(cmd, cwds, root, depth=0):
         cwds = next_cwds(cwds, seg)
 
 
+# ------------------------------------------------- sensitivity: restricted
+#
+# The privacy skill says a `sensitivity: restricted` page never leaves the vault
+# or lands in a report. This is the part of that rule a hook can check:
+#   (a) Write/Edit/MultiEdit/NotebookEdit text headed for output/ or a path
+#       outside the vault may not hold a verbatim run of RESTRICTED_MIN or more
+#       characters from a restricted page;
+#   (b) a shell command that names a restricted page (or a glob or directory that
+#       holds one) and also writes to output/ or outside the vault, or runs a
+#       sending tool (curl, scp, rsync, ssh, nc, gh ...), is refused;
+#   (c) WebFetch, WebSearch and MCP tool inputs may not hold such a run.
+# "Verbatim" means after lower-casing and collapsing every run of spaces and
+# punctuation to one space, so bold, quotes, line wraps and bullets do not hide a
+# copy. Paraphrase, short fragments and everything else stay prompt-only.
+#
+# Limits, so nobody mistakes this for a lock:
+#   - only pages whose frontmatter says `sensitivity: restricted` count (not
+#     private, not unlabelled pages, not labels the agent forgot to set);
+#   - only runs of 200 or more normalised characters; a 199-character quote, a
+#     paraphrase, a translation or text split into short pieces passes, and
+#     each Write or Edit is judged alone (pieces added over several calls are
+#     not added up);
+#   - only text headed for output/, outside the vault, the web or an MCP tool;
+#     copying a restricted page into another wiki page is prompt-only;
+#   - shell: a command is refused only when it names the page (or a glob or
+#     folder that holds it) and also writes to output/ or outside the vault, or
+#     runs a sending tool. A path built at run time, hidden in a script file or
+#     reached through find -exec or xargs is not seen;
+#   - a script the agent runs (python3 x.py) can read and send anything.
+# The page list is cached in .claude/guard-cache.json, keyed by mtime and size.
+# Cost: one directory walk per export-bound call (about 12 ms on 3,000 pages
+# on top of Python's start-up) plus about 0.7 ms per KB of text checked.
+# Set RESTRICTED_CHECK = False to turn it off.
+RESTRICTED_CHECK = True
+RESTRICTED_MIN = 200          # normalised characters in a shared run
+_WIN = 100                    # any shared run of 2*_WIN-1 chars holds a whole aligned window
+EXPORT_DIRS = {"output"}      # vault folders whose content is meant to leave
+SKIP_DIRS = {".git", ".obsidian", ".claude", ".trash", "node_modules", "__pycache__"}
+CACHE_NAME = "guard-cache.json"
+SEND_CMDS = {"curl", "wget", "scp", "sftp", "ssh", "rsync", "nc", "ncat", "netcat", "socat",
+             "gh", "aws", "gsutil", "gcloud", "rclone", "mail", "mailx", "mutt", "sendmail",
+             "invoke-webrequest", "iwr", "invoke-restmethod", "irm", "send-mailmessage"}
+DIR_REF_CMDS = COPY_CMDS | MOVE_CMDS | {"rsync", "tar", "zip", "7z", "7za", "grep", "egrep",
+                                        "fgrep", "rg", "ag", "ack", "scp", "compress-archive"}
+FM_LABEL = re.compile(r"(?mi)^sensitivity[ \t]*:[ \t]*[\"']?restricted[\"']?[ \t\r]*(?:#.*)?$")
+_CTX = {}
+_PAGES = {}
+
+
+def reset_ctx():
+    _CTX.clear()
+    _CTX.update({"dests": [], "tokens": [], "net": False})
+    _PAGES.clear()
+
+
+def normalise(text):
+    return re.sub(r"[\W_]+", " ", text.lower()).strip()
+
+
+def split_frontmatter(text):
+    """(frontmatter, body). Frontmatter is '' when the page has none."""
+    t = text.lstrip("﻿")
+    if t.startswith("---"):
+        m = re.search(r"\n---[ \t]*\r?(\n|$)", t[3:])
+        if m:
+            return t[3:3 + m.start()], t[3 + m.end():]
+    return "", t
+
+
+def _sample_hashes(norm_body):
+    out = []
+    for p in range(0, len(norm_body) - _WIN + 1, _WIN):
+        out.append(zlib.crc32(norm_body[p:p + _WIN].encode("utf-8")))
+    return out
+
+
+def _read(path, limit):
+    with open(path, "rb") as f:
+        return f.read(limit).decode("utf-8", "replace")
+
+
+def restricted_pages(root):
+    """{vault-relative path: sampled window hashes} for every page labelled
+    `sensitivity: restricted`. A cache in .claude/guard-cache.json holds each
+    file's mtime and size; only files that changed since the last call are
+    re-read, so a warm call costs one directory walk."""
+    if "pages" in _PAGES:
+        return _PAGES["pages"]
+    base = norm(root)
+    cache_path = os.path.join(root, ".claude", CACHE_NAME)
+    try:
+        with open(cache_path, encoding="utf-8") as f:
+            cache = json.load(f)
+        old = cache["files"] if cache.get("v") == 1 and isinstance(cache.get("files"), dict) else {}
+    except (OSError, ValueError, KeyError, TypeError):
+        old = {}
+    files, changed = {}, False
+    stack = [base]
+    while stack:
+        d = stack.pop()
+        try:
+            it = os.scandir(d)
+        except OSError:
+            continue
+        with it:
+            for e in it:
+                try:
+                    if e.is_dir(follow_symlinks=False):
+                        if e.name not in SKIP_DIRS:
+                            stack.append(e.path)
+                        continue
+                    if not e.name.lower().endswith(".md") or not e.is_file(follow_symlinks=False):
+                        continue
+                    st = e.stat(follow_symlinks=False)
+                except OSError:
+                    continue
+                rel = e.path[len(base) + 1:].replace(os.sep, "/")
+                prev = old.get(rel)
+                if (isinstance(prev, list) and len(prev) == 4 and prev[0] == st.st_mtime_ns
+                        and prev[1] == st.st_size):
+                    files[rel] = prev
+                    continue
+                changed = True
+                ent = [st.st_mtime_ns, st.st_size, 0, []]
+                try:
+                    fm, _ = split_frontmatter(_read(e.path, 16384))
+                    if FM_LABEL.search(fm):
+                        _, body = split_frontmatter(_read(e.path, 8 << 20))
+                        ent[2], ent[3] = 1, _sample_hashes(normalise(body))
+                except OSError:
+                    pass
+                files[rel] = ent
+    if changed or len(files) != len(old):
+        try:
+            if os.path.isdir(os.path.dirname(cache_path)):
+                tmp = cache_path + f".{os.getpid()}.tmp"
+                with open(tmp, "w", encoding="utf-8") as f:
+                    json.dump({"v": 1, "files": files}, f, separators=(",", ":"))
+                os.replace(tmp, cache_path)
+        except OSError:
+            pass
+    pages = {rel: ent[3] for rel, ent in files.items() if ent[2]}
+    _PAGES["pages"] = pages
+    return pages
+
+
+def _page_norm(root, rel):
+    try:
+        _, body = split_frontmatter(_read(os.path.join(norm(root), rel), 8 << 20))
+    except OSError:
+        return ""
+    return normalise(body)
+
+
+def _run(a, b, i, j):
+    """Length of the common run through a[i] == b[j], extended both ways."""
+    lo = 0
+    while i - lo > 0 and j - lo > 0 and a[i - lo - 1] == b[j - lo - 1]:
+        lo += 1
+    hi = 0
+    while i + hi < len(a) and j + hi < len(b) and a[i + hi] == b[j + hi]:
+        hi += 1
+    return lo + hi
+
+
+def find_excerpt(text, root, exclude=()):
+    """Vault-relative path of a restricted page that shares RESTRICTED_MIN or more
+    normalised characters with `text`, or None. `exclude` holds lower-cased paths
+    to skip (the page being written)."""
+    if not RESTRICTED_CHECK or not isinstance(text, str) or len(text) < RESTRICTED_MIN:
+        return None
+    pages = {r: h for r, h in restricted_pages(root).items() if h and r.lower() not in exclude}
+    if not pages:
+        return None
+    n = normalise(text)
+    if len(n) < RESTRICTED_MIN:
+        return None
+    table = {}
+    for rel, hs in pages.items():
+        for h in hs:
+            table.setdefault(h, []).append(rel)
+    crc, seen, cache, w = zlib.crc32, set(), {}, _WIN
+    if n.isascii():  # fast path: one byte per character, no per-window encode
+        mv = memoryview(n.encode("ascii"))
+        hs = [crc(mv[i:i + w]) for i in range(len(mv) - w + 1)]
+    else:
+        hs = [crc(n[i:i + w].encode("utf-8")) for i in range(len(n) - w + 1)]
+    for ci, h in enumerate(hs):
+        rels = table.get(h)
+        if rels is None:
+            continue
+        window = n[ci:ci + w]
+        for rel in rels:
+            if (rel, ci) in seen:
+                continue
+            seen.add((rel, ci))
+            t = cache.get(rel)
+            if t is None:
+                t = cache[rel] = _page_norm(root, rel)
+            j = t.find(window)
+            while j != -1:
+                if _run(n, t, ci, j) >= RESTRICTED_MIN:
+                    return rel
+                j = t.find(window, j + 1)
+    return None
+
+
+def _strings(o, depth=0):
+    if isinstance(o, str):
+        yield o
+    elif depth < 6 and isinstance(o, dict):
+        for v in o.values():
+            yield from _strings(v, depth + 1)
+    elif depth < 6 and isinstance(o, (list, tuple)):
+        for v in o:
+            yield from _strings(v, depth + 1)
+
+
+def check_restricted_write(tool, tin, paths, cwd, root):
+    """(a): text written to output/ or outside the vault."""
+    if not RESTRICTED_CHECK:
+        return
+    targets = []
+    for p in paths:
+        r = rel_to_root(p, cwd, root)
+        if r is None or r.split("/")[0].lower() in EXPORT_DIRS:
+            targets.append(r if r is not None else p)
+    if not targets:
+        return
+    texts = [t for t in written_texts(tool, tin) if len(t) >= RESTRICTED_MIN]
+    exclude = {t.lower() for t in targets}
+    for t in texts:
+        page = find_excerpt(t, root, exclude)
+        if page:
+            raise Block(f"the text holds a verbatim excerpt of {RESTRICTED_MIN} or more characters "
+                        f"from '{page}', which is marked sensitivity: restricted, and it is headed "
+                        "for output/ or outside the vault. Name the page and link it; do not copy "
+                        "its words (privacy skill, hard stop b).",
+                        rule="restricted-excerpt", target=log_path(targets[0]))
+
+
+def log_path(p):
+    p = "".join(ch for ch in str(p) if ch.isprintable())[:200]
+    return "Write" if find_secret(p) else p
+
+
+def check_restricted_net(tool, tin, root):
+    """(c): WebFetch, WebSearch and MCP tool inputs."""
+    if not RESTRICTED_CHECK:
+        return
+    for t in _strings(tin):
+        if len(t) >= RESTRICTED_MIN:
+            page = find_excerpt(t, root)
+            if page:
+                raise Block(f"the input of {tool} holds a verbatim excerpt of {RESTRICTED_MIN} or "
+                            f"more characters from '{page}', which is marked sensitivity: "
+                            "restricted. Restricted content never leaves the vault "
+                            "(privacy skill, hard stop b).", rule="restricted-send", target=str(tool)[:80])
+
+
+def is_export_path(d, cwd, root):
+    if not d or d.startswith("/dev/") or d == "-":
+        return False
+    try:
+        full, _ = lit_rel(d, cwd, root)
+    except Block:
+        return True  # cannot resolve it: assume it leaves
+    return full is None or full.split("/")[0] in EXPORT_DIRS
+
+
+def note_segment(tokens, name, args, pos, cwd, root):
+    """Collect what check_restricted_shell needs from one command segment."""
+    dests = list(redirect_targets(tokens))
+    sub_args = args
+    if name == "git" and args:  # git mv <src> <dest>: skip git's own options to find the subcommand
+        a = list(args)
+        while a and a[0].startswith("-"):
+            opt = a.pop(0)
+            if opt in GIT_OPTS_WITH_VALUE and a:
+                a.pop(0)
+        if a and a[0].lower() == "mv":
+            name, sub_args = "mv", a[1:]
+    if name == "tee" or name in PS_WRITE_CMDS:
+        dests += pos
+    elif name in MOVE_CMDS or name in COPY_CMDS or name == "rsync":
+        p = positionals(sub_args, {"-t", "--target-directory", "-S", "--suffix"})
+        topt = target_dir_option(sub_args)
+        if topt is not None:
+            dests.append(topt)
+        elif len(p) >= 2:
+            dests.append(p[-1])
+    elif name == "dd":
+        dests += [a.split("=", 1)[1] for a in args if a.startswith("of=")]
+    for d in dests:
+        if is_export_path(d, cwd, root):
+            _CTX["dests"].append(d)
+    if name in SEND_CMDS:
+        _CTX["net"] = True
+    dirs_ok = name in DIR_REF_CMDS
+    skip = set(dests)
+    for tok in tokens:
+        if tok in skip or re.match(r"^(\d*|&)>", tok):
+            continue  # the place a command writes is not something it reads
+        _CTX["tokens"].append((cwd, tok, dirs_ok))
+
+
+def _glob_match(pat, path):
+    """Shell-style: * and ? never cross a /, so the pattern and the path must have
+    the same number of segments."""
+    ps, xs = pat.split("/"), path.split("/")
+    return len(ps) == len(xs) and all(fnmatch.fnmatchcase(x, p) for p, x in zip(ps, xs))
+
+
+def _expand_braces(pat, limit=64):
+    out = [pat]
+    for _ in range(4):
+        nxt = []
+        for p in out:
+            m = re.search(r"\{([^{}]*)\}", p)
+            if not m:
+                nxt.append(p)
+                continue
+            for alt in m.group(1).split(",")[:limit]:
+                nxt.append(p[:m.start()] + alt + p[m.end():])
+        out = nxt[:limit]
+    return out
+
+
+def restricted_ref(tok, cwd, root, pages, dirs_ok):
+    """The restricted page a token names (literally, by glob, or as a directory
+    that holds it), or None."""
+    lower = {r.lower(): r for r in pages}
+    cands = {tok, tok.lstrip("<@")}
+    if "=" in tok:
+        cands.add(tok.split("=", 1)[1].lstrip("<@"))
+    for c in cands:
+        if not c or (c.startswith("-") and "=" not in c):
+            continue
+        try:
+            m = FUZZY.search(c)
+            if not m:
+                r = rel_to_root(c, cwd, root)
+                if r is None:
+                    continue
+                rl = r.lower()
+                if rl in lower:
+                    return lower[rl]
+                if dirs_ok:
+                    pre = rl + "/" if rl else ""
+                    for k, v in lower.items():
+                        if k.startswith(pre):
+                            return v
+                continue
+            lit, rest = c[:m.start()], c[m.start():]
+            d, sep, part = lit.rpartition("/")
+            r = rel_to_root((d + "/") if sep else ".", cwd, root)
+        except Block:
+            continue
+        if r is None:
+            continue
+        pat = ((r + "/" if r else "") + part + re.sub(r"\$\{?\w*\}?", "*", rest)).lower()
+        for p in _expand_braces(pat):
+            for k, v in lower.items():
+                if _glob_match(p, k):
+                    return v
+                if dirs_ok:
+                    parts = k.split("/")
+                    for n in range(1, len(parts)):
+                        if _glob_match(p, "/".join(parts[:n])):
+                            return v
+    return None
+
+
+def check_restricted_shell(cmd, root):
+    """(b), and (a) for text inside the command: runs after the shell is parsed."""
+    if not RESTRICTED_CHECK or not (_CTX["dests"] or _CTX["net"]):
+        return
+    pages = restricted_pages(root)
+    if not pages:
+        return
+    what = ("sends data out with" if _CTX["net"] else "writes to output/ or outside the vault with")
+    low = cmd.lower().replace("\\", "/")
+    hit = next((r for r in pages if r.lower() in low), None)
+    if hit is None:
+        for cwd, tok, dirs_ok in _CTX["tokens"]:
+            hit = restricted_ref(tok, cwd, root, pages, dirs_ok)
+            if hit:
+                break
+    if hit:
+        raise Block(f"this command {what} '{hit}', which is marked sensitivity: restricted. "
+                    "Restricted pages are not copied, piped or sent anywhere: name the page "
+                    "and link it (privacy skill, hard stop b).",
+                    rule="restricted-path", target=hit)
+    page = find_excerpt(cmd, root)
+    if page:
+        raise Block(f"this command {what} a verbatim excerpt of {RESTRICTED_MIN} or more "
+                    f"characters from '{page}', which is marked sensitivity: restricted "
+                    "(privacy skill, hard stop b).", rule="restricted-excerpt", target=page)
+
+
 # ------------------------------------------------------------------- main
+
+NET_TOOLS = {"WebFetch", "WebSearch"}
+
 
 def pre_tool_use(data):
     tool = data.get("tool_name", "")
     tin = data.get("tool_input") or {}
     cwd = data.get("cwd") or os.getcwd()
     root = os.environ.get("CLAUDE_PROJECT_DIR") or cwd
+    reset_ctx()
     if tool in WRITE_TOOLS:
         if tool == "MultiEdit" and not tin.get("file_path"):
             paths = {e.get("file_path") or e.get("path") for e in tin.get("edits") or []}
@@ -946,6 +1410,7 @@ def pre_tool_use(data):
         for p in paths:
             check_path(tool, p, tin, cwd, root)
         check_secrets(written_texts(tool, tin))
+        check_restricted_write(tool, tin, paths, cwd, root)
     elif tool in SHELL_TOOLS:
         cmd = tin.get("command") or ""
         check_shell(cmd, cwd, root)
@@ -956,6 +1421,9 @@ def pre_tool_use(data):
                      r"\bruby[0-9.]*\b.*\s-[A-Za-z0-9]*[eE]\b|\bphp[0-9.]*\b.*\s-[A-Za-z]*r\b",
                      cmd, re.I):
             check_secrets([cmd])
+        check_restricted_shell(cmd, root)
+    elif tool in NET_TOOLS or tool.startswith("mcp__"):
+        check_restricted_net(tool, tin, root)
 
 
 def stop(data):
@@ -974,6 +1442,58 @@ def stop(data):
         print(json.dumps({"systemMessage": msg}))
 
 
+def log_target(data, root):
+    """What to put in the log's `target`: a vault-relative path for a file tool, else
+    the tool name. Never command text, content or anything that looks like a secret."""
+    tool = data.get("tool_name") or data.get("hook_event_name") or "unknown"
+    tin = data.get("tool_input") if isinstance(data.get("tool_input"), dict) else {}
+    if tool in WRITE_TOOLS:
+        p = tin.get("file_path") or tin.get("notebook_path")
+        if not p:
+            edits = [e for e in (tin.get("edits") or []) if isinstance(e, dict)]
+            p = next((e.get("file_path") or e.get("path") for e in edits), None)
+        if isinstance(p, str) and p:
+            try:
+                r = rel_to_root(p, data.get("cwd") or os.getcwd(), root)
+            except Block:
+                r = None
+            p = r if r is not None else p
+            p = "".join(ch for ch in p if ch.isprintable())[:200]
+            if not find_secret(p):
+                return p
+    return str(tool)[:80]
+
+
+def write_log(data, rule, target, root):
+    """Append {ts, tool, rule, target} to .claude/guard.log, rotating at LOG_MAX
+    to guard.log.1. Best effort: a log that cannot be written never changes a block."""
+    try:
+        d = os.path.join(root, ".claude")
+        if not os.path.isdir(d):
+            return
+        path = os.path.join(d, "guard.log")
+        try:
+            if os.path.getsize(path) >= LOG_MAX:
+                os.replace(path, path + ".1")
+        except OSError:
+            pass
+        line = json.dumps({"ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                           "tool": str(data.get("tool_name") or data.get("hook_event_name") or "unknown")[:80],
+                           "rule": rule, "target": target}, ensure_ascii=False) + "\n"
+        fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o644)
+        try:
+            os.write(fd, line.encode("utf-8"))
+        finally:
+            os.close(fd)
+    except Exception:
+        pass
+
+
+def vault_root(data):
+    return os.environ.get("CLAUDE_PROJECT_DIR") or (
+        data.get("cwd") if isinstance(data.get("cwd"), str) else None) or os.getcwd()
+
+
 def main():
     try:
         data = json.load(sys.stdin)
@@ -990,11 +1510,15 @@ def main():
             pre_tool_use(data)
     except Block as b:
         sys.stderr.write(BLOCK_MSG + str(b) + "\n")
+        root = vault_root(data)
+        write_log(data, b.rule or classify(str(b)), b.target or log_target(data, root), root)
         return 2
     except Exception as e:  # fail closed: a guard that crashes must not wave things through
         if data.get("hook_event_name") == "Stop":
             return 0  # the Stop hook only warns; never trap the agent in a loop
         sys.stderr.write(BLOCK_MSG + f"internal error ({e!r}); refusing.\n")
+        root = vault_root(data)
+        write_log(data, "internal-error", log_target(data, root), root)
         return 2
     return 0
 

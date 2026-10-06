@@ -33,6 +33,8 @@
       "Bash(wget *--body-*)",
       "Edit(/journal/**)",
       "Edit(/.claude/**)",
+      "Edit(/.claude/guard.log*)",
+      "Edit(/.claude/guard-cache.json)",
       "Edit(/scripts/**)",
       "Edit(/.obsidian/**)",
       "Edit(/.gitignore)",
@@ -94,6 +96,20 @@
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/integrity.py"
+            ],
+            "timeout": 15
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Write|Edit|MultiEdit|NotebookEdit",
@@ -110,6 +126,19 @@
       },
       {
         "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/guard.py"
+            ],
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "WebFetch|WebSearch|mcp__.*",
         "hooks": [
           {
             "type": "command",
