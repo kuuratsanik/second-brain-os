@@ -2,7 +2,7 @@
 
 > A guide to building a knowledge base your AI agent maintains, in plain markdown you own, plus an agents course and handbooks.
 
-131 pages in 22 sections: the guide (numbered sections, read once in order), the agents course (modules C0 to C6) and the handbooks (references, dip in anywhere). Every link below is the raw markdown of one page. The same text, concatenated, is in [llms-full.txt](https://kuuratsanik.github.io/second-brain-os/llms-full.txt).
+132 pages in 22 sections: the guide (numbered sections, read once in order), the agents course (modules C0 to C6) and the handbooks (references, dip in anywhere). Every link below is the raw markdown of one page. The same text, concatenated, is in [llms-full.txt](https://kuuratsanik.github.io/second-brain-os/llms-full.txt).
 
 ## Guide: Concepts
 
@@ -175,6 +175,7 @@
 - [Build: Permissions and Context](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/build-guardrails.md): Part one left you with a demo: an agent that runs whatever it likes and grows its transcript without limit.
 - [Build: Know When to Graduate](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/build-graduate.md): You now own roughly 150 lines that do what every harness does: loop, execute, gate, budget, stop.
 - [KV-Cache Tiers on a Local SSD](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/kv-cache-ssd-tier.md): If a local model sits behind your second-brain agent, every session starts by making the model read the same long preamble again: the system prompt, the tool schemas, the vault...
+- [Local Models for Cheap Maintenance](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/local-models-for-maintenance.md): Some vault maintenance is routine enough that a small model on your own CPU might do it: suggest tags, write a one-paragraph summary of one source, sort lint findings into...
 - [Resources](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/resources.md): Curated, not exhaustive. Everything here was checked in September 2026 and earns its place, except where an entry says it was not re-checked.
 
 ## Handbook: Loop engineering

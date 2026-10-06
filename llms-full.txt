@@ -2,10 +2,10 @@
 
 > A guide to building a knowledge base your AI agent maintains, in plain markdown you own, plus an agents course and handbooks.
 
-The markdown of all 131 pages, in reading order, each under a page header. Relative links inside a page point to files in the repository (https://github.com/kuuratsanik/second-brain-os/tree/main/); the index is https://kuuratsanik.github.io/second-brain-os/llms.txt.
+The markdown of all 132 pages, in reading order, each under a page header. Relative links inside a page point to files in the repository (https://github.com/kuuratsanik/second-brain-os/tree/main/); the index is https://kuuratsanik.github.io/second-brain-os/llms.txt.
 
 ========================================================================
-PAGE 1 of 131: What a second brain actually is
+PAGE 1 of 132: What a second brain actually is
 Section: Guide: Concepts
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/01-concepts/what-is-a-second-brain.md
 ========================================================================
@@ -64,7 +64,7 @@ timeline.
 [The save-for-later paradox](the-save-for-later-paradox.md)
 
 ========================================================================
-PAGE 2 of 131: The save-for-later paradox
+PAGE 2 of 132: The save-for-later paradox
 Section: Guide: Concepts
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/01-concepts/the-save-for-later-paradox.md
 ========================================================================
@@ -117,7 +117,7 @@ second-brain pitches make, and it is the one that holds up after a month.
 [The LLM wiki pattern](llm-wiki-pattern.md)
 
 ========================================================================
-PAGE 3 of 131: The LLM wiki pattern
+PAGE 3 of 132: The LLM wiki pattern
 Section: Guide: Concepts
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/01-concepts/llm-wiki-pattern.md
 ========================================================================
@@ -182,7 +182,7 @@ markdown. See [resources](../../resources/skills.md) for the ones worth reading.
 [The two layers](two-layers.md)
 
 ========================================================================
-PAGE 4 of 131: The two layers
+PAGE 4 of 132: The two layers
 Section: Guide: Concepts
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/01-concepts/two-layers.md
 ========================================================================
@@ -233,7 +233,7 @@ Both eventually. See [vault structure](../02-setup/vault-structure.md) for the
 layout that keeps them separate inside one folder.
 
 ========================================================================
-PAGE 5 of 131: Why markdown and plain text
+PAGE 5 of 132: Why markdown and plain text
 Section: Guide: Concepts
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/01-concepts/why-markdown-and-plain-text.md
 ========================================================================
@@ -307,7 +307,7 @@ knowing before you hit them.
 [Zettelkasten, PARA, evergreen notes](pkm-lineage.md)
 
 ========================================================================
-PAGE 6 of 131: Zettelkasten, PARA, evergreen notes
+PAGE 6 of 132: Zettelkasten, PARA, evergreen notes
 Section: Guide: Concepts
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/01-concepts/pkm-lineage.md
 ========================================================================
@@ -382,7 +382,7 @@ default.
 [Wiki vs RAG](wiki-vs-rag.md)
 
 ========================================================================
-PAGE 7 of 131: Wiki vs RAG
+PAGE 7 of 132: Wiki vs RAG
 Section: Guide: Concepts
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/01-concepts/wiki-vs-rag.md
 ========================================================================
@@ -449,7 +449,7 @@ retrieval mechanics.
 [What good looks like](what-good-looks-like.md)
 
 ========================================================================
-PAGE 8 of 131: What good looks like
+PAGE 8 of 132: What good looks like
 Section: Guide: Concepts
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/01-concepts/what-good-looks-like.md
 ========================================================================
@@ -519,7 +519,7 @@ feeding it.
 [Setup](../02-setup/README.md).
 
 ========================================================================
-PAGE 9 of 131: Obsidian and your first vault
+PAGE 9 of 132: Obsidian and your first vault
 Section: Guide: Setup
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/02-setup/obsidian-install-and-vault.md
 ========================================================================
@@ -592,7 +592,7 @@ Avoid spaces in the folder name. You will be pasting this path into commands.
 [Claude Code in the vault](claude-code-setup.md)
 
 ========================================================================
-PAGE 10 of 131: Claude Code in the vault
+PAGE 10 of 132: Claude Code in the vault
 Section: Guide: Setup
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/02-setup/claude-code-setup.md
 ========================================================================
@@ -717,7 +717,7 @@ before you automate anything on a schedule.
 [MCP for Obsidian](mcp-obsidian.md)
 
 ========================================================================
-PAGE 11 of 131: MCP for Obsidian
+PAGE 11 of 132: MCP for Obsidian
 Section: Guide: Setup
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/02-setup/mcp-obsidian.md
 ========================================================================
@@ -822,7 +822,7 @@ settings.
 [Writing your CLAUDE.md](claude-md.md)
 
 ========================================================================
-PAGE 12 of 131: Writing your CLAUDE.md
+PAGE 12 of 132: Writing your CLAUDE.md
 Section: Guide: Setup
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/02-setup/claude-md.md
 ========================================================================
@@ -903,7 +903,7 @@ quietly degrades everything the agent writes.
 [Vault structure](vault-structure.md)
 
 ========================================================================
-PAGE 13 of 131: Vault structure
+PAGE 13 of 132: Vault structure
 Section: Guide: Setup
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/02-setup/vault-structure.md
 ========================================================================
@@ -1006,7 +1006,7 @@ serves none of them.
 [Project scoping](project-scoping.md)
 
 ========================================================================
-PAGE 14 of 131: Project scoping
+PAGE 14 of 132: Project scoping
 Section: Guide: Setup
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/02-setup/project-scoping.md
 ========================================================================
@@ -1069,7 +1069,7 @@ is the part you should not be delegating.
 [Live data connectors](live-data.md)
 
 ========================================================================
-PAGE 15 of 131: Live data connectors
+PAGE 15 of 132: Live data connectors
 Section: Guide: Setup
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/02-setup/live-data.md
 ========================================================================
@@ -1144,7 +1144,7 @@ to read past all of it.
 [Plugins worth installing](obsidian-plugins.md)
 
 ========================================================================
-PAGE 16 of 131: Plugins worth installing
+PAGE 16 of 132: Plugins worth installing
 Section: Guide: Setup
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/02-setup/obsidian-plugins.md
 ========================================================================
@@ -1220,7 +1220,7 @@ not a system.
 [Git, sync and backups](git-and-sync.md)
 
 ========================================================================
-PAGE 17 of 131: Git, sync and backups
+PAGE 17 of 132: Git, sync and backups
 Section: Guide: Setup
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/02-setup/git-and-sync.md
 ========================================================================
@@ -1245,7 +1245,7 @@ The vault must be its own repository, not a folder inside another one. The
 [vault template](../../vault-template/README.md) uses the explicit-path first
 commit above instead of `git add .`, so nothing you have not looked at is
 committed. It includes `.claude/` (settings, hooks, skills, commands, agents) and `scripts/`
-(the four vault scripts the Quickstart copies, not the site builders), the
+(the six vault scripts the Quickstart copies, not the site builders), the
 vault's agent setup, which is worth versioning so a revert covers it too. `raw`
 is included so the empty subfolders are tracked.
 
@@ -1310,7 +1310,7 @@ feeding it, or [Structuring](../04-structuring/README.md) for the rules that
 decide what the pages look like.
 
 ========================================================================
-PAGE 18 of 131: Web articles
+PAGE 18 of 132: Web articles
 Section: Guide: Ingestion
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/03-ingestion/web-clipper.md
 ========================================================================
@@ -1397,7 +1397,7 @@ about the same idea.
 [YouTube and podcasts](youtube-transcripts.md)
 
 ========================================================================
-PAGE 19 of 131: YouTube and podcasts
+PAGE 19 of 132: YouTube and podcasts
 Section: Guide: Ingestion
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/03-ingestion/youtube-transcripts.md
 ========================================================================
@@ -1491,7 +1491,7 @@ hour. That feeling is not a signal about the content.
 [PDFs, papers and books](pdfs-and-books.md)
 
 ========================================================================
-PAGE 20 of 131: PDFs, papers and books
+PAGE 20 of 132: PDFs, papers and books
 Section: Guide: Ingestion
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/03-ingestion/pdfs-and-books.md
 ========================================================================
@@ -1572,7 +1572,7 @@ page has something behind it.
 [Chat exports](chat-exports.md)
 
 ========================================================================
-PAGE 21 of 131: Chat exports
+PAGE 21 of 132: Chat exports
 Section: Guide: Ingestion
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/03-ingestion/chat-exports.md
 ========================================================================
@@ -1672,7 +1672,7 @@ If the vault lives in a git repo, keep the remote private. See
 [Voice notes and meetings](voice-and-meetings.md)
 
 ========================================================================
-PAGE 22 of 131: Voice notes and meetings
+PAGE 22 of 132: Voice notes and meetings
 Section: Guide: Ingestion
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/03-ingestion/voice-and-meetings.md
 ========================================================================
@@ -1750,7 +1750,7 @@ three extracted decisions are enough.
 [Newsletters and email](newsletters-and-email.md)
 
 ========================================================================
-PAGE 23 of 131: Newsletters and email
+PAGE 23 of 132: Newsletters and email
 Section: Guide: Ingestion
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/03-ingestion/newsletters-and-email.md
 ========================================================================
@@ -1828,7 +1828,7 @@ about everyone you correspond with, most of it not yours to keep.
 [Backfilling years of material](bulk-backfill.md)
 
 ========================================================================
-PAGE 24 of 131: Backfilling years of material
+PAGE 24 of 132: Backfilling years of material
 Section: Guide: Ingestion
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/03-ingestion/bulk-backfill.md
 ========================================================================
@@ -1943,7 +1943,7 @@ whole exercise.
 these pages actually look like.
 
 ========================================================================
-PAGE 25 of 131: One page, one idea
+PAGE 25 of 132: One page, one idea
 Section: Guide: Structuring
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/04-structuring/atomic-pages.md
 ========================================================================
@@ -2006,7 +2006,7 @@ Read it and look for the seam.
 [The four page types](page-types.md)
 
 ========================================================================
-PAGE 26 of 131: The four page types
+PAGE 26 of 132: The four page types
 Section: Guide: Structuring
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/04-structuring/page-types.md
 ========================================================================
@@ -2077,7 +2077,7 @@ than the wiki.
 [Linking rules](linking-rules.md)
 
 ========================================================================
-PAGE 27 of 131: Linking rules
+PAGE 27 of 132: Linking rules
 Section: Guide: Structuring
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/04-structuring/linking-rules.md
 ========================================================================
@@ -2158,7 +2158,7 @@ delete it.
 [Frontmatter schema](frontmatter-schema.md)
 
 ========================================================================
-PAGE 28 of 131: Frontmatter schema
+PAGE 28 of 132: Frontmatter schema
 Section: Guide: Structuring
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/04-structuring/frontmatter-schema.md
 ========================================================================
@@ -2216,7 +2216,9 @@ The extra fields:
 - `domain` says which area of life or work the page belongs to, and which hub
   links to it. A page can have more than one.
 - `lang` is the language the page is written in. Pages keep the language of their
-  source and are not translated.
+  source and are not translated. If you write in two languages, such as
+  Estonian and English, put the title in the other language in `aliases`, so a
+  search or a wikilink in either language finds the page.
 - `sensitivity` decides what may leave the vault. `private` is for health,
   finance, relationships, journal-derived material and third parties'
   information; `restricted` is for anything that would hurt someone if it
@@ -2290,7 +2292,7 @@ change apply only to new pages.
 [Naming and aliases](naming-and-aliases.md)
 
 ========================================================================
-PAGE 29 of 131: Naming and aliases
+PAGE 29 of 132: Naming and aliases
 Section: Guide: Structuring
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/04-structuring/naming-and-aliases.md
 ========================================================================
@@ -2366,7 +2368,7 @@ Then run `scripts/link_check.py` to confirm nothing dangled.
 [Deduplication and merging](dedupe-and-merge.md)
 
 ========================================================================
-PAGE 30 of 131: Deduplication and merging
+PAGE 30 of 132: Deduplication and merging
 Section: Guide: Structuring
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/04-structuring/dedupe-and-merge.md
 ========================================================================
@@ -2435,7 +2437,7 @@ state. Then a wrong merge is one revert of its own commit away from undone.
 [Contradictions and supersession](contradictions-and-supersession.md)
 
 ========================================================================
-PAGE 31 of 131: Contradictions and supersession
+PAGE 31 of 132: Contradictions and supersession
 Section: Guide: Structuring
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/04-structuring/contradictions-and-supersession.md
 ========================================================================
@@ -2530,7 +2532,7 @@ deleting it. Never resolve a contradiction by picking the more recent source.
 [index.md and log.md](index-and-log.md)
 
 ========================================================================
-PAGE 32 of 131: index.md and log.md
+PAGE 32 of 132: index.md and log.md
 Section: Guide: Structuring
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/04-structuring/index-and-log.md
 ========================================================================
@@ -2628,7 +2630,7 @@ a record.
 [Graphs](../05-graphs/README.md), where these structures start paying off.
 
 ========================================================================
-PAGE 33 of 131: Graph basics for a knowledge base
+PAGE 33 of 132: Graph basics for a knowledge base
 Section: Guide: Graphs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/05-graphs/graph-basics.md
 ========================================================================
@@ -2697,7 +2699,7 @@ are what determines whether retrieval works.
 [Reading the Obsidian graph view](obsidian-graph-view.md)
 
 ========================================================================
-PAGE 34 of 131: Reading the Obsidian graph view
+PAGE 34 of 132: Reading the Obsidian graph view
 Section: Guide: Graphs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/05-graphs/obsidian-graph-view.md
 ========================================================================
@@ -2765,7 +2767,7 @@ That limitation is the entire argument for the next page.
 [Typed links](typed-links.md)
 
 ========================================================================
-PAGE 35 of 131: Typed links
+PAGE 35 of 132: Typed links
 Section: Guide: Graphs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/05-graphs/typed-links.md
 ========================================================================
@@ -2855,7 +2857,7 @@ that looks rigorous and encodes its own assumptions.
 [Graph vs embeddings](graph-vs-vectors.md)
 
 ========================================================================
-PAGE 36 of 131: Graph vs embeddings
+PAGE 36 of 132: Graph vs embeddings
 Section: Guide: Graphs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/05-graphs/graph-vs-vectors.md
 ========================================================================
@@ -2930,7 +2932,7 @@ the maintenance. For graphs as agent memory outside a vault, see the handbook's
 [GraphRAG and where it fits](graphrag.md)
 
 ========================================================================
-PAGE 37 of 131: GraphRAG and where it fits
+PAGE 37 of 132: GraphRAG and where it fits
 Section: Guide: Graphs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/05-graphs/graphrag.md
 ========================================================================
@@ -3005,7 +3007,7 @@ and [building graphs with LLMs](../track-graph/building-graphs-with-llms.md).
 [Exporting the graph](exporting-your-graph.md)
 
 ========================================================================
-PAGE 38 of 131: Exporting the graph
+PAGE 38 of 132: Exporting the graph
 Section: Guide: Graphs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/05-graphs/exporting-your-graph.md
 ========================================================================
@@ -3092,7 +3094,7 @@ maintaining it, and never edit the exported graph expecting the vault to follow.
 [Graph metrics worth tracking](metrics.md)
 
 ========================================================================
-PAGE 39 of 131: Graph metrics worth tracking
+PAGE 39 of 132: Graph metrics worth tracking
 Section: Guide: Graphs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/05-graphs/metrics.md
 ========================================================================
@@ -3174,7 +3176,7 @@ orphan rate was.
 [Agents](../06-agents/README.md), for running all of this without you.
 
 ========================================================================
-PAGE 40 of 131: Agent roles
+PAGE 40 of 132: Agent roles
 Section: Guide: Agents
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/06-agents/agent-roles.md
 ========================================================================
@@ -3272,7 +3274,7 @@ afterwards, and a role can be replaced without touching the others.
 [Scheduling](scheduled-maintenance.md)
 
 ========================================================================
-PAGE 41 of 131: Scheduling
+PAGE 41 of 132: Scheduling
 Section: Guide: Agents
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/06-agents/scheduled-maintenance.md
 ========================================================================
@@ -3337,10 +3339,10 @@ Desktop starts one catch-up run for the most recent missed time and discards
 older ones ([documentation](https://code.claude.com/docs/en/desktop-scheduled-tasks)).
 "Overnight" therefore means a machine that is on overnight.
 
-A scheduled task can fire a slash command only from the 16-command maintenance
+A scheduled task can fire a slash command only from the 17-command maintenance
 set listed in [`commands/README.md`](../../commands/README.md) (`/ingest`,
 `/link`, `/lint`, `/vault-review`, `/weekly`, `/monthly`, `/metrics`, `/health`,
-`/commit`, `/stale`, `/orphans`, `/prune`, `/archive`, `/dedupe`, `/backfill`
+`/brief`, `/commit`, `/stale`, `/orphans`, `/prune`, `/archive`, `/dedupe`, `/backfill`
 and `/index`). The other commands set `disable-model-invocation: true`, and from
 Claude Code v2.1.196 that also stops a scheduled task from running them
 ([skills documentation](https://code.claude.com/docs/en/skills)). Anything else
@@ -3433,7 +3435,7 @@ Schedule the ingest last. It is the one that writes most.
 [Subagents and parallel work](subagents.md)
 
 ========================================================================
-PAGE 42 of 131: Subagents and parallel work
+PAGE 42 of 132: Subagents and parallel work
 Section: Guide: Agents
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/06-agents/subagents.md
 ========================================================================
@@ -3499,7 +3501,7 @@ five clipped articles.
 [Hooks](hooks.md)
 
 ========================================================================
-PAGE 43 of 131: Hooks
+PAGE 43 of 132: Hooks
 Section: Guide: Agents
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/06-agents/hooks.md
 ========================================================================
@@ -3573,7 +3575,7 @@ lists which rules the hook enforces and which stay instructions in `CLAUDE.md`.
 [Skills and slash commands](skills-and-commands.md)
 
 ========================================================================
-PAGE 44 of 131: Skills and slash commands
+PAGE 44 of 132: Skills and slash commands
 Section: Guide: Agents
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/06-agents/skills-and-commands.md
 ========================================================================
@@ -3595,8 +3597,8 @@ vault".
 
 ## What this repo ships
 
-Twenty-five skills in [`skills/`](../../skills/README.md), one per workflow in this
-guide. Seventy-five commands in [`commands/`](../../commands/README.md). Most are a
+Twenty-nine skills in [`skills/`](../../skills/README.md), one per workflow in this
+guide. Seventy-eight commands in [`commands/`](../../commands/README.md). Most are a
 few lines pointing at a skill and setting its scope; a few (`/audit`,
 `/dry-run`, `/index` and `/scope`) are self-contained and name no skill. The
 scheduling command is `/maintenance-schedule`, which points at
@@ -3675,7 +3677,7 @@ of the year.
 [Guardrails](safety-and-guardrails.md)
 
 ========================================================================
-PAGE 45 of 131: Guardrails
+PAGE 45 of 132: Guardrails
 Section: Guide: Agents
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/06-agents/safety-and-guardrails.md
 ========================================================================
@@ -3857,7 +3859,7 @@ another place that content exists. See
 built.
 
 ========================================================================
-PAGE 46 of 131: Asking the vault
+PAGE 46 of 132: Asking the vault
 Section: Guide: Retrieval
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/07-retrieval/asking-questions.md
 ========================================================================
@@ -3927,7 +3929,7 @@ is a precise statement of what to go read next.
 [Query patterns](query-patterns.md)
 
 ========================================================================
-PAGE 47 of 131: Query patterns
+PAGE 47 of 132: Query patterns
 Section: Guide: Retrieval
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/07-retrieval/query-patterns.md
 ========================================================================
@@ -4019,7 +4021,7 @@ answer would give.
 [Search tools](search-tools.md)
 
 ========================================================================
-PAGE 48 of 131: Search tools
+PAGE 48 of 132: Search tools
 Section: Guide: Retrieval
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/07-retrieval/search-tools.md
 ========================================================================
@@ -4093,7 +4095,7 @@ budget](context-budget.md).
 [Adding RAG when you need it](rag-on-top.md)
 
 ========================================================================
-PAGE 49 of 131: Adding RAG when you need it
+PAGE 49 of 132: Adding RAG when you need it
 Section: Guide: Retrieval
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/07-retrieval/rag-on-top.md
 ========================================================================
@@ -4172,7 +4174,7 @@ vectors.
 [Context budget](context-budget.md)
 
 ========================================================================
-PAGE 50 of 131: Context budget
+PAGE 50 of 132: Context budget
 Section: Guide: Retrieval
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/07-retrieval/context-budget.md
 ========================================================================
@@ -4246,7 +4248,7 @@ summary, so the main session pays for the answer rather than for the sources.
 answering.
 
 ========================================================================
-PAGE 51 of 131: Writing from the vault
+PAGE 51 of 132: Writing from the vault
 Section: Guide: Outputs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/08-outputs/writing-from-the-vault.md
 ========================================================================
@@ -4306,7 +4308,7 @@ a domain meaningfully faster than the first.
 [Research reports](research-reports.md)
 
 ========================================================================
-PAGE 52 of 131: Research reports
+PAGE 52 of 132: Research reports
 Section: Guide: Outputs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/08-outputs/research-reports.md
 ========================================================================
@@ -4364,7 +4366,7 @@ superseding it. See
 [Publishing and export](publishing-and-export.md)
 
 ========================================================================
-PAGE 53 of 131: Publishing and export
+PAGE 53 of 132: Publishing and export
 Section: Guide: Outputs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/08-outputs/publishing-and-export.md
 ========================================================================
@@ -4434,7 +4436,7 @@ markdown is the artifact.
 [Learning from your own vault](teaching-yourself.md)
 
 ========================================================================
-PAGE 54 of 131: Learning from your own vault
+PAGE 54 of 132: Learning from your own vault
 Section: Guide: Outputs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/08-outputs/teaching-yourself.md
 ========================================================================
@@ -4506,7 +4508,7 @@ directions.
 [Maintenance](../09-maintenance/README.md), for keeping all of it alive.
 
 ========================================================================
-PAGE 55 of 131: Linting the vault
+PAGE 55 of 132: Linting the vault
 Section: Guide: Maintenance
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/09-maintenance/lint-and-health.md
 ========================================================================
@@ -4578,7 +4580,7 @@ vault. See [metrics](../05-graphs/metrics.md).
 [Review cadence](review-cadence.md)
 
 ========================================================================
-PAGE 56 of 131: Review cadence
+PAGE 56 of 132: Review cadence
 Section: Guide: Maintenance
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/09-maintenance/review-cadence.md
 ========================================================================
@@ -4650,7 +4652,7 @@ saying so is the correct output.
 [Versioning](versioning-with-git.md)
 
 ========================================================================
-PAGE 57 of 131: Versioning
+PAGE 57 of 132: Versioning
 Section: Guide: Maintenance
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/09-maintenance/versioning-with-git.md
 ========================================================================
@@ -4728,7 +4730,7 @@ Keep the remote private unless you have deliberately made the vault public.
 [Backups and portability](backups-and-portability.md)
 
 ========================================================================
-PAGE 58 of 131: Backups and portability
+PAGE 58 of 132: Backups and portability
 Section: Guide: Maintenance
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/09-maintenance/backups-and-portability.md
 ========================================================================
@@ -4796,7 +4798,7 @@ setting. `CLAUDE.md`, skills and commands travel with the folder.
 [Privacy](privacy-and-secrets.md)
 
 ========================================================================
-PAGE 59 of 131: Privacy
+PAGE 59 of 132: Privacy
 Section: Guide: Maintenance
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/09-maintenance/privacy-and-secrets.md
 ========================================================================
@@ -4868,7 +4870,7 @@ give.
 [Scaling past a thousand pages](scaling.md)
 
 ========================================================================
-PAGE 60 of 131: Scaling past a thousand pages
+PAGE 60 of 132: Scaling past a thousand pages
 Section: Guide: Maintenance
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/09-maintenance/scaling.md
 ========================================================================
@@ -4950,7 +4952,7 @@ and the fix is upstream, in what you feed it.
 [Troubleshooting](../10-troubleshooting/README.md).
 
 ========================================================================
-PAGE 61 of 131: The failures everyone hits
+PAGE 61 of 132: The failures everyone hits
 Section: Guide: Troubleshooting
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/10-troubleshooting/common-failures.md
 ========================================================================
@@ -5018,7 +5020,7 @@ is the instinct and always costs another month.
 [The agent writes garbage](agent-writes-garbage.md)
 
 ========================================================================
-PAGE 62 of 131: The agent writes garbage
+PAGE 62 of 132: The agent writes garbage
 Section: Guide: Troubleshooting
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/10-troubleshooting/agent-writes-garbage.md
 ========================================================================
@@ -5089,7 +5091,7 @@ that run has the same flaw, and hand-fixing the three you noticed leaves the res
 [Broken links and orphans](broken-links.md)
 
 ========================================================================
-PAGE 63 of 131: Broken links and orphans
+PAGE 63 of 132: Broken links and orphans
 Section: Guide: Troubleshooting
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/10-troubleshooting/broken-links.md
 ========================================================================
@@ -5157,7 +5159,7 @@ review, and skipping that step is what leaves a vault permanently messy.
 [The vault got too big](vault-too-big.md)
 
 ========================================================================
-PAGE 64 of 131: The vault got too big
+PAGE 64 of 132: The vault got too big
 Section: Guide: Troubleshooting
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/10-troubleshooting/vault-too-big.md
 ========================================================================
@@ -5226,7 +5228,7 @@ Cheap, and it fixes a surprising share of "the vault feels broken" complaints.
 [FAQ](faq.md)
 
 ========================================================================
-PAGE 65 of 131: FAQ
+PAGE 65 of 132: FAQ
 Section: Guide: Troubleshooting
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/10-troubleshooting/faq.md
 ========================================================================
@@ -5307,7 +5309,7 @@ describe as the whole point.
 Something missing here? Open an issue.
 
 ========================================================================
-PAGE 66 of 131: What an agent is
+PAGE 66 of 132: What an agent is
 Section: Course: 0 · The map
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-0-map/what-an-agent-is.md
 ========================================================================
@@ -5353,7 +5355,7 @@ The common shape: the steps could not have been written down in advance, but the
 - Your system calls a model three times in a fixed order with no branching. Which level is it, and is it an agent?
 
 ========================================================================
-PAGE 67 of 131: Five layers, one system
+PAGE 67 of 132: Five layers, one system
 Section: Course: 0 · The map
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-0-map/five-layers.md
 ========================================================================
@@ -5405,7 +5407,7 @@ A failure in one layer wears the mask of another: missing context looks like a s
 - A teammate insists eval engineering has replaced prompt engineering. Using the five questions, explain why the claim is a category error.
 
 ========================================================================
-PAGE 68 of 131: Agents or workflows
+PAGE 68 of 132: Agents or workflows
 Section: Course: 0 · The map
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-0-map/agents-or-workflows.md
 ========================================================================
@@ -5443,7 +5445,7 @@ In order, and with something to build. This module is the map: what an agent act
 - [Module 6 — production](../course-6-production/from-prototype.md): from demo to deployed, and the day-one plan
 
 ========================================================================
-PAGE 69 of 131: How models read context
+PAGE 69 of 132: How models read context
 Section: Course: 1 · Context
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-1-context/how-models-read.md
 ========================================================================
@@ -5478,7 +5480,7 @@ The catch is severity: a cache hit requires the prefix to be 100% identical, byt
 The mechanics point one way. Content that never changes belongs at the very front, where it is cheap (cached) and well attended (primacy). Content that matters right now belongs at the very end, where recency works for you. Everything large or transient belongs out of the window entirely, on disk, fetched when needed. That placement discipline is the next page, and the harness handbook has a [deeper treatment](../track-harness/context-engineering.md) of wiring it into a real agent.
 
 ========================================================================
-PAGE 70 of 131: The four places
+PAGE 70 of 132: The four places
 Section: Course: 1 · Context
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-1-context/the-four-places.md
 ========================================================================
@@ -5530,7 +5532,7 @@ Google's [Sessions & Memory whitepaper](https://www.kaggle.com/whitepaper-contex
 For the live session the whitepaper names three strategies, in rising sophistication: keep the last N turns (a sliding window), token-based truncation (fill a budget newest-first), and recursive summarisation (replace older turns with a rolling summary prefixed to recent verbatim ones). Trigger compaction on a count threshold, on inactivity, or on task completion. The loop handbook's [context hygiene](../track-loop/context-hygiene.md) page goes deeper on compaction inside long-running loops.
 
 ========================================================================
-PAGE 71 of 131: Context in practice
+PAGE 71 of 132: Context in practice
 Section: Course: 1 · Context
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-1-context/context-practice.md
 ========================================================================
@@ -5585,7 +5587,7 @@ Next module: [loops versus workflows](../course-2-loop/loops-vs-workflows.md).
 Go deeper → the [harness handbook's context engineering page](../track-harness/context-engineering.md): the same discipline wired into a real setup.
 
 ========================================================================
-PAGE 72 of 131: Loops versus workflows
+PAGE 72 of 132: Loops versus workflows
 Section: Course: 2 · Loop
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-2-loop/loops-vs-workflows.md
 ========================================================================
@@ -5622,7 +5624,7 @@ Ask one question: can I write the steps in advance?
 Default to the cheapest structure that survives contact with the task, and promote only on evidence. The discipline of designing that bounded cycle — rather than prompting it by hand — is [loop engineering](../track-loop/what-loop-engineering-is.md), and the production pattern that ties both structures together (filter first, loop briefly, fall back) is built end to end in [loop practice](loop-practice.md).
 
 ========================================================================
-PAGE 73 of 131: The four parts of a loop
+PAGE 73 of 132: The four parts of a loop
 Section: Course: 2 · Loop
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-2-loop/the-four-parts.md
 ========================================================================
@@ -5672,7 +5674,7 @@ Read the exits carefully. The `else` on a Python `for` runs only when the loop f
 Notice also what the skeleton omits: there is no "ask the model if it is satisfied". The model chooses the next step; it never gets a vote on whether the work is done.
 
 ========================================================================
-PAGE 74 of 131: Loop practice: filter, loop, fall back
+PAGE 74 of 132: Loop practice: filter, loop, fall back
 Section: Course: 2 · Loop
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-2-loop/loop-practice.md
 ========================================================================
@@ -5766,7 +5768,7 @@ Alert 1 never touches the model, alert 2 closes on the loop's first turn, and al
 Go deeper → the [loop engineering handbook](../track-loop/what-loop-engineering-is.md): stop conditions, critics, context hygiene, and an overnight loop you can trust by morning.
 
 ========================================================================
-PAGE 75 of 131: Cheap Decisions
+PAGE 75 of 132: Cheap Decisions
 Section: Course: 3 · The gate
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-3-gate/cheap-decisions.md
 ========================================================================
@@ -5807,7 +5809,7 @@ Anywhere the stream fans in. At ingestion, before anything reaches the main agen
 The gate is an architecture decision, not a vendor decision. The architecture — narrow question, cheap answer, escalate on doubt — stays the same whichever tool fills the slot. Which tool that should be is an empirical question you answer with your own labels, and it is the subject of the next page: [gates in practice](gates-in-practice.md).
 
 ========================================================================
-PAGE 76 of 131: Gates in Practice
+PAGE 76 of 132: Gates in Practice
 Section: Course: 3 · The gate
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-3-gate/gates-in-practice.md
 ========================================================================
@@ -5844,7 +5846,7 @@ If your gate question is fixed, your domain is your own, and you can label a few
 The naming, settled: the gate is the layer; Jev is one way to build it. The [Jev engineering handbook](../track-jev/system-one-models.md) is the deep dive on that way — this module stays about the layer.
 
 ========================================================================
-PAGE 77 of 131: Gate Practice
+PAGE 77 of 132: Gate Practice
 Section: Course: 3 · The gate
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-3-gate/gate-practice.md
 ========================================================================
@@ -5948,7 +5950,7 @@ With the gate sorting the stream, the expensive model finally has room to do its
 Go deeper → the [Jev engineering handbook](../track-jev/system-one-models.md): System One models, what they are good for, and a confidence-gated router build.
 
 ========================================================================
-PAGE 78 of 131: The Office
+PAGE 78 of 132: The Office
 Section: Course: 4 · Harness
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-4-harness/the-office.md
 ========================================================================
@@ -5978,7 +5980,7 @@ The July 2026 sequel, [Tuning the harness, not the model](https://www.langchain.
 The moment the agent touches anything real. A chatbot that answers badly costs you a wince and a retry; nothing happened until you acted on the text. An agent with a shell, a database connection or a send button acts on its own output — the wrong answer is now a pushed commit, a dropped table, a sent email. That is the line: while the output is text you review, prompt away and skip the ceremony. The day it becomes actions that simply happen, you need walls, guides, sensors and gates — in that order. [The four rings](the-four-rings.md) is that build order, and [harness practice](harness-practice.md) walks through hardening a real agent end to end.
 
 ========================================================================
-PAGE 79 of 131: The Four Rings
+PAGE 79 of 132: The Four Rings
 Section: Course: 4 · Harness
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-4-harness/the-four-rings.md
 ========================================================================
@@ -6044,7 +6046,7 @@ Exit code 2 blocks the call and shows the hook's stderr to the model as the reas
 Every ring component is a bet that the model cannot do something. Anthropic added context resets to a harness because Claude Sonnet 4.5 wrapped up work prematurely near its context limit — then [dropped them entirely](https://www.anthropic.com/engineering/harness-design-long-running-apps) when Opus 4.5 largely removed that behaviour. Your bets will expire the same way. [Harness practice](harness-practice.md) turns that into a quarterly ritual.
 
 ========================================================================
-PAGE 80 of 131: Harness Practice
+PAGE 80 of 132: Harness Practice
 Section: Course: 4 · Harness
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-4-harness/harness-practice.md
 ========================================================================
@@ -6177,7 +6179,7 @@ Next: sensors deserve a module of their own — [two kinds of checks](../course-
 Go deeper → the [agent harnesses handbook](../track-harness/what-a-harness-is.md): the machinery in depth, the landscape, and a working harness in about 150 lines.
 
 ========================================================================
-PAGE 81 of 131: Two Kinds of Checks
+PAGE 81 of 132: Two Kinds of Checks
 Section: Course: 5 · Evals
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-5-evals/two-kinds-of-checks.md
 ========================================================================
@@ -6216,7 +6218,7 @@ End-to-end checks earn their keep at decision points: shipping a release, swappi
 One trap to avoid from day one: watch individual checks, not the overall pass rate. An aggregate can rise while one behaviour quietly breaks — five flaky cases start passing, and the agent stops asking approval before refunds. The aggregate says progress; check-level history says incident. Grading the slow tier is its own problem, which is where [judges and golden sets](judges-and-golden-sets.md) come in.
 
 ========================================================================
-PAGE 82 of 131: Judges and Golden Sets
+PAGE 82 of 132: Judges and Golden Sets
 Section: Course: 5 · Evals
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-5-evals/judges-and-golden-sets.md
 ========================================================================
@@ -6250,7 +6252,7 @@ The countermeasure is a standing feed from live traffic. Airbnb samples 5% of de
 Between calibrated judges, a set with failures in it, and a sampling loop that keeps the set honest, the measurement itself becomes something you can trust. The [practice page](evals-practice.md) turns all of this into an afternoon of concrete steps, starting from your own agent's twenty most recent failures.
 
 ========================================================================
-PAGE 83 of 131: Evals Practice
+PAGE 83 of 132: Evals Practice
 Section: Course: 5 · Evals
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-5-evals/evals-practice.md
 ========================================================================
@@ -6380,7 +6382,7 @@ Next module: [from prototype to production](../course-6-production/from-prototyp
 Go deeper → the handbook's three builds, starting from the `cases.yaml` you just wrote: [read your traces](../track-evals/build-traces.md) from the taxonomy pass onwards (collection is done), [build the suite](../track-evals/build-suite.md) for the calibrated judge, and [the CI gate](../track-evals/build-ci.md). Nothing here is thrown away.
 
 ========================================================================
-PAGE 84 of 131: From Prototype to Production
+PAGE 84 of 132: From Prototype to Production
 Section: Course: 6 · Production
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-6-production/from-prototype.md
 ========================================================================
@@ -6427,7 +6429,7 @@ The whitepaper's production path is a lifecycle, not a launch: development (fast
 None of this is exotic. It is ordinary software discipline applied to a component that happens to be probabilistic. The next page covers the operating side: [watching, paying for, and securing the thing once it runs](operating-agents.md).
 
 ========================================================================
-PAGE 85 of 131: Operating Agents
+PAGE 85 of 132: Operating Agents
 Section: Course: 6 · Production
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-6-production/operating-agents.md
 ========================================================================
@@ -6461,7 +6463,7 @@ The distinctly agentic threat is prompt injection through tools. The dangerous i
 Version everything that shapes behaviour — prompts, tool definitions, model choice, memory schema — like code, because it is code. Every change rides the same rail: [evals gate the merge](../course-5-evals/two-kinds-of-checks.md), canary rollout, watch the traces, roll back instantly if the numbers dip. Add a human checkpoint wherever an action is irreversible, expensive, or security-sensitive; everywhere else, let the gate do its job. Production traces become next week's eval cases, and the loop closes.
 
 ========================================================================
-PAGE 86 of 131: The Day-One Plan
+PAGE 86 of 132: The Day-One Plan
 Section: Course: 6 · Production
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-6-production/day-one-plan.md
 ========================================================================
@@ -6495,7 +6497,7 @@ Take the five most recent times the agent got something wrong — you remember t
 The honest closing note: the model is no longer the hard part. It arrives capable, improves without your help, and costs less every year. What separates a demo from a system you trust is everything around it — what it reads, when it stops, how it decides, what it is allowed to touch, and how you know it still works. That is the five layers. They are not glamorous, they are mostly plumbing, and they are where the work is now.
 
 ========================================================================
-PAGE 87 of 131: Why Knowledge Graphs
+PAGE 87 of 132: Why Knowledge Graphs
 Section: Handbook: Knowledge graphs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-graph/why-graphs.md
 ========================================================================
@@ -6536,7 +6538,7 @@ Skip the graph when:
 The threshold is roughly this: bother when your questions join facts across documents more often than they retrieve facts from one. Below that line, the extraction pipeline in [building graphs with LLMs](building-graphs-with-llms.md) is cost without payoff.
 
 ========================================================================
-PAGE 88 of 131: GraphRAG
+PAGE 88 of 132: GraphRAG
 Section: Handbook: Knowledge graphs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-graph/graphrag.md
 ========================================================================
@@ -6573,7 +6575,7 @@ The quieter trade-off is fidelity. Extraction flattens nuance into triples; a he
 Large, uncurated corpora with genuine multi-hop and thematic questions — see [why graphs](why-graphs.md) for the threshold test. For a curated personal vault, you have already done the extraction by hand; the guide's [what your vault already has](../05-graphs/graphrag.md#what-your-vault-already-has) maps each stage onto it. What remains useful is the pipeline's shape, covered in [building graphs with LLMs](building-graphs-with-llms.md).
 
 ========================================================================
-PAGE 89 of 131: Building Graphs with LLMs
+PAGE 89 of 132: Building Graphs with LLMs
 Section: Handbook: Knowledge graphs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-graph/building-graphs-with-llms.md
 ========================================================================
@@ -6605,7 +6607,7 @@ The same person arrives as `J. Smith`, `John Smith` and `john from ops`. Merge p
 Extract a hundred documents, look at the graph, fix the schema, re-run. The pipelines that fail are the ones that process the whole corpus before anyone looks. Where the result lives — embedded database, files, or plain wikilinks — is the subject of [graph stores](graph-stores.md), and the off-the-shelf implementations are surveyed in [tools](tools.md).
 
 ========================================================================
-PAGE 90 of 131: Graph Stores
+PAGE 90 of 132: Graph Stores
 Section: Handbook: Knowledge graphs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-graph/graph-stores.md
 ========================================================================
@@ -6640,7 +6642,7 @@ Kuzu was the obvious embedded choice: a serverless, embeddable graph database wi
 Choose the store after the extraction pipeline works, not before. A graph in files can move to Neo4j in an afternoon; the reverse migration is how projects discover their graph was never worth the server. The threshold logic is in [why graphs](why-graphs.md).
 
 ========================================================================
-PAGE 91 of 131: Tools
+PAGE 91 of 132: Tools
 Section: Handbook: Knowledge graphs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-graph/tools.md
 ========================================================================
@@ -6677,7 +6679,7 @@ The built-in graph view is a painting, not an instrument; plugins do the real wo
 Agent memory: Graphiti or Cognee. Query a document corpus: LightRAG. Already inside LlamaIndex or LangChain: their native extractors, writing to a store from [graph stores](graph-stores.md). Curated vault: your links are the graph; add InfraNodus when you want the analytics.
 
 ========================================================================
-PAGE 92 of 131: Build: Extract the Graph
+PAGE 92 of 132: Build: Extract the Graph
 Section: Handbook: Knowledge graphs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-graph/build-extract.md
 ========================================================================
@@ -6761,7 +6763,7 @@ The `found_in` column is provenance — the answer to "why does the graph believ
 Sample twenty rows against the pages they came from before moving on. Expect a few edges that are technically grounded but useless, and the odd direction flipped. Fix the prompt, not the rows, and re-run — the pass over a few hundred pages costs minutes. Then load the result in [Build: Query It](build-query.md).
 
 ========================================================================
-PAGE 93 of 131: Build: Query It
+PAGE 93 of 132: Build: Query It
 Section: Handbook: Knowledge graphs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-graph/build-query.md
 ========================================================================
@@ -6894,7 +6896,7 @@ RAG <-[links-to]- Lost in the Middle
 That is a multi-hop join, computed rather than guessed — the exact question [why graphs](why-graphs.md) says vector retrieval fails on. It is also a plain function taking two strings and returning a string, which is precisely the shape an agent tool wants. Wiring that up is [Build: Put It in the Loop](build-use.md).
 
 ========================================================================
-PAGE 94 of 131: Build: Put It in the Loop
+PAGE 94 of 132: Build: Put It in the Loop
 Section: Handbook: Knowledge graphs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-graph/build-use.md
 ========================================================================
@@ -6968,7 +6970,7 @@ Each is an entry on the ladder in [graph stores](graph-stores.md), and the migra
 An extractor, a query tool, a slash command and a maintenance loop — a working GraphRAG-lite over your own notes for the cost of an evening. If the appetite grows from here, the surveyed frameworks in [tools](tools.md) are the same shape, scaled up.
 
 ========================================================================
-PAGE 95 of 131: Resources
+PAGE 95 of 132: Resources
 Section: Handbook: Knowledge graphs
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-graph/resources.md
 ========================================================================
@@ -7005,7 +7007,7 @@ Read [Graphiti](https://github.com/getzep/graphiti) for temporal edge handling a
 3. Read the Zep paper, then decide your store deliberately using [graph stores](graph-stores.md) — files first, server only when concurrent writers force it.
 
 ========================================================================
-PAGE 96 of 131: System One Models
+PAGE 96 of 132: System One Models
 Section: Handbook: Jev engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-jev/system-one-models.md
 ========================================================================
@@ -7042,7 +7044,7 @@ At launch nearly every number was the vendor's own, and the headline numbers sti
 Treat the mechanism as real and the vendor's magnitudes as unconfirmed; the independent evaluations that now exist are listed in [resources](resources.md) and cover specific tasks, not the headline workflows. For what tasks it plausibly fits, see [what Jev is good for](what-jev-is-good-for.md); to try it, see [getting started](getting-started.md); for sources, see [resources](resources.md).
 
 ========================================================================
-PAGE 97 of 131: What Jev Is Good For
+PAGE 97 of 132: What Jev Is Good For
 Section: Handbook: Jev engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-jev/what-jev-is-good-for.md
 ========================================================================
@@ -7080,7 +7082,7 @@ An independent benchmark gives one data point against the latency claim: [Jevals
 The steel-manned version: for a million classify-or-route decisions a day, even a 10x real-world saving changes what is economical to build. Whether the saving is 10x or 400x is exactly what independent testing has not yet established. To wire it into an agent, see [Jev in an agent stack](jev-in-an-agent-stack.md); to try a first project, see [getting started](getting-started.md).
 
 ========================================================================
-PAGE 98 of 131: Jev in an Agent Stack
+PAGE 98 of 132: Jev in an Agent Stack
 Section: Handbook: Jev engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-jev/jev-in-an-agent-stack.md
 ========================================================================
@@ -7112,7 +7114,7 @@ The probability on every answer is the design's load-bearing part. The pattern T
 One honest caution: this whole scheme assumes the probabilities are genuinely calibrated, which is TypeSafe's central claim. Independent tests are mixed: one found probabilities near calibrated on public benchmarks but overconfident on a rule the text did not state, with boolean answers underconfident and choice and score answers overconfident ([jev-ood-calibration](https://github.com/scienthoon/jev-ood-calibration)), and that study notes the probabilities are quantised to 0.01 and frequently exactly 0 or 1. Sceptics note that a confident score is not by itself evidence the prediction deserves trust. Start with conservative thresholds and measure against your own labels. Practical setup in [getting started](getting-started.md); task fit in [what Jev is good for](what-jev-is-good-for.md).
 
 ========================================================================
-PAGE 99 of 131: Getting Started With Jev
+PAGE 99 of 132: Getting Started With Jev
 Section: Handbook: Jev engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-jev/getting-started.md
 ========================================================================
@@ -7168,7 +7170,7 @@ Mind the gotchas, but test them yourself: TypeSafe's documentation lists negatio
 Plainly: at launch, architecture, model size, and weights were undisclosed, and TypeSafe published no self-hosting, fine-tuning, image/audio/video input, rate-limit or SLA documentation. Independent evaluations now exist: [priorbench](https://github.com/priorbench/jev) (a pre-registered evaluation), [JevBench](https://github.com/fstandhartinger/jevbench) states it is not affiliated with TypeSafe, and [Jevals](https://github.com/Jevals/jevals-data), [jev-calibration-audit](https://github.com/jujumilk3/jev-calibration-audit) and [jev-ood-calibration](https://github.com/scienthoon/jev-ood-calibration) publish their data. Their results are task-specific and mixed; see [resources](resources.md). Nobody has shown the pricing is sustainable rather than subsidised. No general-availability date was announced as of 21 September. If any of these are blockers, wait — see [what Jev is good for](what-jev-is-good-for.md) for whether it is worth queueing for, and [resources](resources.md) for the docs.
 
 ========================================================================
-PAGE 100 of 131: Build: a Typed Decision Endpoint
+PAGE 100 of 132: Build: a Typed Decision Endpoint
 Section: Handbook: Jev engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-jev/build-decision-endpoint.md
 ========================================================================
@@ -7243,7 +7245,7 @@ if __name__ == "__main__":
 Be clear-eyed about the gap. Jev is non-autoregressive and answers a whole battery of questions in one parallel pass; this makes five generation calls per question. Its confidence is a calibrated probability trained with RLCD; ours is a vote count that can only take six values and says nothing about calibration. Latency is a second or two against a claimed 70–500ms, and each decision costs five Haiku calls, which carry both input and output tokens at Anthropic's rates, against TypeSafe's stated $0.042 per million input tokens with free output. What survives the swap is the contract — and that is the part your code depends on. Next: [the confidence-gated router](build-router.md).
 
 ========================================================================
-PAGE 101 of 131: Build: the Confidence-Gated Router
+PAGE 101 of 132: Build: the Confidence-Gated Router
 Section: Handbook: Jev engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-jev/build-router.md
 ========================================================================
@@ -7331,7 +7333,7 @@ if __name__ == "__main__":
 The threshold is a business decision, not a modelling one — price it by the cost of a wrong fast-path action, per the thresholds discussion linked above. With the stand-in, remember the confidence is sample agreement, not a calibrated probability: five agreeing samples on an ambiguous ticket is common, so keep the catch-all route and audit the log weekly against human judgement before lowering the threshold. The one thing not to skip is the logging. When Jev access arrives, this file of inputs, decisions and confidences is exactly what you will replay through it — which is the next page: [the Jev swap](build-swap-in-jev.md).
 
 ========================================================================
-PAGE 102 of 131: Build: the Jev Swap
+PAGE 102 of 132: Build: the Jev Swap
 Section: Handbook: Jev engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-jev/build-swap-in-jev.md
 ========================================================================
@@ -7419,7 +7421,7 @@ Baseline the stand-in for a week, then compare on the shadow log:
 Flip the import in `decider.py` when the numbers earn it, and keep the stand-in one comment away as the rollback.
 
 ========================================================================
-PAGE 103 of 131: Jev Resources
+PAGE 103 of 132: Jev Resources
 Section: Handbook: Jev engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-jev/resources.md
 ========================================================================
@@ -7478,7 +7480,7 @@ Bear in mind that the headline speed and cost multipliers still trace back to Ty
 3. Join the waitlist, then run the triage eval from [getting started](getting-started.md) against your own labelled data before believing any benchmark.
 
 ========================================================================
-PAGE 104 of 131: What a Harness Is
+PAGE 104 of 132: What a Harness Is
 Section: Handbook: Agent harnesses
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/what-a-harness-is.md
 ========================================================================
@@ -7518,7 +7520,7 @@ Mature harnesses add hooks (deterministic scripts on lifecycle events), subagent
 Learn the anatomy once and every framework becomes legible: they are all the same loop wearing different coats.
 
 ========================================================================
-PAGE 105 of 131: Claude Code as Harness
+PAGE 105 of 132: Claude Code as Harness
 Section: Handbook: Agent harnesses
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/claude-code-as-harness.md
 ========================================================================
@@ -7560,7 +7562,7 @@ Every tool call passes through a permission layer: allowlists in `settings.json`
 It is the most complete off-the-shelf harness available in 2026, and the vocabulary the rest of the field defines itself against — see the [landscape](harness-landscape.md). Cost: you inherit Anthropic's opinions and their token appetite. For most builders that is a fine trade.
 
 ========================================================================
-PAGE 106 of 131: Context Engineering
+PAGE 106 of 132: Context Engineering
 Section: Handbook: Agent harnesses
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/context-engineering.md
 ========================================================================
@@ -7605,7 +7607,7 @@ Most "the model got dumber" reports are one of these four. Diagnose by reading t
 Tool schemas and results are the biggest single consumer of context in most agents, which makes tool design a context-engineering decision — the subject of [tools and MCP](tools-and-mcp.md).
 
 ========================================================================
-PAGE 107 of 131: Tools and MCP
+PAGE 107 of 132: Tools and MCP
 Section: Handbook: Agent harnesses
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/tools-and-mcp.md
 ========================================================================
@@ -7637,7 +7639,7 @@ Every tool description enters the model's context, which makes the tool ecosyste
 Practical defences: pin server versions, read tool descriptions before installing (they are code review targets), scope credentials narrowly, gate side-effectful calls behind permissions, and treat all tool output as data, never as instructions. No model in 2026 resists injection reliably. The harness must.
 
 ========================================================================
-PAGE 108 of 131: Harness Landscape
+PAGE 108 of 132: Harness Landscape
 Section: Handbook: Agent harnesses
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/harness-landscape.md
 ========================================================================
@@ -7669,7 +7671,7 @@ A survey of what is alive in September 2026, with one honest take each. They all
 Building on Claude: Agent SDK. TypeScript web product: Vercel AI SDK. Explicit workflow control: LangGraph. Learning: smolagents, then read pi's source. Self-hosted control over coding agents: OpenHands. Most teams need one harness and the discipline to feed it well — not a framework tour.
 
 ========================================================================
-PAGE 109 of 131: Build: the Loop
+PAGE 109 of 132: Build: the Loop
 Section: Handbook: Agent harnesses
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/build-the-loop.md
 ========================================================================
@@ -7778,7 +7780,7 @@ Save it as `agent.py`, run `python agent.py "find the TODO comments in this repo
 This is a demo. It will run any command the model fancies, and a long task will grow the transcript without limit. Fixing those two things — permissions and context — is [part two](build-guardrails.md).
 
 ========================================================================
-PAGE 110 of 131: Build: Permissions and Context
+PAGE 110 of 132: Build: Permissions and Context
 Section: Handbook: Agent harnesses
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/build-guardrails.md
 ========================================================================
@@ -7900,7 +7902,7 @@ When the transcript exceeds the budget, the oldest turns after the task are drop
 You now have a harness in miniature. What it still lacks — and when that matters — is [part three](build-graduate.md).
 
 ========================================================================
-PAGE 111 of 131: Build: Know When to Graduate
+PAGE 111 of 132: Build: Know When to Graduate
 Section: Handbook: Agent harnesses
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/build-graduate.md
 ========================================================================
@@ -7936,7 +7938,7 @@ Adopt a harness the moment any of these becomes true: the agent runs unattended;
 The honest summary: the 150 lines were never the destination. They are the reason framework documentation now reads as choices rather than magic — you know what the loop looks like naked, so you can tell which coats are warm and which are decoration. Pick from the [landscape](harness-landscape.md), wire up a real task, and keep reading transcripts.
 
 ========================================================================
-PAGE 112 of 131: KV-Cache Tiers on a Local SSD
+PAGE 112 of 132: KV-Cache Tiers on a Local SSD
 Section: Handbook: Agent harnesses
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/kv-cache-ssd-tier.md
 ========================================================================
@@ -8137,6 +8139,10 @@ with urllib.request.urlopen(req) as r:
 
 This script is a plain timing harness written for this page, not taken from any project's docs; it assumes an OpenAI-compatible server on port 8000 that streams, and it stops the timer at the first non-empty content delta. A reasoning model may stream reasoning in a different field first; adjust the check if so. `llama-server` reports the numbers itself: the `/completion` response has a `timings` object with `cache_n` (prompt tokens reused from cache), `prompt_n` (tokens processed) and `prompt_ms`, so a restore should show a large `cache_n` and a small `prompt_ms`. Run each state several times and keep the median; one run on a cold drive tells you little.
 
+## A saved slot for the vault's CLAUDE.md
+
+If a local model runs scheduled vault maintenance (tagging, summaries, lint triage), the stable prefix is the vault's `CLAUDE.md` plus a tag vocabulary, and the llama.cpp slot save and restore described above is how to keep it across restarts. [Local models for cheap maintenance](local-models-for-maintenance.md) walks through that, and through pointing `vault_search.py --embed-url` at a local embedding server.
+
 ## What was and was not checked
 
 Checked on 6 October 2026 against the primary files named above: the LMCache README and docs source (`quickstart.rst`, `mp/l2_storage/fs.rst`, `local_storage.rst`), vLLM's `disagg_prefill.md` and `kv_offloading_usage.md` on `main`, SGLang's HiCache docs on `main`, the llama.cpp server and completion READMEs on `master`, Ollama's `faq.mdx`, the Dynamo README, and Meta's llama-models repository. The docs describe the branch head, so flags may differ from the release you installed. No server or benchmark was run for this page, so no speed result is claimed.
@@ -8150,7 +8156,132 @@ Not re-checked on 6 October 2026 because the page could not be fetched:
 - SGLang's `file` backend source and its exact environment variable spelling beyond what the design page prints.
 
 ========================================================================
-PAGE 113 of 131: Resources
+PAGE 113 of 132: Local Models for Cheap Maintenance
+Section: Handbook: Agent harnesses
+Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/local-models-for-maintenance.md
+========================================================================
+
+# Local Models for Cheap Maintenance
+
+Some vault maintenance is routine enough that a small model on your own CPU might do it: suggest tags, write a one-paragraph summary of one source, sort lint findings into "mechanical" and "needs a human". This page covers what such a model can and cannot do in a second-brain vault, how to run it with `llama-server` from llama.cpp, how to turn the vault's `CLAUDE.md` into a saved prompt-cache slot so each run does not re-read it, and how to point `vault_search.py --embed-url` at a local embedding server.
+
+It does not claim a local model matches Claude. No model was run for this page, and no quality or speed figure is given. Where a statement is a judgement rather than something a source says, it says so.
+
+Everything attributed to llama.cpp below was read from its [server README](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md) on `master` on 6 October 2026, through a fetch tool that returns extracts, not the whole file. The flags change between releases; run `llama-server --help` on the build you have. The last section lists what was not checked.
+
+## What a small local model can and cannot do here
+
+This is judgement, not measurement. The test that matters is whether you can check the output cheaply. A small model is a reasonable fit where you can, and a poor one where you cannot.
+
+| Job | Fit | Why |
+|---|---|---|
+| Tag a page from a fixed vocabulary | Plausible | A closed choice. Your script can reject any tag not in the vocabulary |
+| Summarise one source page in a paragraph | Plausible, with a check | The source is in the prompt, so you can compare. Small models are more likely to drop or invent detail than a large one; sample and read |
+| Triage `link_check` output (broken link, stub, stale) into mechanical or needs-human | Plausible | A short classification of lines the script already found |
+| Draft aliases or the other-language title | Weak | Needs knowledge of what the owner actually calls things; an alias must be a real name, not an invented one |
+| Ingest a source into several linked pages | Do not | Needs the whole vault in view and judgement about what already exists |
+| Find contradictions, merge duplicates, decide what to archive | Do not | The vault `CLAUDE.md` makes uncertain identity a hard stop (f), and a wrong merge is expensive |
+| Read email, meetings or web pages unattended | Do not | The [graduation page](build-graduate.md) gives "reads untrusted content" and "runs unattended" as reasons to use a harness with a real permission system; a script you wrote has neither |
+
+Three facts shape the design.
+
+**Claude Code is not the harness for this.** The Claude Code gateway documentation says Anthropic "doesn't support routing Claude Code to non-Claude models through any gateway" ([LLM gateways](https://code.claude.com/docs/en/llm-gateway), read 6 October 2026). llama-server does offer an Anthropic-compatible `/v1/messages` endpoint, per its README, but that does not make the pairing supported. So a local job is a small script of your own that sends a prompt to llama-server and reads the reply, in the shape of [the loop you built](build-the-loop.md).
+
+**Your script has none of the vault's guardrails.** The vault's `.claude/settings.json` and guard hook protect Claude Code sessions. They do not see your script. Give the script one place to write, a proposals file such as `output/local-proposals-YYYY-MM-DD.md`, and have it validate before writing (is every tag in the vocabulary, does the summary quote text that is in the source). Then a Claude session or you apply what is worth applying. That keeps the local model on proposals and the vault rails on writes.
+
+**Local does keep content on the machine.** The README gives `--host` a default of `127.0.0.1`, so a server started without that flag listens only on the local machine. That matters for `private` pages, whose content the vault `CLAUDE.md` bars from any request to another service. If you set `--host` to expose the server, set `--api-key` as well; the README lists both.
+
+## Run llama-server on a CPU
+
+```bash
+llama-server -m ./models/your-chat-model.gguf \
+  -c 8192 -t 8 -np 1 -ngl 0 \
+  --host 127.0.0.1 --port 8080 \
+  --slot-save-path ./slots
+```
+
+What the README says about each flag:
+
+| Flag | README description (quoted) |
+|---|---|
+| `-m, --model FNAME` | model path to load |
+| `-c, --ctx-size N` | "size of the prompt context (default: 0, 0 = loaded from model)" |
+| `-t, --threads N` | "number of CPU threads to use during generation (default: -1)" |
+| `-np, --parallel N` | "number of server slots (default: -1, -1 = auto)" |
+| `-ngl, --gpu-layers N` | "max. number of layers to store in VRAM, either an exact number, 'auto', or 'all' (default: auto)" |
+| `--host HOST` | "IP addresses to listen on ... (default: 127.0.0.1)" |
+| `--slot-save-path PATH` | "path to save slot kv cache (default: disabled)" |
+
+`-ngl 0` is this page's reading of the `-ngl` description: if it is the maximum number of layers kept in VRAM, zero keeps none there. On a machine with no GPU the default `auto` should already do that; the flag is only a way to say so. `-np 1` gives one slot, so there is one cache to save and restore; the README does not say how the context is divided between several slots, so check that before raising it. Set `-t` to your physical core count as a starting point, which is a convention, not a README recommendation, and measure.
+
+Calling it from a script uses the OpenAI-compatible chat endpoint, which the README describes as "POST `/v1/chat/completions`: OpenAI-compatible Chat Completions API" that takes `messages`. For output your script must parse, the README documents schema-constrained JSON (`{"type": "json_object", "schema": {...}}`) and grammar-based sampling. Use one of them for tags and triage so the model cannot return free text where your code expects a list. Constraining the shape does not make the content right; you still validate it.
+
+## Make CLAUDE.md a saved slot
+
+llama-server does not read `CLAUDE.md`. That file is Claude Code's. What you can do is put the same text at the start of every prompt your script sends, and have the server keep the processed result.
+
+The [KV-cache page](kv-cache-ssd-tier.md) explains why: the model has to read the stable front of the prompt before it can read your page, and that work (prefill) is the slow part on a CPU. The vault `CLAUDE.md` in this repo is about 12,000 characters (1,800 words); the token count depends on the model's tokenizer, so measure it rather than guess. If every maintenance call starts with that text, only the page at the end is new.
+
+Per the README, `--cache-prompt` is on by default, and the `cache_prompt` request option reads "Re-use KV cache from a previous request if possible. This way the common prefix does not have to be re-processed, only the suffix that differs between the requests." So within one server run, a stable prefix is reused for free. Saving a slot makes it survive a restart:
+
+1. Build the prefix once: your instruction block, the vault `CLAUDE.md`, the tag vocabulary. Keep it byte-identical from run to run. Put the page being processed after it, never before; one changed early character defeats the reuse.
+2. Send a first request with that prefix (and a trivial question), pinned to a slot with `id_slot` (README: "Assign the completion task to an specific slot. If is -1 the task will be assigned to a Idle slot.").
+3. Save the slot. The README documents `POST /slots/{id_slot}?action=save` with a required `filename`, relative to `--slot-save-path`:
+
+   ```bash
+   curl -X POST 'http://127.0.0.1:8080/slots/0?action=save' \
+     -H 'Content-Type: application/json' -d '{"filename":"vault-claude-md.bin"}'
+   ```
+
+4. At the start of each scheduled run, after starting the server, restore it with `action=restore` and the same `filename`.
+5. Check it worked. The `/completion` response's `timings` object includes `cache_n` ("number of prompt tokens reused from cache") and `prompt_n` ("number of prompt tokens being processed"). After a restore, `cache_n` should be large and `prompt_n` small.
+
+When `CLAUDE.md` changes, or you change the model, the saved file no longer matches: save a new one. The README does not say what a restore does with a file from a different model, so do not rely on it; keep one file per model and per `CLAUDE.md` version in the name. The kv-cache page covers the other cache routes, and its measurement recipe works here too.
+
+## Point vault_search at a local embedding server
+
+`scripts/vault_search.py` ranks with BM25 on its own. With `--embed-url` it adds semantic ranking, using an embedding endpoint, and caches vectors on disk with `--embed-cache`. The README's description of `--embedding` is: "restrict to only support embedding use case; use only with dedicated embedding models (default: disabled)". So an embedding server is a second llama-server process with an embedding model, not the chat server you started above.
+
+```bash
+llama-server -m ./models/your-embedding-model.gguf --embedding \
+  --host 127.0.0.1 --port 8081
+
+python3 scripts/vault_search.py . "hoidmine" --embed-url http://127.0.0.1:8081 \
+  --embed-cache .cache/embeddings.json
+```
+
+Notes from the README: `--pooling {none,mean,cls,last,rank}` is the "pooling type for embeddings, use model default if unspecified", so usually leave it. The `/v1/embeddings` endpoint is OpenAI-compatible and "requires pooling different from `none`"; the separate `/embedding` endpoint also supports `none`. Which of the two paths the script calls, and whether `--embed-url` wants the base address or the full path, is in `python3 scripts/vault_search.py --help`; check it on the version you have rather than copying the line above.
+
+The cache file holds vectors computed from your pages. Treat it like the pages: keep `.cache/` out of git (the vault template's `.gitignore` lists it) and out of any shared folder. Use an address on this machine only. The `/ask` skill follows the same rule, because page text goes to the server.
+
+## Run it on a schedule
+
+A scheduled job that uses a local model is a plain script run by `cron`, Task Scheduler or a Desktop scheduled task, not a Claude Code session; see [scheduled maintenance](../06-agents/scheduled-maintenance.md) for where each runs. The job starts llama-server, restores the slot, loops over the pages, writes proposals and stops the server. CPU inference is slow, so cap the pages per run, as the vault rails cap ingest at 20.
+
+## Quality limits against Claude
+
+State these plainly before relying on any of this.
+
+- No comparison was run for this page. Do not assume the small model's tags, summaries or triage are as good as Claude's; assume they are worse until a sample says otherwise.
+- Expect more format slips, more invented detail in summaries and weaker handling of the vault's rules. The schema constraint and your validation catch the first; reading a sample catches the others.
+- Before you switch a job on, run the local model and Claude on the same 20 pages and read both. Count tags outside the vocabulary and summaries with a claim not in the source. If you would not accept the local output unreviewed, do not schedule it unreviewed.
+- Keep a Claude pass on top: a weekly run that reads the proposals file and applies, edits or discards each item. That is the cheap part of the saving, and the part that keeps the wiki's quality where it was.
+- Anything that needs the whole vault in view, or that is a hard stop in `CLAUDE.md`, stays with Claude and the owner.
+
+## What was and was not checked
+
+Checked on 6 October 2026: the llama.cpp server README on `master` (flags `-m`, `-c`, `-t`, `-np`, `-ngl`, `--host`, `--api-key`, `--embedding`, `--pooling`, `--slot-save-path`, `--cache-prompt`; the `/v1/embeddings`, `/embedding`, `/v1/chat/completions`, `/v1/messages` and `/slots` endpoints; `cache_prompt`, `id_slot`, `cache_n` and `prompt_n`; JSON-schema and grammar options), and the Claude Code gateway documentation.
+
+Not re-checked on that date:
+
+- The last part of the server README (about 16,000 of its 116,000 characters) was not returned by the fetch tool.
+- The fetch tool returned extracts, so quoted descriptions are as it returned them; confirm any flag against `llama-server --help` for your build.
+- What `--slot-save-path` restore does across different models, and how context is divided between slots when `-np` is above 1.
+- The exact path and base-address handling of `--embed-url` in `vault_search.py`, which belongs to the script, not to llama.cpp.
+- Model choice, model file formats and their licences, CPU speed, and token counts. No model was downloaded or run.
+
+========================================================================
+PAGE 114 of 132: Resources
 Section: Handbook: Agent harnesses
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/resources.md
 ========================================================================
@@ -8193,7 +8324,7 @@ Curated, not exhaustive. Everything here was checked in September 2026 and earns
 3. **Adopt one harness and instrument it.** Pick from the [landscape](harness-landscape.md), wire up a real task, and read the raw transcripts of every failure. The transcript is the curriculum; everything in this handbook is visible there.
 
 ========================================================================
-PAGE 114 of 131: What Loop Engineering Is
+PAGE 115 of 132: What Loop Engineering Is
 Section: Handbook: Loop engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-loop/what-loop-engineering-is.md
 ========================================================================
@@ -8224,7 +8355,7 @@ Hand-prompting spends your judgement one turn at a time: you read the output, de
 This site already has a handbook on [agent harnesses](../track-harness/what-a-harness-is.md) — the machinery around the model: the inner while-loop, tool schemas, permissions, context window management. Loop engineering is the control discipline layered on top of that machinery. The harness executes a turn; the loop decides whether there should be a next turn, what it should attempt, who judges it, and when the whole exercise ends. You need both: a good harness with no loop discipline is a very fast way to produce unverified work, and loop discipline without a decent harness has nothing reliable to steer.
 
 ========================================================================
-PAGE 115 of 131: Stop Conditions
+PAGE 116 of 132: Stop Conditions
 Section: Handbook: Loop engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-loop/stop-conditions.md
 ========================================================================
@@ -8262,7 +8393,7 @@ Some failures are loud. Spin is quiet: the agent repeats the same search, produc
 Every exit that is not goal-test-green should end in a report addressed to a person: what was attempted, what state the working tree is in, which brake fired, and the loop's best evidence for why. Escalation is a feature. A loop that fails legibly at attempt three is worth more than one that flails to attempt fifty, because the report tells you whether to fix the goal test, raise the budget, or take the task back into your own hands. The [patterns page](patterns.md) shows how the unattended variants formalise this into a morning report.
 
 ========================================================================
-PAGE 116 of 131: Critics and Verification
+PAGE 117 of 132: Critics and Verification
 Section: Handbook: Loop engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-loop/critics-and-verification.md
 ========================================================================
@@ -8290,7 +8421,7 @@ LLM critics inherit every failure mode documented for [LLM-as-judge in the evals
 The reason loops work at all is that checking is usually cheaper than doing. A test suite verifies in seconds what took the agent twenty minutes to write; that asymmetry is the engine, because it lets you buy many cheap attempts and pay full price only for judgement. It also tells you which tasks to loop. Work with a cheap, reliable verifier — failing tests, a reproducible bug, a benchmark number — loops beautifully. Work whose verification is as expensive as the work itself — architectural taste, prose quality, product judgement — does not, and pretending otherwise produces confident garbage at scale. Before building any loop, price the verifier. If you cannot afford a real one, keep the human in the chair.
 
 ========================================================================
-PAGE 117 of 131: Context Hygiene
+PAGE 118 of 132: Context Hygiene
 Section: Handbook: Loop engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-loop/context-hygiene.md
 ========================================================================
@@ -8321,7 +8452,7 @@ What crosses the gap between attempts is a distillation, not a history: the fail
 The test for each item is blunt: would a fresh, competent agent act better with this in front of it? Verifier output passes that test. A 40,000-token log of the last attempt failing does not. Hygiene is deciding on behalf of the next attempt, which is why it belongs to the loop and not to the model.
 
 ========================================================================
-PAGE 118 of 131: Patterns
+PAGE 119 of 132: Patterns
 Section: Handbook: Loop engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-loop/patterns.md
 ========================================================================
@@ -8357,7 +8488,7 @@ Budgeted, ratcheted, branch-isolated runs that work while you sleep and leave a 
 Start with the simplest loop that has a real verifier: the plain retry loop in [Build: the goal test](build-goal-test.md). Add a critic when green-but-ugly becomes your common failure. Go parallel or overnight only once the single loop stops legibly every time — the fancier patterns amplify whichever discipline you already have, including its absence.
 
 ========================================================================
-PAGE 119 of 131: Build: the Goal Test
+PAGE 120 of 132: Build: the Goal Test
 Section: Handbook: Loop engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-loop/build-goal-test.md
 ========================================================================
@@ -8431,7 +8562,7 @@ Save it, `chmod +x goal-loop.sh`, run it in a repo with failing tests, and watch
 This loop accepts anything green. An agent that passes the tests by ugly means — dead code, swallowed errors, a sneaky change just outside the tests' reach — sails through. Part two adds a judge for exactly that: [Build: the critic](build-critic.md).
 
 ========================================================================
-PAGE 120 of 131: Build: the Critic
+PAGE 121 of 132: Build: the Critic
 Section: Handbook: Loop engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-loop/build-critic.md
 ========================================================================
@@ -8520,7 +8651,7 @@ Notice what the critic's output becomes: the next attempt's `feedback`, phrased 
 The critic still shares failure modes with any LLM judge — leniency, self-preference when maker and checker share a model. Rule one of the rubric is also enforced by nothing but the critic here; a stricter build would deny the agent write access to `tests/` outright. Both rails, plus running the whole thing unattended, are [part three](build-overnight.md).
 
 ========================================================================
-PAGE 121 of 131: Build: the Overnight Loop
+PAGE 122 of 132: Build: the Overnight Loop
 Section: Handbook: Loop engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-loop/build-overnight.md
 ========================================================================
@@ -8613,7 +8744,7 @@ Run `python overnight.py` before bed; read `MORNING-REPORT.md` with coffee.
 **The report is the mailbox.** Unattended loops make unattended mistakes; the report is where they surface, per iteration, with the brake that fired. Between iterations, only `TODO.md` and the ratchet file persist — deliberately, per [context hygiene](context-hygiene.md). Each session wakes up cold, reads the todo, and does one bounded thing.
 
 ========================================================================
-PAGE 122 of 131: Resources
+PAGE 123 of 132: Resources
 Section: Handbook: Loop engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-loop/resources.md
 ========================================================================
@@ -8657,7 +8788,7 @@ A health warning first: "loop engineering" was coined in June 2026 and is three 
 3. **Add the judge, then the rails.** Critic pass, then ratchet and report — and only once the loop stops legibly every single time do you let it run while you sleep.
 
 ========================================================================
-PAGE 123 of 131: Why Evals
+PAGE 124 of 132: Why Evals
 Section: Handbook: Eval engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-evals/why-evals.md
 ========================================================================
@@ -8702,7 +8833,7 @@ The bill arrives as regression whack-a-mole: every fix is a gamble, model upgrad
 Start small. Twenty real failures, one taxonomy, one metric. The flywheel does the rest. When your product is an agent rather than a single call, see [agent evals](agent-evals.md) for the extra machinery.
 
 ========================================================================
-PAGE 124 of 131: Designing Evals
+PAGE 125 of 132: Designing Evals
 Section: Handbook: Eval engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-evals/designing-evals.md
 ========================================================================
@@ -8751,7 +8882,7 @@ Small suites lie. With 20 cases, a swing from 70% to 80% is two examples — noi
 When in doubt, compute a confidence interval before celebrating. If the interval spans both "improved" and "regressed", collect more cases instead of shipping.
 
 ========================================================================
-PAGE 125 of 131: LLM as Judge
+PAGE 126 of 132: LLM as Judge
 Section: Handbook: Eval engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-evals/llm-as-judge.md
 ========================================================================
@@ -8796,7 +8927,7 @@ Documented since the [MT-Bench paper](https://arxiv.org/abs/2306.05685) and stil
 Judges fail silently on: maths and arithmetic, niche domain facts, subtle instruction violations, and anything the judge model itself would get wrong. If a check *can* be code, make it code. Reserve the judge for genuinely linguistic judgements, keep humans auditing a sample of its verdicts forever, and never let judge scores gate a release that per-step checks contradict — see [agent evals](agent-evals.md) for how the two combine.
 
 ========================================================================
-PAGE 126 of 131: Agent Evals
+PAGE 127 of 132: Agent Evals
 Section: Handbook: Eval engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-evals/agent-evals.md
 ========================================================================
@@ -8848,7 +8979,7 @@ Evals belong in the pipeline, not a notebook:
 Tooling that makes this less painful is surveyed in [tooling](tooling.md).
 
 ========================================================================
-PAGE 127 of 131: Eval Tooling
+PAGE 128 of 132: Eval Tooling
 Section: Handbook: Eval engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-evals/tooling.md
 ========================================================================
@@ -8880,7 +9011,7 @@ Anthropic shipped an eval harness inside Claude Code itself (Claude Code v2.1.26
 Every platform demos beautifully with a toy dataset. The differentiator is whether your team will actually read traces in it weekly. Trial with your own failure taxonomy for a fortnight before signing anything.
 
 ========================================================================
-PAGE 128 of 131: Build: Read Your Traces
+PAGE 129 of 132: Build: Read Your Traces
 Section: Handbook: Eval engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-evals/build-traces.md
 ========================================================================
@@ -8960,7 +9091,7 @@ Five fields. `id` is stable and greppable. `failure_mode` comes from the taxonom
 Every named failure mode gets a handful of cases, plus boring successes so you do not over-fit to pathology — the reasoning is in [designing evals](designing-evals.md). Commit the file next to your code and move on to the suite.
 
 ========================================================================
-PAGE 129 of 131: Build: the Suite
+PAGE 130 of 132: Build: the Suite
 Section: Handbook: Eval engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-evals/build-suite.md
 ========================================================================
@@ -9106,7 +9237,7 @@ Read every disagreement; usually the expectation sentence was woolly, sometimes 
 This file is enough for one target, one judge, and a few hundred cases. Reach for promptfoo when you want to compare several prompts or models side by side without writing the matrix yourself, and for Inspect when you need sandboxed agent environments, solvers, and per-step scoring. Both are surveyed in [tooling](tooling.md); neither replaces the taxonomy work — they just run it at scale.
 
 ========================================================================
-PAGE 130 of 131: Build: the Gate
+PAGE 131 of 132: Build: the Gate
 Section: Handbook: Eval engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-evals/build-ci.md
 ========================================================================
@@ -9195,7 +9326,7 @@ Seed `scoreboard.md` by hand:
 The nightly job appends one row and commits it, even on failing runs — a bad number in the log is a fact, a missing row is a mystery. The point of the scoreboard is not the ceremony; it is that the number becomes visible history in every clone of the repo. When it dips, `git log scoreboard.md` and the nightly logs say exactly which day and which commit. That loop — read traces, encode failures, gate, watch the number — is the flywheel from [why evals](why-evals.md), now running without you.
 
 ========================================================================
-PAGE 131 of 131: Eval Resources
+PAGE 132 of 132: Eval Resources
 Section: Handbook: Eval engineering
 Source: https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-evals/resources.md
 ========================================================================
