@@ -571,6 +571,10 @@ def restricted_section(chk):
         {"file_path": P("wiki", "x.md"), "old_string": "page", "new_string": "ok"},
         {"file_path": P("output", "m.md"), "old_string": "a", "new_string": _rx("raw", "salary", 0, 300)}]}}
     chk.check("restricted: MultiEdit with one path in output/", run(root, multi) == 2)
+    split = {"tool_name": "MultiEdit", "tool_input": {"file_path": P("output", "m.md"), "edits": [
+        {"old_string": "a", "new_string": _rx("raw", "salary", 0, 120)},
+        {"old_string": "b", "new_string": _rx("raw", "salary", 120, 120)}]}}
+    chk.check("restricted: a quote split across two edits of one MultiEdit is joined and caught", run(root, split) == 2)
     # RESTRICTED_CHECK off
     mod = load_guard()
     mod.RESTRICTED_CHECK = False

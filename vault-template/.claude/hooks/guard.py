@@ -1217,7 +1217,10 @@ def check_restricted_write(tool, tin, paths, cwd, root):
             targets.append(r if r is not None else p)
     if not targets:
         return
-    texts = [t for t in written_texts(tool, tin) if len(t) >= RESTRICTED_MIN]
+    parts = written_texts(tool, tin)
+    # the pieces of one MultiEdit are also tried joined, so a quote split across edits is seen
+    joined = ["".join(parts), "\n".join(parts)] if len(parts) > 1 else []
+    texts = [t for t in parts + joined if len(t) >= RESTRICTED_MIN]
     exclude = {t.lower() for t in targets}
     for t in texts:
         page = find_excerpt(t, root, exclude)
