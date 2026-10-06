@@ -12,7 +12,8 @@ change, so the exit code is 0 unless --strict is given.
 
 Each distinct URL is checked once, with HEAD and a GET fallback when the host
 answers 405, 403 or 501, and once more after a timeout, a 5xx or a DNS failure.
-Non-ASCII paths and hosts are percent- and IDNA-encoded first. The report lists:
+Non-ASCII paths and hosts are percent- and IDNA-encoded first (the stdlib codec
+is IDNA2003, so a host with an eszett is sent with "ss"). The report lists:
 
   broken        a 4xx other than 401, 403 and 429, a DNS failure that repeated,
                 a 5xx that repeated, a refused connection, a 3xx with no Location
@@ -24,7 +25,10 @@ Non-ASCII paths and hosts are percent- and IDNA-encoded first. The report lists:
                 overall --budget
 
 Only "broken" counts for --strict. URLs inside code fences or inline code are
-examples and are skipped, as are example.* and localhost.
+examples and are skipped, as are example.* and localhost. Fences are recognised
+at up to three spaces of indent, as in CommonMark; a fence nested inside a list
+item, and indented (4-space or tab) code blocks, are not, so URLs there are
+checked like prose.
 """
 import argparse
 import glob
@@ -82,7 +86,7 @@ def skipped(url):
     return not host or any(host == h or host.endswith("." + h) for h in SKIP_HOSTS)
 
 
-FENCE = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
+FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 
 
 def code_flags(lines):
@@ -174,6 +178,11 @@ def fetch_once(opener, url, method, timeout):
             return r.status, None
     except urllib.error.HTTPError as e:
         loc = e.headers.get("Location") if e.headers else None
+        if loc:
+            try:  # http.client reads headers as latin-1; hosts send raw UTF-8
+                loc = loc.encode("latin-1").decode("utf-8")
+            except UnicodeError:
+                pass
         e.close()
         return e.code, loc
 
@@ -295,6 +304,11 @@ def summary_line(rep):
             f"{len(rep['inconclusive'])} inconclusive, {len(rep['blocked'])} blocked")
 
 
+def md_text(t):
+    """Make server-supplied text safe inside a markdown code span."""
+    return t.replace("`", "%60").replace("<", "&lt;")
+
+
 def render(rep, markdown=False):
     out = [summary_line(rep)]
     for title, key, fmt in SECTIONS:
@@ -307,7 +321,7 @@ def render(rep, markdown=False):
             if fold:
                 out += ["<details><summary>show</summary>", ""]
             for r in rows:
-                out.append(f"- `{fmt(r)}`")
+                out.append(f"- `{md_text(fmt(r))}`")
                 out += [f"  - {c}" for c in r["cited"]]
             if fold:
                 out += ["", "</details>"]
@@ -332,10 +346,16 @@ def selftest():
             path = self.path
             hits[path] = hits.get(path, 0) + 1
             code, hdr = 200, {}
-            if path == "/badstatus":
+            if path == "/rawloc":  # a raw UTF-8 Location header
+                self.wfile.write(b"HTTP/1.1 302 Found\r\nLocation: /\xc3\xbcber\r\n"
+                                 b"Content-Length: 0\r\n\r\n")
+                return
+            if path.startswith("/%C3%BCber") or path.startswith("/\xfcber"):
+                code = 200 if path == "/%C3%BCber" else 400
+            elif path == "/badstatus":
                 self.wfile.write(b"garbage\r\n\r\n")
                 return
-            if path == "/missing":
+            elif path == "/missing":
                 code = 404
             elif path == "/redir":
                 code, hdr = 302, {"Location": "http://localhost:%d/ok" % self.server.server_port}
@@ -394,6 +414,8 @@ def selftest():
     expect("5xx retried once", run("/flaky")[0] == "ok" and hits["/flaky"] == 2)
     expect("repeated 5xx broken", run("/down")[0] == "broken" and hits["/down"] >= 2)
     expect("bad status line is inconclusive", run("/badstatus")[0] == "error")
+    st, _, fin = run("/rawloc")
+    expect("raw UTF-8 Location is decoded", st == "ok" and fin == base + "/\u00fcber")
     expect("non-ASCII path is encoded", run("/Übung/é?q=ü")[0] == "ok")
     expect("encode_url wikipedia",
            encode_url("https://de.wikipedia.org/wiki/Übung") == "https://de.wikipedia.org/wiki/%C3%9Cbung")
@@ -434,6 +456,12 @@ def selftest():
                              len(rep["inconclusive"]), len(rep["blocked"])) == (5, 1, 1, 1, 1))
     expect("report cites file:line", rep["broken"][0]["cited"] == ["docs/x.md:2"])
     expect("blocked is listed", rep["blocked"][0]["url"].endswith("/blocked"))
+    evil = {"checked": 1, "broken": [], "downgraded": [], "blocked": [], "inconclusive": [],
+            "moved_host": [{"url": "https://a.test/", "final": "https://b.test/`x<img>",
+                            "cited": ["a.md:1"]}]}
+    md = render(evil, markdown=True)
+    expect("markdown escapes backtick and <", "`x" not in md and "<img" not in md
+           and "%60x&lt;img>" in md)
     expect("markdown report", "### Blocked (check by hand) (1)" in render(rep, markdown=True))
     t0 = time.time()
     short = check_all({base + "/slow": [("a.md", 1)], base + "/ok": [("a.md", 2)]},
@@ -483,7 +511,10 @@ def main():
         sys.exit(selftest())
     rep = check_all(collect(), timeout=args.timeout, budget=args.budget)
     print(json.dumps(rep, indent=2) if args.json else render(rep, args.markdown))
-    sys.exit(1 if args.strict and rep["broken"] else 0)
+    sys.stdout.flush()
+    sys.stderr.flush()
+    # leave at once: after the budget, up to 8 workers may still be mid-request
+    os._exit(1 if args.strict and rep["broken"] else 0)
 
 
 if __name__ == "__main__":

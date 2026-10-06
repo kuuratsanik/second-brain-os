@@ -34,9 +34,10 @@ jobs:
         run: python3 tools/check_external_links.py --selftest
       - name: Check external links
         continue-on-error: true
-        # timeout 15m is below the job's 20, and --budget 780 (13 min) below that,
-        # so the summary is written even when hosts are slow. 2>&1 puts a crash
-        # in the summary too.
+        # timeout 15m is below the job's 20, and --budget 780 (13 min) below that;
+        # the script exits as soon as the report is printed, without waiting for
+        # requests still in flight, so the summary is written even when hosts are
+        # slow. 2>&1 puts a crash in the summary too.
         run: |
           timeout 15m python3 tools/check_external_links.py --markdown --budget 780 > "$RUNNER_TEMP/report.md" 2>&1 || true
           {
