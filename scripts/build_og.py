@@ -13,7 +13,12 @@ builds. Only zlib.adler32 and zlib.crc32 are used, and those are specified.
 
     python3 scripts/build_og.py
 """
-import io, math, os, struct, sys, zlib
+import io
+import math
+import os
+import struct
+import sys
+import zlib
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools"))

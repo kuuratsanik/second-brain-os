@@ -9,7 +9,10 @@ they never change when the text is edited.
 
     python3 scripts/build_feed.py
 """
-import io, os, re, sys
+import io
+import os
+import re
+import sys
 from xml.sax.saxutils import escape, quoteattr
 
 import markdown

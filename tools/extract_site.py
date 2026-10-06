@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Extracts guide pages, the doc link graph, and the resource catalog into JSON."""
-import os, re, json, glob, io
+import os
+import re
+import json
+import glob
+import io
 import markdown
 
 ROOT = "."

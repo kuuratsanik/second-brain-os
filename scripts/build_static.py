@@ -6,7 +6,9 @@ byte-identical and CI's drift check covers them.
 
     python3 scripts/build_static.py
 """
-import io, os, sys
+import io
+import os
+import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools"))

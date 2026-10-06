@@ -4,7 +4,10 @@ Imported by tools/build_site.py, scripts/build_tracks.py and
 scripts/build_tree.py, so the fork URL, the favicon, the header and the
 footer exist in exactly one place.
 """
-import html as _html, json, os, re
+import html as _html
+import json
+import os
+import re
 
 def _resources_date():
     """The 'Figures are from **...**' date in resources/README.md, the one place it is kept."""
