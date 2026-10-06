@@ -33,6 +33,11 @@
       "Bash(wget *--body-*)",
       "Edit(/journal/**)",
       "Edit(/.claude/**)",
+      "Edit(/.claude/guard.log*)",
+      "Edit(/.claude/guard-cache.json)",
+      "Edit(/scripts/**)",
+      "Edit(/.obsidian/**)",
+      "Edit(/.gitignore)",
       "mcp__*__*send*",
       "mcp__*__*post*",
       "mcp__*__*reply*",
@@ -54,7 +59,26 @@
       "mcp__*__*share-*",
       "mcp__*__*append*",
       "mcp__*__*patch*",
-      "mcp__*__*put*"
+      "mcp__*__*put*",
+      "mcp__*__label_*",
+      "mcp__*__unlabel_*",
+      "mcp__*__label-*",
+      "mcp__*__unlabel-*",
+      "mcp__*__apply_*",
+      "mcp__*__modify_*",
+      "mcp__*__modify-*",
+      "mcp__*__archive_*",
+      "mcp__*__unarchive_*",
+      "mcp__*__archive-*",
+      "mcp__*__unarchive-*",
+      "mcp__*__mark_*",
+      "mcp__*__unmark_*",
+      "mcp__*__mark-*",
+      "mcp__*__unmark-*",
+      "mcp__*__star_*",
+      "mcp__*__unstar_*",
+      "mcp__*__star-*",
+      "mcp__*__unstar-*"
     ],
     "ask": [
       "Edit(/CLAUDE.md)",
@@ -91,6 +115,20 @@
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/integrity.py"
+            ],
+            "timeout": 15
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Write|Edit|MultiEdit|NotebookEdit",
@@ -107,6 +145,19 @@
       },
       {
         "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/guard.py"
+            ],
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "WebFetch|WebSearch|mcp__.*",
         "hooks": [
           {
             "type": "command",

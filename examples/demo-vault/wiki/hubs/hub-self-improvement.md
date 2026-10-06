@@ -29,7 +29,9 @@ Everything that moves through idea, experiment, review and system.
 
 ## Pages
 
-**Ideas:** [[fifteen-minute-friday-review|Fifteen-minute Friday review]] (promoted), [[morning-flashcards|Morning flashcards]] (dropped)
+**Ideas:** [[fifteen-minute-friday-review|Fifteen-minute Friday review]] (promoted)
+
+**Dropped ideas:** Morning flashcards (dropped 2026-09-30, daily load too high; archived at archive/wiki/self-improvement/ideas/morning-flashcards.md)
 
 **Experiments:** [[friday-review-trial|Friday review trial]] (adopted)
 

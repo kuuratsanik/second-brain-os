@@ -18,7 +18,12 @@ and track entries are replaced, not duplicated.
     pip install -r requirements.txt
     python3 scripts/build_tracks.py
 """
-import glob, io, json, os, re, sys
+import glob
+import io
+import json
+import os
+import re
+import sys
 
 import markdown
 
@@ -109,7 +114,8 @@ TRACKS = {
                   "context-engineering", "tools-and-mcp",
                   "harness-landscape",
                   "build-the-loop", "build-guardrails", "build-graduate",
-                  "resources"],
+                  "kv-cache-ssd-tier",
+                  "local-models-for-maintenance", "resources"],
     },
     "track-loop": {
         "title": "Loop engineering",
@@ -225,7 +231,7 @@ def main():
     for marker, block in (("ENTRIES", entries_block), ("COURSE", course_block), ("TRACKS", track_block)):
         pat = f"<!--{marker}-->.*?<!--/{marker}-->"
         if re.search(pat, s, re.S):
-            s = re.sub(pat, lambda m: block, s, flags=re.S)
+            s = re.sub(pat, lambda m, block=block: block, s, flags=re.S)
         else:
             raise SystemExit(f"no <!--{marker}--> marker in index.html")
     io.open(INDEX, "w", encoding="utf-8", newline="\n").write(s)

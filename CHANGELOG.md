@@ -14,6 +14,106 @@ without that file predates 1.0.0.
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-06
+
+### Added
+
+- Skill `second-brain-ask`: `/ask` now searches the vault with the new
+  `scripts/vault_search.py` (BM25, title and aliases above headings above body;
+  optional embeddings from a local llama.cpp server), reads the top pages and
+  cites every claim as `[[page]]` plus `path:line`. It says "the vault doesn't
+  say" where the pages are silent, labels general knowledge only when you ask
+  for it, never quotes `restricted` pages, searches Estonian and English and
+  answers in the language of the question, and offers to file a good answer as
+  a synthesis page. `/trace` uses it too; `second-brain-query` keeps `/know`.
+- Skill `second-brain-brief` and command `/brief`: one page, written to
+  `output/brief-<date>.md`, listing raw sources added since the last brief, the
+  needs-owner queue, experiments and ideas due, stale pages
+  (`link_check.py --stale`), likely duplicates (`--duplicates`) and the path of
+  the new `scripts/dashboard.py` health dashboard. It reports and changes
+  nothing else, and it does not set `disable-model-invocation`, so a scheduled
+  task can fire it: the schedulable set is now 17 commands. Per the
+  [skills documentation](https://code.claude.com/docs/en/skills) and the
+  [scheduled tasks documentation](https://code.claude.com/docs/en/scheduled-tasks),
+  read on 6 October 2026, a scheduled fire does not run a skill with
+  `disable-model-invocation: true`.
+- Skill `second-brain-flashcards` and command `/flashcards`: question and
+  answer cards from concept pages in the Obsidian Spaced Repetition plugin's
+  syntax (`question::answer`, `?` between multi-line sides, a `#flashcards`
+  deck tag). Cards go in `output/flashcards/<concept>.md`, not in the concept
+  page, because the plugin writes review state into the file that holds the
+  cards. Pages with `maintained_by: human` are queued, and `restricted` pages
+  are skipped.
+- Skill `second-brain-capture` and command `/capture`: save Gmail threads,
+  Granola meeting notes and transcripts and Notion pages that you name into
+  `raw/` as new files with source frontmatter, strictly read-only on the
+  service. Email and meetings default to `private` (`restricted` when leaking
+  them would hurt someone), it asks before taking in other people's personal
+  data, and it stops at `raw/`; `/ingest` does the rest.
+- Two vault scripts, `vault_search.py` and `dashboard.py`, so the Quickstart,
+  `/install` and the plugin README copy six scripts, not four. The vault
+  template's `.gitignore` now ignores `.cache/`, where `vault_search.py` keeps
+  its embedding cache.
+- `second-brain-ingest`: for an owner who writes in two languages, add the
+  other-language title as an alias and set `lang:` to the page's own language.
+  The `lang` field already existed in the schema (ISO 639-1, `et` or `en`), so
+  no new field was added; the schema page now says what to do with `aliases`
+  when you write in two languages.
+- Handbook page
+  [Local models for cheap maintenance](docs/track-harness/local-models-for-maintenance.md):
+  running tagging, summaries and lint triage on a local llama.cpp server on a
+  CPU, saving the vault's `CLAUDE.md` as a prompt-cache slot, pointing
+  `vault_search.py --embed-url` at a local embedding server, and what a small
+  model cannot do. Linked from the KV-cache page. It reports no quality or
+  speed measurements; none were run.
+
+## [1.2.0] - 2026-10-06
+
+### Added
+
+- Skill `second-brain-lifecycle` and commands `/idea`, `/experiment-review` and
+  `/lifecycle-status`: a lifecycle for self-improvement ideas, tracked in the
+  `status:` field and dated log lines. An idea becomes a plan, an experiment and
+  a review, then is adopted as a system page or dropped. The skill decides at
+  review against the written success measure and never deletes: a dropped idea
+  is archived, a failed experiment stays in place. It does not start an
+  experiment unless the owner has set a `start:` date. The commands do not
+  clash with Claude Code's built-in command names as listed in the
+  [commands reference](https://code.claude.com/docs/en/commands) on 6 October
+  2026.
+- Renamed five commands that shared a name with a Claude Code built-in command
+  or bundled skill: `/review` is now `/vault-review`, `/export` is
+  `/vault-export`, `/init` is `/vault-init`, `/rename` is `/vault-rename` and
+  `/doctor` is `/vault-doctor`. The [commands
+  reference](https://code.claude.com/docs/en/commands), read on 6 October 2026,
+  lists `/review` (an alias of `/code-review`), `/export`, `/init`, `/rename`
+  and `/doctor`. The [skills
+  documentation](https://code.claude.com/docs/en/skills) (precedence table,
+  same date) says a skill with a built-in's name replaces that built-in in a
+  local terminal session, but not its aliases; the same page says command
+  files work the same way as skills. So a copied
+  `/export`, `/init`, `/rename` or `/doctor` hid the built-in, and a copied
+  `/review` never ran, because the built-in alias won. The new names appear in
+  neither page. This is the same fix as `/schedule` to `/maintenance-schedule`.
+  Plugin installs run commands as `/second-brain:<name>`, so the plain name
+  is not used there, but the plugin lists the same files and they are renamed
+  there too. Update scheduled tasks and notes that fire the old names. A
+  copy install of an earlier version leaves the old files behind in
+  `.claude/commands/`; delete them (`/install` lists them). The skill names
+  (`second-brain-review` and so on) are unchanged. The period argument
+  of `/vault-review` works as `/review`'s did.
+- `second-brain-review` has a lifecycle step and a Self-improvement section in
+  its output.
+- `second-brain-privacy` says what each `sensitivity:` value (`normal`,
+  `private`, `restricted`) blocks and checks that labels match the content.
+- `second-brain-ingest` has a slug and alias rule that matches the key
+  `scripts/link_check.py --duplicates` uses (case-folded, letters and digits
+  only) and sets `aliases:` for common title variants.
+- `vault-template`: the lifecycle page now says a dropped idea is archived and
+  a failed experiment stays in place, and `wiki/log.md` lists the `lifecycle`
+  operation. An existing vault keeps its own copy of the lifecycle page: copy
+  those two bullets across if you want the new behaviour.
+
 ## [1.1.0] - 2026-10-06
 
 ### Added

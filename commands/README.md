@@ -1,6 +1,6 @@
 # commands
 
-Seventy-two slash commands for Claude Code, grouped by what you are doing.
+Seventy-eight slash commands for Claude Code, grouped by what you are doing.
 
 ```bash
 mkdir -p ~/brain/.claude/commands
@@ -21,6 +21,11 @@ the [CHANGELOG](../CHANGELOG.md) entries since yours, and lists the copy
 commands. Copying over an old install leaves renamed commands behind (for
 example `/schedule`, now `/maintenance-schedule`), which `/install` points out.
 
+Five commands carry a `vault-` prefix (`/vault-review`, `/vault-export`,
+`/vault-init`, `/vault-rename`, `/vault-doctor`) because Claude Code has
+built-in commands or bundled skills with the plain names; the same reason
+`/maintenance-schedule` is not `/schedule`. See the [CHANGELOG](../CHANGELOG.md).
+
 Commands are thin on purpose: each one points at a skill and sets its scope. The
 behaviour lives in the skill, so `/ingest-youtube` and a scheduled task and you
 asking in plain language all produce the same result.
@@ -29,7 +34,7 @@ Except for the maintenance set, every command sets `disable-model-invocation:
 true`: it runs only when you type it, and the skills handle automatic
 triggering. This also keeps those descriptions out of every session's context.
 The maintenance set can be scheduled and run without you: `/ingest`, `/link`,
-`/lint`, `/review`, `/weekly`, `/monthly`, `/metrics`, `/health`, `/commit`,
+`/lint`, `/vault-review`, `/weekly`, `/monthly`, `/metrics`, `/health`, `/brief`, `/commit`,
 `/stale`, `/orphans`, `/prune`, `/archive`, `/dedupe`, `/backfill` and
 `/index`. A scheduled task can fire only these.
 
@@ -41,7 +46,7 @@ revisions); `/health`, `/graph`, `/metrics` and `/monthly` (a quick look, the
 full report, a recorded snapshot, the monthly review); `/orphans`, `/stale`,
 `/prune` and `/archive` (no inbound links, untouched, removal candidates, the
 move itself); `/ingest-youtube` (someone else's recording) and `/ingest-voice`
-(your own); `/review` (any period) and `/weekly`, which is `/review` with no
+(your own); `/vault-review` (any period) and `/weekly`, which is `/vault-review` with no
 argument.
 
 Most take an optional argument. With none, they default to the sensible whole:
@@ -61,6 +66,7 @@ Most take an optional argument. With none, they default to the sensible whole:
 | `/ingest-newsletter` | Ingest newsletters without duplicating |
 | `/ingest-highlights` | Ingest book or article highlights |
 | `/backfill` | Bulk import an archive in batches |
+| `/capture` | Save a Gmail thread, Granola meeting or Notion page into raw/ |
 
 ### Structuring
 
@@ -69,7 +75,7 @@ Most take an optional argument. With none, they default to the sensible whole:
 | `/link` | Find and add missing connections |
 | `/dedupe` | Find near-duplicate pages |
 | `/merge` | Merge two pages |
-| `/rename` | Rename a page and fix every link |
+| `/vault-rename` | Rename a page and fix every link |
 | `/split` | Split an overloaded page |
 | `/retype` | Fix a page's type |
 | `/schema` | Check frontmatter against the schema |
@@ -95,7 +101,7 @@ Most take an optional argument. With none, they default to the sensible whole:
 
 | Command | What it does |
 |---|---|
-| `/ask` | Answer a specific question from the vault |
+| `/ask` | Answer a specific question from the vault, with a citation for every claim |
 | `/know` | Inventory what the vault holds on a topic |
 | `/connect` | Find the path between two ideas |
 | `/compare` | Compare two things from your own sources |
@@ -113,12 +119,21 @@ Most take an optional argument. With none, they default to the sensible whole:
 | `/lint` | Audit structure and repair what is mechanical |
 | `/health` | Quick health check, no recording |
 | `/metrics` | Record a dated metrics snapshot |
-| `/review` | Review what the vault learned over any period |
-| `/weekly` | The weekly review (`/review` with no argument) |
+| `/vault-review` | Review what the vault learned over any period |
+| `/weekly` | The weekly review (`/vault-review` with no argument) |
 | `/monthly` | The monthly structural review |
 | `/prune` | Propose what is safe to remove; archives only if CLAUDE.md grants autonomy |
 | `/archive` | Propose cold material to move out of the wiki; moves only if CLAUDE.md grants autonomy |
+| `/brief` | Brief of what needs your attention: queue, due experiments, new sources, stale pages |
 | `/commit` | Commit what this run wrote, by path |
+
+### Self-improvement
+
+| Command | What it does |
+|---|---|
+| `/idea` | Capture a self-improvement idea as a page |
+| `/experiment-review` | Review a running experiment against its success measure |
+| `/lifecycle-status` | List ideas and experiments by status |
 
 ### Outputs
 
@@ -128,8 +143,9 @@ Most take an optional argument. With none, they default to the sensible whole:
 | `/draft` | Draft from the vault |
 | `/report` | Write a research report |
 | `/publish` | Check what is safe to publish |
-| `/export` | Export a page or set of pages |
+| `/vault-export` | Export a page or set of pages |
 | `/quiz` | Test yourself on your own pages |
+| `/flashcards` | Make spaced-repetition flashcards from concept pages |
 | `/explain` | Explain it back and find the gaps |
 | `/ingest-mine` | Ingest your own finished work |
 
@@ -158,15 +174,15 @@ Most take an optional argument. With none, they default to the sensible whole:
 
 | Command | What it does |
 |---|---|
-| `/init` | Scaffold a new vault |
+| `/vault-init` | Scaffold a new vault |
 | `/claude-md` | Build or update your CLAUDE.md |
 | `/install` | Install the skills, commands and agents, or update an installed vault |
-| `/doctor` | Check the setup is working |
+| `/vault-doctor` | Check the setup is working |
 | `/maintenance-schedule` | Propose scheduled maintenance |
 
 ## Why so many
 
-Twenty-four skills do the real work. Most commands are scoped entry points into
+Twenty-nine skills do the real work. Most commands are scoped entry points into
 them; a few, such as `/dry-run`, `/audit`, `/index` and `/scope`, carry short
 self-contained instructions instead. That is the point: you should not have to remember how to phrase a
 request for a thing you do every week.

@@ -1,0 +1,211 @@
+# Second Brain OS
+
+> A guide to building a knowledge base your AI agent maintains, in plain markdown you own, plus an agents course and handbooks.
+
+132 pages in 22 sections: the guide (numbered sections, read once in order), the agents course (modules C0 to C6) and the handbooks (references, dip in anywhere). Every link below is the raw markdown of one page. The same text, concatenated, is in [llms-full.txt](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/llms-full.txt).
+
+## Guide: Concepts
+
+- [What a second brain actually is](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/01-concepts/what-is-a-second-brain.md): One local folder of plain text that an agent reads and writes, holding what you have read and understood, that you can ask questions.
+- [The save-for-later paradox](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/01-concepts/the-save-for-later-paradox.md): You screenshot the post. You bookmark the article. You save the video to a playlist named "watch later" that has four hundred items in it.
+- [The LLM wiki pattern](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/01-concepts/llm-wiki-pattern.md): The specific pattern this guide implements, published by Andrej Karpathy as a gist on 2026-04-04.
+- [The two layers](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/01-concepts/two-layers.md): Most second-brain setups fail because they pick one shape and try to make it do two jobs.
+- [Why markdown and plain text](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/01-concepts/why-markdown-and-plain-text.md): The format looks like a detail. It decides whether the system works.
+- [Zettelkasten, PARA, evergreen notes](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/01-concepts/pkm-lineage.md): None of this is new. The methods people abandoned were mostly right, and it is worth knowing which parts of them still apply, because the good ideas came with a cost that has now...
+- [Wiki vs RAG](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/01-concepts/wiki-vs-rag.md): The default advice for asking questions of your own documents is to embed them in a vector database.
+- [What good looks like](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/01-concepts/what-good-looks-like.md): Concrete criteria, so you can tell whether yours is working rather than guessing.
+
+## Guide: Setup
+
+- [Obsidian and your first vault](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/02-setup/obsidian-install-and-vault.md): Obsidian is the storage half of the system. It is free to use (Obsidian's help says it "is completely free to use"), it keeps everything as plain text files on your own machine...
+- [Claude Code in the vault](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/02-setup/claude-code-setup.md): Claude Code is the half that reads and writes. Two ways to run it, and the choice only affects where you type, not what happens.
+- [MCP for Obsidian](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/02-setup/mcp-obsidian.md): MCP is the standard way Claude talks to other applications. For a vault, it adds a door into Obsidian itself rather than into the folder underneath, which means the agent can work...
+- [Writing your CLAUDE.md](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/02-setup/claude-md.md): CLAUDE.md at the vault root is the file the agent reads at the start of every session.
+- [Vault structure](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/02-setup/vault-structure.md): The vault does two different jobs, and they want different shapes.
+- [Project scoping](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/02-setup/project-scoping.md): This is the step that most setups skip and then wonder why output quality drops as the vault grows.
+- [Live data connectors](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/02-setup/live-data.md): Static notes are half a brain. The other half is what is changing: your calendar, your inbox, the channels where decisions actually get made.
+- [Plugins worth installing](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/02-setup/obsidian-plugins.md): Obsidian works fine with none of these. Add them when you hit the specific problem each one solves.
+- [Git, sync and backups](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/02-setup/git-and-sync.md): A vault is a folder of text files, which makes it close to an ideal git repository, and git is what makes an agent safe to run unattended.
+
+## Guide: Ingestion
+
+- [Web articles](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/03-ingestion/web-clipper.md): Articles are the bulk of what most people save, and the browser is where the decision to save happens.
+- [YouTube and podcasts](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/03-ingestion/youtube-transcripts.md): Video is the highest-volume, lowest-retention source most people have.
+- [PDFs, papers and books](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/03-ingestion/pdfs-and-books.md): PDFs are the format most likely to arrive in your vault as garbage.
+- [Chat exports](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/03-ingestion/chat-exports.md): Your chat history is the most underrated source you own and the most sensitive.
+- [Voice notes and meetings](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/03-ingestion/voice-and-meetings.md): The ideas worth capturing rarely arrive at your desk. Voice is the only capture method that works while walking, driving or standing in a queue, and it is the one most vaults...
+- [Newsletters and email](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/03-ingestion/newsletters-and-email.md): Newsletters are the easiest source to automate and the easiest to over-ingest.
+- [Backfilling years of material](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/03-ingestion/bulk-backfill.md): At some point you will want to import everything: the bookmark folder, the downloads directory, three years of chat history, the read-later queue with eight hundred unread items.
+
+## Guide: Structuring
+
+- [One page, one idea](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/04-structuring/atomic-pages.md): A page holds one idea, explained well enough that someone who has never seen the source understands it.
+- [The four page types](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/04-structuring/page-types.md): Four types, each with a job. Every page declares its type in frontmatter, which is what lets you query the vault by shape rather than reading everything.
+- [Linking rules](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/04-structuring/linking-rules.md): Links are the entire value of the structure. Without them you have a folder of files with good filenames, which is a search index, and search indexes already exist.
+- [Frontmatter schema](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/04-structuring/frontmatter-schema.md): Frontmatter is what makes the vault queryable by something other than text search.
+- [Naming and aliases](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/04-structuring/naming-and-aliases.md): Wikilinks resolve by name, so the name is not cosmetic. It is the key the whole graph is built on.
+- [Deduplication and merging](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/04-structuring/dedupe-and-merge.md): Duplicates are inevitable. Two sources use different words for the same idea, an alias was missing, a bulk import ran before the vault had the concept.
+- [Contradictions and supersession](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/04-structuring/contradictions-and-supersession.md): This is the rule that separates a second brain from a search engine, and the one most implementations get wrong.
+- [index.md and log.md](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/04-structuring/index-and-log.md): Two files that are not knowledge, but without which the knowledge is hard to reach and impossible to audit.
+
+## Guide: Graphs
+
+- [Graph basics for a knowledge base](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/05-graphs/graph-basics.md): Your vault is a graph whether you plan it or not. Pages are nodes, wikilinks are edges.
+- [Reading the Obsidian graph view](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/05-graphs/obsidian-graph-view.md): The global graph is the screenshot everyone posts. It is the least useful view in the app.
+- [Typed links](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/05-graphs/typed-links.md): A plain [[wikilink]] says two pages are related. It does not say how, and at scale that is a real loss.
+- [Graph vs embeddings](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/05-graphs/graph-vs-vectors.md): The usual advice for asking questions of your own documents is to embed them and retrieve by similarity.
+- [GraphRAG and where it fits](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/05-graphs/graphrag.md): GraphRAG is the approach of building a graph from a corpus first, then answering questions against the graph rather than against raw chunks.
+- [Exporting the graph](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/05-graphs/exporting-your-graph.md): Obsidian's graph view is a viewer. To compute anything, you need the graph outside it.
+- [Graph metrics worth tracking](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/05-graphs/metrics.md): Four numbers, checked monthly. The thresholds below are this guide's rules of thumb, not published benchmarks; adjust them to your own vault.
+
+## Guide: Agents
+
+- [Agent roles](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/06-agents/agent-roles.md): One agent doing everything produces mediocre work at every job.
+- [Scheduling](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/06-agents/scheduled-maintenance.md): Scheduled runs are what make the vault feel alive. You wake up and it has filed what you clipped, noticed a contradiction, and left you three lines about what changed.
+- [Subagents and parallel work](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/06-agents/subagents.md): Subagents run in their own context window (Claude Code docs).
+- [Hooks](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/06-agents/hooks.md): Hooks are shell commands that Claude Code runs at set points in its lifecycle (the hooks guide lists the events, such as PreToolUse, PostToolUse and Stop).
+- [Skills and slash commands](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/06-agents/skills-and-commands.md): Two mechanisms that look similar and do different jobs.
+- [Guardrails](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/06-agents/safety-and-guardrails.md): The rule this whole section rests on: Keys, not prompts.
+
+## Guide: Retrieval
+
+- [Asking the vault](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/07-retrieval/asking-questions.md): You built the vault so answers would come from what you actually read.
+- [Query patterns](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/07-retrieval/query-patterns.md): Some questions a vault answers far better than a search engine or a general model.
+- [Search tools](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/07-retrieval/search-tools.md): Retrieval in a plain-text vault is mostly grep. That sounds primitive and is almost always enough.
+- [Adding RAG when you need it](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/07-retrieval/rag-on-top.md): This guide argues against a vector database for a personal vault.
+- [Context budget](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/07-retrieval/context-budget.md): Every page the agent reads costs context, and quality degrades well before the window is full.
+
+## Guide: Outputs
+
+- [Writing from the vault](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/08-outputs/writing-from-the-vault.md): Writing is where the vault stops being an input and starts being leverage.
+- [Research reports](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/08-outputs/research-reports.md): A research report is what you produce when a question needs more than the vault currently holds.
+- [Publishing and export](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/08-outputs/publishing-and-export.md): Some of your vault is worth showing to other people. Most of it is not, and the mechanics of that split are worth setting up before you publish anything.
+- [Learning from your own vault](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/08-outputs/teaching-yourself.md): Reading something is not learning it. A vault full of well-written pages you never revisit is a library, and libraries do not make anyone knowledgeable.
+
+## Guide: Maintenance
+
+- [Linting the vault](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/09-maintenance/lint-and-health.md): Structural rot is silent. Nothing errors. The vault just slowly stops answering well because a third of its pages are unreachable and nobody noticed.
+- [Review cadence](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/09-maintenance/review-cadence.md): Lint keeps the structure sound. Review is what keeps you in the loop, and it is the only maintenance task that produces something you read rather than something that happens.
+- [Versioning](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/09-maintenance/versioning-with-git.md): Git is what makes an agent safe to run unattended. Without it, a bad run is a mystery; with it, every change is a diff you can read and revert in one command.
+- [Backups and portability](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/09-maintenance/backups-and-portability.md): This is the whole page, and it is the mistake almost everyone makes.
+- [Privacy](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/09-maintenance/privacy-and-secrets.md): A mature second brain is one of the highest-signal documents about a person that exists.
+- [Scaling past a thousand pages](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/09-maintenance/scaling.md): Most of this guide assumes a vault of a few hundred to a few thousand pages, which is where personal vaults live for years.
+
+## Guide: Troubleshooting
+
+- [The failures everyone hits](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/10-troubleshooting/common-failures.md): Almost always capture, not the system. Clipping takes three clicks instead of one, or the phone has no path into the vault, so material stops arriving and there is nothing to...
+- [The agent writes garbage](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/10-troubleshooting/agent-writes-garbage.md): Pages that are technically about the right thing and useless to read.
+- [Broken links and orphans](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/10-troubleshooting/broken-links.md): Obsidian updates links when you rename inside the app. An agent renaming a file directly does not, and that is the most common cause of broken links in an agent-maintained vault.
+- [The vault got too big](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/10-troubleshooting/vault-too-big.md): Answers get slower and vaguer. The agent reads twenty pages and returns something general.
+- [FAQ](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/10-troubleshooting/faq.md): Do I need MCP? No. Claude Code started inside the vault folder reads and writes it directly.
+
+## Course: 0 · The map
+
+- [What an agent is](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-0-map/what-an-agent-is.md): Google's Introduction to Agents whitepaper (Kaggle, November 2025) defines an agent as an application that makes plans and takes actions to achieve a goal — not a model that...
+- [Five layers, one system](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-0-map/five-layers.md): Think of an agent as a new employee on his first day. He is bright, fast, and knows nothing about your company.
+- [Agents or workflows](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-0-map/agents-or-workflows.md): One decision comes before any building: can you write down the steps?
+
+## Course: 1 · Context
+
+- [How models read context](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-1-context/how-models-read.md): A bigger context window looks like free capacity. It is not.
+- [The four places](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-1-context/the-four-places.md): How models read established the physics: attention favours the start and end of the window, every token costs, and caching only pays when the prefix never moves.
+- [Context in practice](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-1-context/context-practice.md): You know the mechanics and the four places. This page is the working session: audit an existing agent, restructure it, and add the two upgrades that matter past a certain size.
+
+## Course: 2 · Loop
+
+- [Loops versus workflows](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-2-loop/loops-vs-workflows.md): A workflow is a sequence you wrote in advance: step one, step two, step three, done.
+- [The four parts of a loop](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-2-loop/the-four-parts.md): Every loop that survives production has the same four parts: a goal with a testable definition of done, a checker that lives outside the model, a stop rule, and a budget counted...
+- [Loop practice: filter, loop, fall back](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-2-loop/loop-practice.md): The production pattern is not "run the agent on everything".
+
+## Course: 3 · The gate
+
+- [Cheap Decisions](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-3-gate/cheap-decisions.md): An agent does two kinds of work. It writes — summaries, plans, replies, code — and it decides — is this urgent, which folder does this belong in, does this need a person.
+- [Gates in Practice](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-3-gate/gates-in-practice.md): A gate is only as good as two numbers: how often it is right, and how well it knows when it might be wrong.
+- [Gate Practice](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-3-gate/gate-practice.md): The discipline in one sentence: before evaluating any vendor, label a few hundred real examples and train a basic classifier.
+
+## Course: 4 · Harness
+
+- [The Office](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-4-harness/the-office.md): Hire the most brilliant engineer alive and put them in a bad office — no keys to the rooms they need, no documentation, no test suite, a manager who rubber-stamps everything — and...
+- [The Four Rings](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-4-harness/the-four-rings.md): Build the harness from the outside in: containment, guides, sensors, permissions.
+- [Harness Practice](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-4-harness/harness-practice.md): Theory done; now harden a real agent. The worked example is a coding agent on a web app with a Postgres database, run through Claude Code, but every step translates to any harness...
+
+## Course: 5 · Evals
+
+- [Two Kinds of Checks](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-5-evals/two-kinds-of-checks.md): The previous modules built an agent that plans, calls tools, and edits your vault.
+- [Judges and Golden Sets](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-5-evals/judges-and-golden-sets.md): Behavioural checks are code, and code is trustworthy. End-to-end grading usually is not code: "is this reply correct and grounded" needs a grader that reads, which in practice...
+- [Evals Practice](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-5-evals/evals-practice.md): This page is the minimal build: one afternoon, five steps, one file of cases and one runner, no infrastructure.
+
+## Course: 6 · Production
+
+- [From Prototype to Production](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-6-production/from-prototype.md): Every module so far ends with something that works on your machine.
+- [Operating Agents](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-6-production/operating-agents.md): Once an agent is deployed, three questions have to be answerable at any moment: what is it doing, what is it costing, and what could it do that you would regret.
+- [The Day-One Plan](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/course-6-production/day-one-plan.md): Six modules is a lot of theory to hold at once, so here is the whole course compressed into one working day.
+
+## Handbook: Knowledge graphs
+
+- [Why Knowledge Graphs](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-graph/why-graphs.md): An agent's memory problem is not storage. It is that facts arrive connected and get stored flat.
+- [GraphRAG](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-graph/graphrag.md): GraphRAG is retrieval-augmented generation where the index is a graph built from the corpus, not a pile of embedded chunks.
+- [Building Graphs with LLMs](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-graph/building-graphs-with-llms.md): Extraction is the whole game. A graph store will faithfully persist whatever you put in it; whether that is knowledge or noise is decided in the pipeline.
+- [Graph Stores](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-graph/graph-stores.md): Where the graph lives matters less than people think and more than vendors admit.
+- [Tools](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-graph/tools.md): The ecosystem survey. Status and release dates were checked against each project's README and PyPI page on 5 October 2026.
+- [Build: Extract the Graph](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-graph/build-extract.md): An evening-sized build in three parts: a queryable graph layer over the vault your agent already maintains.
+- [Build: Query It](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-graph/build-query.md): Part two of the build. Build: Extract the Graph left two files at the vault root: edges.csv with the plain links and typededges.csv with the typed pass.
+- [Build: Put It in the Loop](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-graph/build-use.md): Part three. The graph exists and answers questions; now the agent has to reach it without you in the middle.
+- [Resources](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-graph/resources.md): Curated, not comprehensive. Paper venues, repositories and package versions were checked against the projects' own READMEs and PyPI pages on 5 October 2026.
+
+## Handbook: Jev engineering
+
+- [System One Models](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-jev/system-one-models.md): Most AI products today are built on large language models: you send text in, the model writes text back, one token at a time.
+- [What Jev Is Good For](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-jev/what-jev-is-good-for.md): Jev is not a general-purpose model. It answers typed questions about a blob of context, nothing more.
+- [Jev in an Agent Stack](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-jev/jev-in-an-agent-stack.md): The most credible early use of Jev is not replacing an LLM but sitting next to one.
+- [Getting Started With Jev](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-jev/getting-started.md): This page reflects what was published as of 21 September 2026.
+- [Build: a Typed Decision Endpoint](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-jev/build-decision-endpoint.md): Jev is waitlisted, so most readers cannot call it yet — access status in getting started.
+- [Build: the Confidence-Gated Router](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-jev/build-router.md): The typed decision endpoint earns its keep in front of an agent.
+- [Build: the Jev Swap](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-jev/build-swap-in-jev.md): The point of the last two pages was to make this one boring.
+- [Jev Resources](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-jev/resources.md): Jev launched on 15 September 2026. Links were checked on 21 September 2026; vendor and third-party entries were not re-verified on 5 October 2026 because those sites could not be...
+
+## Handbook: Agent harnesses
+
+- [What a Harness Is](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/what-a-harness-is.md): A harness is everything around the model that turns text prediction into work done: the loop, the tools, the prompts, the permissions, the plumbing.
+- [Claude Code as Harness](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/claude-code-as-harness.md): Claude Code is the most instructive harness to study because Anthropic ships the same machinery twice: as a terminal product, and as the Claude Agent SDK — a Python and TypeScript...
+- [Context Engineering](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/context-engineering.md): Prompt engineering asked "what words do I use?". Context engineering asks "what does the model see at this moment, and why?".
+- [Tools and MCP](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/tools-and-mcp.md): Tools are how the model touches the world, and tool design is where most agents quietly fail.
+- [Harness Landscape](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/harness-landscape.md): A survey of what is alive in September 2026, with one honest take each.
+- [Build: the Loop](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/build-the-loop.md): The anatomy page claims the core of every harness is a while-loop.
+- [Build: Permissions and Context](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/build-guardrails.md): Part one left you with a demo: an agent that runs whatever it likes and grows its transcript without limit.
+- [Build: Know When to Graduate](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/build-graduate.md): You now own roughly 150 lines that do what every harness does: loop, execute, gate, budget, stop.
+- [KV-Cache Tiers on a Local SSD](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/kv-cache-ssd-tier.md): If a local model sits behind your second-brain agent, every session starts by making the model read the same long preamble again: the system prompt, the tool schemas, the vault...
+- [Local Models for Cheap Maintenance](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/local-models-for-maintenance.md): Some vault maintenance is routine enough that a small model on your own CPU might do it: suggest tags, write a one-paragraph summary of one source, sort lint findings into...
+- [Resources](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-harness/resources.md): Curated, not exhaustive. Everything here was checked in September 2026 and earns its place, except where an entry says it was not re-checked.
+
+## Handbook: Loop engineering
+
+- [What Loop Engineering Is](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-loop/what-loop-engineering-is.md): Loop engineering is the discipline of designing the control system that runs an agent: the thing that decides what to prompt, how to verify the result, whether to retry, and when...
+- [Stop Conditions](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-loop/stop-conditions.md): The hardest design problem in a loop is not making the agent go; it is making it stop.
+- [Critics and Verification](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-loop/critics-and-verification.md): A loop is only as good as its judge. Generation is now cheap — the model will produce another attempt for pennies — so the bottleneck has moved from writing code to proving it...
+- [Context Hygiene](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-loop/context-hygiene.md): The harness handbook covers context engineering: what the model sees within a session, curated turn by turn.
+- [Patterns](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-loop/patterns.md): Five loop shapes keep reappearing under different names. Each earns its keep on a particular kind of work, and each has failure modes its advocates tend to soft-pedal.
+- [Build: the Goal Test](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-loop/build-goal-test.md): Three build pages assemble a working loop around a headless coding agent.
+- [Build: the Critic](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-loop/build-critic.md): Part one stops on green. This part adds the second judgement: green and clean.
+- [Build: the Overnight Loop](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-loop/build-overnight.md): The final build runs unattended. Everything from parts one and two still applies; what changes is that nobody is watching, so the rails must make the worst case boring: a budget...
+- [Resources](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-loop/resources.md): A health warning first: "loop engineering" was coined in June 2026 and is three months old as this page is written.
+
+## Handbook: Eval engineering
+
+- [Why Evals](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-evals/why-evals.md): Evals are the tests of AI products. A prompt change that fixes one complaint quietly breaks three other things; without measurement you find out from users.
+- [Designing Evals](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-evals/designing-evals.md): An eval is only as good as its test cases. The route from "our bot sometimes messes up" to a suite you trust runs through failure modes: name what goes wrong, then build cases...
+- [LLM as Judge](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-evals/llm-as-judge.md): Some checks are code: exact match, regex, JSON schema, "does the SQL run".
+- [Agent Evals](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-evals/agent-evals.md): A single completion is a function; an agent is a process. It plans, calls tools, reads results, and recovers (or doesn't) from its own mistakes.
+- [Eval Tooling](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-evals/tooling.md): The market consolidated around two shapes: eval-first platforms with observability bolted on, and tracing-first platforms with evals bolted on.
+- [Build: Read Your Traces](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-evals/build-traces.md): First of three build pages: this one gets you from "the bot sometimes messes up" to a golden set file on disk.
+- [Build: the Suite](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-evals/build-suite.md): You have golden.jsonl from read your traces. This page turns it into a runnable suite: one plain Python file, no framework.
+- [Build: the Gate](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-evals/build-ci.md): A suite that runs only when someone remembers is a suite that stops running.
+- [Eval Resources](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/track-evals/resources.md): A short list, deliberately. Everything here earns its place; everything it links to is optional.
+
+## Optional
+
+- [Resources](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/resources/README.md): vetted links: plugins, tools, repositories, papers, reading
+- [Changelog](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/CHANGELOG.md): user-facing changes to the kit, by version
+- [Changelog feed](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/feed.xml): the same entries as an Atom feed
+- [Site](https://kuuratsanik.github.io/second-brain-os/): the guide, course and handbooks as a searchable page
+

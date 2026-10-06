@@ -18,6 +18,49 @@ class ChatExport(VaultCase):
         self.assertEqual(p.returncode, 0, p.stderr)
         return out, p.stdout
 
+    def fails(self, src, out):
+        p = run_script("chat_export_to_md.py", src, out)
+        self.assertEqual(p.returncode, 1)
+        self.assertNotIn("Traceback", p.stderr)
+        return p.stderr
+
+    def test_missing_file(self):
+        err = self.fails(os.path.join(self.tmp, "missing.json"), os.path.join(self.tmp, "o"))
+        self.assertIn("cannot read", err)
+
+    def test_not_json(self):
+        src = os.path.join(self.tmp, "bad.json")
+        with open(src, "w") as fh:
+            fh.write("{not json")
+        self.assertIn("not a valid JSON", self.fails(src, os.path.join(self.tmp, "o")))
+
+    def test_unrecognised_shape(self):
+        for i, data in enumerate(({"foo": 1}, [1, 2], "text")):
+            src = os.path.join(self.tmp, f"shape{i}.json")
+            with open(src, "w") as fh:
+                json.dump(data, fh)
+            out = os.path.join(self.tmp, f"o{i}")
+            self.assertIn("no conversations found", self.fails(src, out))
+
+    def test_empty_shapes_are_fine(self):
+        for i, data in enumerate(([], {"conversations": []})):
+            src = os.path.join(self.tmp, f"empty{i}.json")
+            with open(src, "w") as fh:
+                json.dump(data, fh)
+            p = run_script("chat_export_to_md.py", src, os.path.join(self.tmp, f"e{i}"))
+            self.assertEqual(p.returncode, 0, p.stderr)
+            self.assertIn("0 conversations", p.stdout)
+
+    def test_unwritable_output(self):
+        blocker = os.path.join(self.tmp, "blocker")
+        with open(blocker, "w") as fh:
+            fh.write("x")
+        src = os.path.join(self.tmp, "c.json")
+        with open(src, "w") as fh:
+            json.dump([self.claude_conv()], fh)
+        err = self.fails(src, os.path.join(blocker, "sub"))
+        self.assertIn("cannot write", err)
+
     def read(self, out, name):
         with open(os.path.join(out, name), encoding="utf-8") as fh:
             return fh.read()

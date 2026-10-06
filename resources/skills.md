@@ -10,10 +10,10 @@ the GitHub API as of 5 October 2026.
 
 | Type | Count | Where |
 |---|---|---|
-| Skills | 24 | [`skills/`](../skills/README.md). One per workflow in the guide |
-| Commands | 72 | [`commands/`](../commands/README.md). Scoped entry points into those skills |
+| Skills | 29 | [`skills/`](../skills/README.md). One per workflow in the guide |
+| Commands | 78 | [`commands/`](../commands/README.md). Scoped entry points into those skills |
 | Subagents | 6 | [`agents/`](../agents/README.md). Four of them read-only by design |
-| Scripts | 4 | [`scripts/`](../scripts/README.md). Link check, stats, graph export, chat import |
+| Scripts | 6 | [`scripts/`](../scripts/README.md). Link check, stats, graph export, chat import, search, dashboard |
 
 Plain `SKILL.md` files, so they work with any agent that reads the Agent Skills
 format.

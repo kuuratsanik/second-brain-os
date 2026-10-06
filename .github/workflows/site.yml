@@ -19,6 +19,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: "3.12"
@@ -31,6 +33,12 @@ jobs:
           python3 tools/check_kit.py
       - name: Run the unit tests
         run: python3 -m unittest discover -s tests -t . -v
+      - name: Test the external link checker (no network)
+        run: python3 tools/check_external_links.py --selftest
+      - name: Test the release notes and KV-slot benchmark tools (no network)
+        run: |
+          python3 tools/release_notes.py --selftest
+          python3 tools/bench_kv_slots.py --selftest
       - name: Check docs links and anchors
         run: |
           python3 tools/doc_links.py --selftest
@@ -41,6 +49,9 @@ jobs:
         run: python3 vault-template/.claude/hooks/test_guard.py
       - name: Rebuild the site
         run: python3 scripts/build_all.py
+      # Covers every generated file: index.html, resources.html, tree.html, 404.html,
+      # sitemap.xml, robots.txt, llms.txt, llms-full.txt, feed.xml and og.png. A
+      # generated file that was never committed shows up in `git status --porcelain`.
       - name: Fail if the committed output is stale
         run: |
           git status --short
@@ -64,6 +75,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: ${{ matrix.python }}
@@ -82,3 +95,28 @@ jobs:
           python scripts/vault_stats.py examples/demo-vault
           python scripts/graph_export.py examples/demo-vault "${{ runner.temp }}/graph.csv"
           python scripts/graph_export.py examples/demo-vault "${{ runner.temp }}/graph.graphml" --format graphml
+          python scripts/vault_search.py examples/demo-vault "weekly review" --limit 3
+          python scripts/vault_search.py examples/demo-vault "oppimise plaan" --json
+          python scripts/dashboard.py examples/demo-vault --out "${{ runner.temp }}/dashboard.html"
+          python scripts/dashboard.py examples/demo-vault --json
+      # An MCP client's first calls, as a round trip: initialize, then tools/list.
+      # Stdout must hold exactly the two responses and nothing else.
+      - name: Smoke-test the MCP server
+        shell: bash
+        run: |
+          set -e
+          printf '%s\n' \
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"ci","version":"0"}}}' \
+            '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
+            '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' \
+            | python scripts/vault_mcp.py examples/demo-vault > "${{ runner.temp }}/mcp.out"
+          python - "${{ runner.temp }}/mcp.out" <<'PY'
+          import json, sys
+          lines = open(sys.argv[1], encoding="utf-8").read().splitlines()
+          assert len(lines) == 2, lines
+          init, tools = (json.loads(x) for x in lines)
+          assert init["id"] == 1 and init["result"]["protocolVersion"] == "2025-11-25", init
+          assert init["result"]["capabilities"] == {"tools": {}}, init
+          assert tools["id"] == 2 and len(tools["result"]["tools"]) == 7, tools
+          print("MCP round trip ok:", ", ".join(t["name"] for t in tools["result"]["tools"]))
+          PY

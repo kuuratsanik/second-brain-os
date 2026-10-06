@@ -10,15 +10,21 @@ Steps (each reads the output of the one before):
   3. scripts/build_tracks.py course + handbooks   -> index.html (marker blocks)
   4. scripts/build_tree.py   repo + index.html    -> tree.html
   5. scripts/build_static.py site constants       -> sitemap.xml, robots.txt, 404.html
+  6. scripts/build_llms.py   index.html + docs/   -> llms.txt, llms-full.txt
+  7. scripts/build_feed.py   CHANGELOG.md         -> feed.xml
+  8. scripts/build_og.py     site palette         -> og.png
 
 The output is deterministic: running this twice gives identical bytes.
 """
-import os, subprocess, sys
+import os
+import subprocess
+import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STEPS = ["tools/extract_site.py", "tools/build_site.py",
          "scripts/build_tracks.py", "scripts/build_tree.py",
-         "scripts/build_static.py"]
+         "scripts/build_static.py", "scripts/build_llms.py",
+         "scripts/build_feed.py", "scripts/build_og.py"]
 
 for step in STEPS:
     print(f"== {step}", flush=True)

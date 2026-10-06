@@ -34,8 +34,8 @@ edits; for a page the agent maintains, link it with a folder path, such as
 `output/` is not, so you can find the agent's drafts. The Templates folder is
 `templates/`, and Daily notes writes `YYYY-MM-DD` files to `journal/`. The
 graph colours pages by `domain:`, highlights hubs, and hides `raw/`, `archive/`
-and `templates/`. Obsidian writes this folder; the agent has no reason to write
-here, and nothing blocks it. `.gitignore` keeps `workspace*` and `cache` out of
+and `templates/`. Obsidian writes this folder; the hook blocks the agent from writing
+here; `git add .obsidian/graph.json` and committing it still work. `.gitignore` keeps `workspace*` and `cache` out of
 git, so the preset is versioned and your window layout is not. Obsidian also
 rewrites the view state in `graph.json` when you open the graph: commit that
 diff or ignore it, but keep the file tracked. Change any setting in Obsidian.
@@ -67,24 +67,35 @@ are copied with the template into `.claude/`:
 
 - `.claude/settings.json`: permission rules (deny, ask, allow) and hook
   registration.
-- `.claude/hooks/guard.py`: a PreToolUse hook (Python standard library only)
+- `.claude/hooks/guard.py`: a PreToolUse hook (Python 3.9 or newer, standard library only)
   that reads each file edit and shell command before it runs and exits 2 to
-  block it. `test_guard.py` beside it feeds the hook sample calls; run
-  `python3 .claude/hooks/test_guard.py` after you change either file.
+  block it. It also checks `sensitivity: restricted` pages (below), writes the
+  audit log, and has a Stop mode that warns about uncommitted paths.
+  `test_guard.py` beside it feeds the hook sample calls and the regression
+  corpus `guard_corpus.json`; run `python3 .claude/hooks/test_guard.py` after
+  you change either file.
+- `.claude/hooks/integrity.py`: a SessionStart hook (Python 3.9 or newer) that warns
+  when `settings.json`, `guard.py` or `CLAUDE.md` differ from the last commit.
 
 | Hard stop or rail | Enforced by | Still prompt-only |
 |---|---|---|
 | Never push, send, add a remote, hard-reset or amend | deny rules and hook | Push routes the hook does not know |
-| Never delete (`rm`, `rmdir`, `unlink`, `git rm`, `find -delete`, `git clean`) | deny rules and hook | Deleting from inside a script the agent runs |
-| Moves and copies stay in the vault and never clobber protected paths | hook (`mv`, `cp`, `git mv`, `install`, `ln`, PowerShell equivalents) | |
+| Never delete (`rm`, `rmdir`, `unlink`, `shred`, `trash-put`, `gio trash`, `git rm`, `find -delete` and `-exec`, `git clean`, `zip -m`, `tar --remove-files`, .NET `File.Delete`) | deny rules and hook; the hook also pattern-matches one-liners (`python3 -c`, `node -e`, `perl -e`, `ruby -e`, `php -r`, `deno eval`) that call a delete function, and sees through `busybox`, `coreutils`, `Start-Process`, backslashes (`r\m`), `$'...'` quoting and five levels of `sh -c` | Deleting from inside a script file the agent runs, one-liners the patterns miss, and names built at run time (`eval "$x"`, base64) |
+| Work stays recoverable (c): no history rewrites or silent discards | hook: `git stash` (except `list` and `show`), `branch -d/-D/-m/-M/-f`, `tag -d/-f`, `reset` to another commit or with `--keep/--soft/--mixed` and a target, `switch -f`, `checkout -- <path>` and `restore <path>` without a named commit (`restore --staged` alone is allowed), `update-index --remove`, `worktree remove/prune`, `reflog expire/delete`, `update-ref -d`, `gc --prune`, `prune`, `notes remove`, `submodule deinit`, `replace`, `--exec-path` | `git apply` and `git am` (they change files from a diff), `git add -i`, restoring from a named commit (the rollback route) |
+| Moves and copies stay in the vault and never clobber protected paths | hook (`mv`, `cp`, `git mv`, `install`, `ln`, PowerShell equivalents). `env -C`, `env --chdir`, `sudo -D`, `patch -d` and `Start-Process -WorkingDirectory` are refused outright, because they change what every later path means | |
 | Writing to connected services (a) | deny rules on MCP tool names | Connectors whose tool names do not match, and MCP file tools (Obsidian REST and similar) whose names the patterns miss |
-| Sending vault content out (b) | deny rules and hook for curl, wget and PowerShell web uploads; ask for WebFetch, WebSearch, curl, wget | What goes into a search query or a read, and other upload routes: `scp`, `rsync` to a host, `ssh`, `nc`, `gh api` and `gh gist`, and Python, Node or other one-liners that open a socket |
+| Sending vault content out (a, b) | deny rules and hook for curl, wget and PowerShell web uploads; ask for WebFetch, WebSearch, curl, wget. The hook also refuses `nc`, `ncat`, `netcat` and `socat` outright, `scp`, `sftp` and `rsync` with a remote spec (`host:path`, `user@host:`, `scp://`, `rsync://`), and any command line that runs `ssh` and also has an unquoted pipe or input redirect (`ssh host < f`, `cat f | ssh host`) | What goes into a search query or a read, and other upload routes: `gh api` and `gh gist`, `aws`, `rclone`, `ssh host 'command'` with the data inside the command, and Python, Node or other one-liners that open a socket |
 | `raw/` is append-only | hook (new files allowed, existing files and folders cannot be changed, moved or renamed) | |
-| `journal/`, `scripts/`, `.claude/` and `.gitignore` are yours | deny rules and hook | |
+| `journal/`, `scripts/`, `.claude/`, `.obsidian/` (Obsidian's settings) and `.gitignore` are yours | deny rules and hook: file tools, redirects, `tee`, `sed -i`, `cp`, `mv`, `truncate`, `dd`, `patch`, `sort -o`, `gawk -i inplace`, `vim`/`ed`, `chmod`/`chown`/`chattr`/`setfacl`/`attrib`/`icacls`, `touch`, `mkdir`, and one-liners in python, node, perl, ruby and php (including `truncate`) | Anything a script file the agent runs does |
 | `CLAUDE.md` only changes in Profile (e) | hook; ask rule | Schedule prompts, which live outside the vault |
 | `raw/workspace/` never staged | hook (also blocks `git add -A`, `.`, the vault root, `raw`, `-f`, `commit -a`) | |
-| Checkpoint, log, report, queue, run commit | | All of it; the Stop hook only warns about uncommitted paths |
-| Secrets (d), merging people (f) | | All of it |
+| Checkpoint before archive (rail 1) | hook: `git mv`, `mv` and `Move-Item` into `archive/` are blocked while the source has uncommitted changes, and when git cannot say (no repository, no commit, git missing) | Checkpoints before other operations (merge, rename, split) |
+| Log, report, queue, run commit | | All of it; the Stop hook only warns about uncommitted paths |
+| Secrets (d) | hook: Write, Edit and MultiEdit content, and shell commands that write (redirects, heredocs, `tee`, `git commit -m`, `sed -i`, `perl -i`, `python3 -c`, `node -e`, `ruby -e`, `php -r`), are blocked when they contain a GitHub, AWS, Anthropic, OpenAI-style, Slack or Stripe live key or a private key block; the message names the kind, not the value | Other credential formats, passwords, account numbers, secrets that arrive through a script or a connector, and anything already in a file |
+| `sensitivity: restricted` pages stay in the vault | hook: a verbatim run of 200 or more characters from a restricted page is blocked in text headed for `output/`, a path outside the vault, WebFetch, WebSearch or an MCP tool; so is a shell command that names a restricted page (or a glob or folder holding one) and writes to `output/` or outside the vault, or runs a sending tool. The exact list is under "Restricted pages" | `private` pages; unlabelled pages; paraphrase, translation, homoglyphs, base64 and other encodings; short or split quotes; copying into another wiki page; paths built at run time; scripts the agent runs |
+| The agent cannot edit its own audit log | hook (any write, move or delete of `.claude/guard.log`, `guard.log.1` or the cache); deny rules `Edit(/.claude/**)`, `Edit(/.claude/guard.log*)`, `rm` and friends | A script file that opens the log itself; you, in your own terminal |
+| Tampering with the guard is noticed | `integrity.py` at session start: warns when `settings.json`, `guard.py` or `CLAUDE.md` differ from, or are missing from, the last commit | A tamper that was committed; changes mid-session; a `settings.json` edited to drop the hook |
+| Merging people (f) | | All of it |
 
 The permission rules cannot express "existing files only", so the `raw/` and
 `CLAUDE.md` checks live in the hook. Both layers run: a call must pass the hook
@@ -94,6 +105,24 @@ the rules leave unmatched without a prompt and disables Claude Code's other
 safety checks, so do not run the vault in it. A hook blocks only by exiting with code 2: a hook that crashes, cannot
 start or times out does not block, and the deny rules are then the only layer.
 `guard.py` itself fails closed on bad input.
+
+**Secret patterns.** The check looks for known key shapes with realistic lengths: `ghp_`, `gho_`, `ghu_`, `ghs_` and `ghr_` tokens, `github_pat_`, `AKIA` and `ASIA` key ids, `sk-ant-`, `sk-` followed by 20 or more letters or digits (and `sk-proj-` style keys), PEM private key blocks, `xox[baprs]-` tokens, Slack webhook URLs and Stripe live keys. A page that only mentions a prefix ("`ghp_` tokens") or holds a short value passes, and so does a match that holds a placeholder word (`fake`, `demo`, `example`, `placeholder`, `redacted`, `dummy`, `sample`, `your`) set off by `-`, `_` or the ends of the string, the all-caps `EXAMPLE`, `REDACTED` or `PLACEHOLDER` anywhere in it (so `AKIAIOSFODNN7EXAMPLE` is fine), or a run of four `x`, four `0`, three `*` or three `.`. To add a format, change a length or switch the check off, edit `SECRET_PATTERNS`, `SECRET_PLACEHOLDER` or `SECRET_CHECK` near the top of `.claude/hooks/guard.py`, then run `test_guard.py`.
+
+**Restricted pages.** The privacy skill says a `sensitivity: restricted` page never leaves the vault or lands in a report. The hook enforces the part it can see:
+
+- *Text.* A Write, Edit, MultiEdit or NotebookEdit whose target is under `output/` or outside the vault is blocked when its new text shares a run of 200 or more characters with a restricted page (the pieces of one MultiEdit are also tried joined). The same test runs on the input of WebFetch, WebSearch and every MCP tool, and on the text of a shell command that writes to `output/` or outside the vault or runs a sending tool. Before comparing, both sides get Unicode compatibility decomposition (so full-width letters fold to plain ones and accents come apart), lose combining marks, format characters, zero-width characters and soft hyphens, are lower-cased, and every run of spaces and punctuation becomes one space, so bold, quotes, line wraps, bullets and invisible characters do not hide a copy. Web inputs and command text are also tried with percent-encoding undone, once and twice.
+- *Paths.* A shell command is blocked when it names a restricted page and also writes to `output/` or outside the vault, or runs a sending tool. What counts, exactly:
+  - *A restricted page is named* by its path (relative to the folder the command is in, absolute, or its vault-relative text anywhere in the command, including inside `bash -c`, a variable assignment or a heredoc), by a glob that matches one (`*`, `?`, `[...]`, `{a,b}`, and `$VAR` read as `*`), or, for `cp`, `mv`, `rsync`, `tar`, `zip`, `rar`, `7z`, `cpio`, `pax`, `Compress-Archive`, `grep`, `rg`, `ag` and `ack`, by a folder that holds one. The starting folders of a `find` count the same way when it runs `-exec`, `-execdir`, `-ok` or `-okdir` with anything but a read-only `grep -l`/`-L`/`-c`, `wc`, `ls` or `stat`, or when its output is piped to `xargs`, `cpio -o`/`-p`, `pax -w`, `zip -@` or `tar -T`, so `find wiki -name '*.md' > output/names.txt` still works. `git archive` and `git bundle` with an export destination or a sending tool count as naming every restricted page.
+  - *A write to `output/` or outside the vault* is a redirect (`>`, `>>`, `2>`), `tee`, `cp`, `copy`, `install`, `ln`, `rsync`, `mv`, `git mv`, `Move-Item`, `Rename-Item`, `dd of=`, PowerShell `Set-Content`, `Add-Content`, `Out-File` and `New-Item` (and their aliases), `zip`, `rar a`, `7z a`, `tar` creating or appending (`-f`, old-style `czf`, `--file`), `cpio -p`, `cpio -O` and `pax -f`, `Compress-Archive -DestinationPath`, `pandoc -o`, `git archive -o`, `git archive` with a redirect, or `git bundle create`.
+  - *A sending tool* is `curl`, `wget`, `scp`, `sftp`, `ssh`, `rsync`, `nc`, `ncat`, `netcat`, `socat`, `gh`, `aws`, `gsutil`, `gcloud`, `rclone`, `mail`, `mailx`, `mutt`, `sendmail`, `Send-MailMessage` or a PowerShell web cmdlet.
+  - *Not blocked:* reading a restricted page, `git add` and `git commit` of one, copies inside `wiki/`, and listing a folder into `output/` (`ls`, `find` print names, not content).
+- *Cost.* The hook keeps `.claude/guard-cache.json` (page path, mtime, size and sampled hashes, never text) and re-reads only pages that changed. On a 3,000-page vault with 30 restricted pages, a call that needs the check costs about 12 ms more than one that does not (a 20 KB text about 25 ms, a 100 KB text about 75 ms, the first call after a fresh checkout about 65 ms). Calls that never write to an export path pay nothing beyond Python start-up, but note that start-up now happens on every WebFetch, WebSearch and MCP tool call too, about 45 ms on the machine measured. `python3 .claude/hooks/test_guard.py --bench` measures it on yours.
+- *Limits.* Only the label `restricted` counts: `private` pages, unlabelled pages and a label the agent forgot to set are not checked. Any 200-character run from a restricted page counts, including public text quoted on it, so quoting that paragraph in `output/` is blocked too. A 199-character quote, a paraphrase, a translation, homoglyphs (look-alike letters from another script), base64, rot13 and other encodings pass, and each call is judged alone, so a page copied in short pieces over several calls passes. Copying a restricted page into another `wiki/` page, reading it into the conversation, and anything a script the agent runs does are still prompt-only. A path built at run time, or fed to a reader the hook does not know (`cat $(find ...)`, a script), is not seen. Keep a page that must never leave the machine out of any synced or backed-up folder.
+
+**Audit log.** Every blocked call appends one line to `.claude/guard.log`: `{"ts": "2026-10-06T08:15:00Z", "tool": "Write", "rule": "raw-append-only", "target": "raw/clippings/a.md"}`. `rule` is a short name (`delete`, `secret`, `restricted-excerpt`, `audit-log` and so on), and `target` is the vault-relative path for a file tool, the restricted page for a restricted-page block, otherwise the tool name. The log never holds a command, a secret value or an excerpt. At about 1 MB it moves to `guard.log.1`, replacing the older one. The file is git-ignored. **Read it in your weekly review**: `tail -n 50 .claude/guard.log`, or search it for `restricted-` and `secret` first. A rule that fires often is either a habit to fix in a skill or a rule to change. The guard refuses writes, moves and deletes of the log, its rotation and the cache, and `settings.json` denies `Edit` on them, so the agent cannot erase its own trail; you can, in your own terminal. A script file the agent runs could still open the log itself (the same limit as every script), and a hook that fails to start writes nothing.
+
+**Tamper check.** `.claude/hooks/integrity.py` runs when a session starts, resumes, clears, compacts or forks (a `SessionStart` hook with no matcher). It compares the SHA-256 of `.claude/settings.json`, `.claude/hooks/guard.py` and `CLAUDE.md` with the versions in the last commit (`git show HEAD:path`, line endings ignored) and prints a warning when one differs, is missing, or is not tracked, or when git cannot answer (no repository, no commit, git missing). Per the [hooks reference](https://code.claude.com/docs/en/hooks) (read 2026-10-06), a `SessionStart` hook's plain-text stdout is added to Claude's context, exit 0 is success, and the event cannot block, so the script always exits 0 and prints nothing when all three files match. It is a warning, not a lock: a tamper that was then committed passes, so commit your own changes to these files deliberately; a Profile edit to `CLAUDE.md` shows up until it is committed; the check does not run mid-session; and a `settings.json` edited to drop the hook, or a changed `integrity.py`, cannot report itself. If you see the warning and did not make the change, run `git diff HEAD -- <file>`.
+
 Neither layer is a sandbox. They read the command text, so a script that
 deletes files itself is not seen; for that, turn on Claude Code's sandbox.
 PowerShell coverage is partial: the hook knows the common cmdlets
@@ -113,7 +142,8 @@ script and then run it under the `python3 scripts/*.py` allow rule.
 
 **Connector names.** The MCP deny rules match tool names by pattern
 (`mcp__*__*send*`, `mcp__*__*create*`, `mcp__*__*append*`, `mcp__*__*patch*`,
-`mcp__*__*put*` and so on), because tool names differ by connector and server.
+`mcp__*__*put*` and so on; the verbs `label`, `unlabel`, `apply`, `modify`, `archive`, `mark` and `star` are
+matched only at the start of a tool name, so `list_labels` and `get_draft` stay readable), because tool names differ by connector and server.
 These patterns are a starting point. Check them against
 the tool names your connectors expose (the `/mcp` command lists them), then add
 the exact names you want blocked or remove a pattern that catches a read-only
@@ -152,15 +182,21 @@ want, edit `guard.py`; the agent cannot, because writes under `.claude/` are
 blocked. Run `test_guard.py` afterwards.
 
 **Windows.** The hook command is `python3`. If that name opens the Microsoft
-Store stub on your machine, change `python3` to `python` or `py` in the three
-hook entries of `settings.json`. A hook that fails to start does not block
-anything, so check once that a blocked call, such as `rm x`, is refused.
+Store stub on your machine, change `python3` to `python` or `py` in every hook
+entry of `settings.json` (five: SessionStart, three PreToolUse, Stop). A hook that
+fails to start does not block anything, so check once that a blocked call, such
+as `rm x`, is refused, and that `.claude/guard.log` gained a line.
+On Windows with Git for Windows installed, Claude Code's Bash tool is Git Bash, so the hook
+parses it as bash: a backslash is an escape there, so write paths with `/`. The PowerShell
+tool is parsed as PowerShell, where backslash paths are normal ([setup
+page](https://code.claude.com/docs/en/setup), read 2026-10-06).
 
 **Sources.** Field names and rule syntax were checked against the current
 Claude Code documentation: [permissions](https://code.claude.com/docs/en/permissions),
 [hooks](https://code.claude.com/docs/en/hooks) and
 [settings](https://code.claude.com/docs/en/settings). The exit-2 and
-`systemMessage` behaviour is from the hooks page; rule evaluation order, the
+`systemMessage` behaviour, and the SessionStart event (stdout as context, exit codes, no
+blocking), are from the hooks page, read 2026-10-06; rule evaluation order, the
 `Edit(path)` syntax and `mcp__server__tool` patterns are from the permissions
 page.
 

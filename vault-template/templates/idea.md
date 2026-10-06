@@ -32,3 +32,7 @@ Evidence in the vault that points the other way. Leave empty only if there is no
 ## Next step
 
 Promote to an experiment, keep considering, or drop. Say why.
+
+## Log
+
+Dated lines, one per status change.

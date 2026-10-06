@@ -4,8 +4,22 @@ Imported by tools/build_site.py, scripts/build_tracks.py and
 scripts/build_tree.py, so the fork URL, the favicon, the header and the
 footer exist in exactly one place.
 """
-import html as _html, json, re
+import html as _html
+import json
+import os
+import re
 
+def _resources_date():
+    """The 'Figures are from **...**' date in resources/README.md, the one place it is kept."""
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    with open(os.path.join(root, "resources", "README.md"), encoding="utf-8") as fh:
+        m = re.search(r"Figures are from \*\*([^*]+)\*\*", fh.read())
+    if not m:
+        raise SystemExit("resources/README.md: no 'Figures are from **date**' line")
+    return m.group(1).strip()
+
+
+RESOURCES_DATE = _resources_date()
 OWNER = "kuuratsanik"
 REPO = f"https://github.com/{OWNER}/second-brain-os"
 GH = REPO + "/blob/main/"
@@ -68,6 +82,16 @@ img[src$=".svg"]{background:var(--fig);border-radius:4px}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]) img[src$=".svg"]{padding:10px}}
 :root[data-theme=dark] img[src$=".svg"]{padding:10px}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*{transition:none!important;animation:none!important}}
+@media print{
+  :root:root:root{color-scheme:light;""" + _vars(LIGHT) + """}
+  body{background:#fff;color:#000}
+  .skip,.theme,header,.search,.hits,.toc-btn,button,.copy,.controls,#rq{display:none!important}
+  html:root img[src$=".svg"]{padding:0;background:#fff}
+  pre,table,figure,img,blockquote{break-inside:avoid;page-break-inside:avoid}
+  pre,article.page pre{white-space:pre-wrap;overflow:visible}
+  thead{display:table-header-group}
+  h1,h2,h3,h4{break-after:avoid;page-break-after:avoid}
+}
 """
 
 # Runs in <head>, before first paint. Storage may be blocked: every access is guarded.
@@ -107,6 +131,15 @@ THEME_BUTTON = (
 THEME_COLOR = LIGHT["paper"]
 THEME_COLOR_DARK = DARK["paper"]
 SITE_NAME = "Second Brain OS"
+# Written by scripts/build_og.py and scripts/build_feed.py.
+RAW = f"https://raw.githubusercontent.com/{OWNER}/second-brain-os/main/"
+# Until GitHub Pages is on, SITE_URL is a 404, and an unfurler drops a card whose
+# image fails. So the image, the feed link and the llms.txt links use raw URLs.
+# Switch OG_IMAGE and FEED_URL to SITE_URL + ... once Pages is enabled.
+OG_IMAGE = RAW + "og.png"
+OG_ALT = "Second Brain OS: a knowledge base your agent maintains"
+FEED_URL = RAW + "feed.xml"
+FEED_ID = SITE_URL + "feed.xml"   # the feed <id>: stable, never changes with the host
 
 
 def head(title, description, page, css, robots=""):
@@ -128,7 +161,14 @@ def head(title, description, page, css, robots=""):
         f'<meta property="og:description" content="{d}">',
         f'<meta property="og:url" content="{u}">',
         '<meta property="og:locale" content="en_US">',
-        '<meta name="twitter:card" content="summary">',
+        f'<meta property="og:image" content="{OG_IMAGE}">',
+        '<meta property="og:image:type" content="image/png">',
+        '<meta property="og:image:width" content="1200">',
+        '<meta property="og:image:height" content="630">',
+        f'<meta property="og:image:alt" content="{OG_ALT}">',
+        '<meta name="twitter:card" content="summary_large_image">',
+        f'<meta name="twitter:image" content="{OG_IMAGE}">',
+        f'<link rel="alternate" type="application/atom+xml" title="{SITE_NAME} changelog" href="{FEED_URL}">',
         f'<meta name="twitter:title" content="{t}">',
         f'<meta name="twitter:description" content="{d}">',
     ]

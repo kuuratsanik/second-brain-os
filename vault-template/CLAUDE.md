@@ -137,8 +137,8 @@ that reversible. They apply to scheduled runs too.
 and wait, do this instead: checkpoint, act, log, report, within the hard stops
 and rails. This covers the skills `second-brain-lint`, `second-brain-merge`,
 `second-brain-backfill`, `second-brain-chat-import`, `second-brain-privacy`,
-`second-brain-transcript`, `second-brain-archive`, `second-brain-structure` and
-`second-brain-commit`; the agents `curator` and `ingestor`; and the commands
+`second-brain-transcript`, `second-brain-archive`, `second-brain-structure`,
+`second-brain-lifecycle` and `second-brain-commit`; the agents `curator` and `ingestor`; and the commands
 `/ingest` (its old 20-item stop is replaced by rail 7), `/prune`, `/archive`,
 `/dedupe`, `/orphans` and `/link`. `/prune` and `/archive` archive here. When a
 scheduled run fires a command, the skill it points to and this section govern;
@@ -208,10 +208,19 @@ skip the item and queue it.
   Archive nothing you cannot explain in one sentence.
 
 **Enforced.** `.claude/settings.json` and `.claude/hooks/guard.py` block pushes,
-deletes, moves out of the vault, uploads, connector writes (by tool name), edits
-to existing `raw/` files, writes to `journal/`, `scripts/` and `.claude/`,
-CLAUDE.md edits outside Profile and staging `raw/workspace/`. A blocked call is
-final: queue the item. They read command text only, so scripts that delete,
-unmatched connector tools and some PowerShell forms get through; the rest,
-including (b), (d), (f) and the rails, is prompt-only. Archive with `git mv`,
-never `mv`. See `README.md`.
+deletes (including `node -e`, `perl -e` and similar one-liners), moves out of
+the vault, uploads, connector writes (by tool name), edits to existing `raw/`
+files, writes to `journal/`, `scripts/`, `.obsidian/` and `.claude/` (the audit
+log `.claude/guard.log` included), CLAUDE.md edits outside Profile, staging
+`raw/workspace/`, moving a page into `archive/` before it is committed (rail 1),
+and keys, tokens or private keys written to a file (d). For (b), a
+`sensitivity: restricted` page may not be copied, piped or sent to `output/`,
+outside the vault, the web or an MCP tool, and a verbatim run of 200 or more
+characters from one may not appear in text headed there; `private` pages and paraphrase are
+not checked. Every block is logged (rule and path only) for the owner's weekly
+review, and `.claude/hooks/integrity.py` warns at session start if the guard
+files differ from the last commit: if that warning appears, tell the owner
+first. A blocked call is final: queue the item. The hooks read command text
+only, so script files that delete, unmatched connector tools and some PowerShell
+forms get through; the rest of (b), (f) and the other rails are prompt-only.
+Archive with `git mv`, never `mv`. See `README.md`.

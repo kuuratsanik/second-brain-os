@@ -3,6 +3,19 @@
 .obsidian/cache
 .trash/
 
+# The guard's audit log and restricted-page cache (written by the hook only).
+.claude/guard.log
+.claude/guard.log.1
+.claude/guard-cache.json
+.claude/guard-cache.json.*.tmp
+
+# Python bytecode from the vault scripts and the guard tests.
+__pycache__/
+*.pyc
+
+# Embedding vectors written by scripts/vault_search.py, computed from your pages.
+.cache/
+
 # Pulled from email, Slack, Notion, Drive and Calendar: other people's words.
 # Ignored by default. To version it, delete this line.
 raw/workspace/

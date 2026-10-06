@@ -58,10 +58,10 @@ Desktop starts one catch-up run for the most recent missed time and discards
 older ones ([documentation](https://code.claude.com/docs/en/desktop-scheduled-tasks)).
 "Overnight" therefore means a machine that is on overnight.
 
-A scheduled task can fire a slash command only from the 16-command maintenance
+A scheduled task can fire a slash command only from the 17-command maintenance
 set listed in [`commands/README.md`](../../commands/README.md) (`/ingest`,
-`/link`, `/lint`, `/review`, `/weekly`, `/monthly`, `/metrics`, `/health`,
-`/commit`, `/stale`, `/orphans`, `/prune`, `/archive`, `/dedupe`, `/backfill`
+`/link`, `/lint`, `/vault-review`, `/weekly`, `/monthly`, `/metrics`, `/health`,
+`/brief`, `/commit`, `/stale`, `/orphans`, `/prune`, `/archive`, `/dedupe`, `/backfill`
 and `/index`). The other commands set `disable-model-invocation: true`, and from
 Claude Code v2.1.196 that also stops a scheduled task from running them
 ([skills documentation](https://code.claude.com/docs/en/skills)). Anything else

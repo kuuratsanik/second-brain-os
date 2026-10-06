@@ -1,18 +1,23 @@
 # skills
 
-Twenty-four skills covering every workflow in the guide. Plain `SKILL.md` files, so
+Twenty-nine skills covering every workflow in the guide. Plain `SKILL.md` files, so
 they work with Claude Code and with any agent that reads the Agent Skills format.
 
 | Skill | What it does |
 |---|---|
 | `second-brain-archive` | Archive orphaned, stale and cold pages |
+| `second-brain-ask` | Answer a question from the vault with line-level citations |
 | `second-brain-backfill` | Backfill an archive |
+| `second-brain-brief` | Brief the owner on what needs attention |
+| `second-brain-capture` | Capture Gmail, Granola and Notion items into raw/, read-only |
 | `second-brain-changed-my-mind` | Trace changed positions |
 | `second-brain-chat-import` | Import chat history |
 | `second-brain-commit` | Commit a run, by path |
 | `second-brain-doctor` | Check the setup |
+| `second-brain-flashcards` | Make flashcards from concept pages |
 | `second-brain-graph` | Analyse the graph |
 | `second-brain-ingest` | Ingest a source |
+| `second-brain-lifecycle` | Move self-improvement ideas to experiments, reviews and decisions |
 | `second-brain-lint` | Lint the vault |
 | `second-brain-merge` | Merge duplicate pages |
 | `second-brain-metrics` | Record metrics |

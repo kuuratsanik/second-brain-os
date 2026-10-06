@@ -31,7 +31,10 @@ What to look at:
   review and the adopted system `friday-review`. The success measure is written
   before the start date, and the review compares the result against the
   expectation, including one the owner got wrong.
-- **A dropped idea kept as evidence:** `morning-flashcards`.
+- **A dropped idea, archived:** `morning-flashcards`, now under
+  `archive/wiki/self-improvement/ideas/`. Its links from live pages became plain
+  text with the reason, and the hubs list it under "Dropped ideas" with the
+  archive path. A failed experiment would stay in place instead.
 - **Mixed languages:** `wiki/sources/2026-09-14-oppimise-plaan.md` is an
   Estonian source. The file name is ASCII (`oppimise-plaan`), the `title:` keeps
   `Õppimise plaan: loe vähem, mäleta rohkem`, and the original form is in

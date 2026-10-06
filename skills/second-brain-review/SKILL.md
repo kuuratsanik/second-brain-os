@@ -30,7 +30,16 @@ know how many tool calls ran; they need to know what they now know.
 4. **List open questions** from concept and synthesis pages.
 5. **Find the neglected.** Pages linked often but thin, or gaps in `index.md`
    that keep getting referenced.
-6. **Recommend three things to read or write next**, each tied to a specific
+6. **Review the lifecycle.** Follow `second-brain-lifecycle` for pages under
+   `wiki/self-improvement/`: move ideas, plans and experiments that are due,
+   write the review for any experiment whose end date has passed, and list
+   what waits on the owner. Skip this step if the folder is empty. A read-only
+   agent cannot make these changes: it reports what is due and leaves the
+   writing to the main session.
+7. **Read the guard log.** If `.claude/guard.log` exists, count its lines for the
+   period by `rule` and report the rules that fired most (a rule name and a
+   count, never a command or content), so the owner can fix a habit or a rule.
+8. **Recommend three things to read or write next**, each tied to a specific
    page.
 
 ## Output format
@@ -48,6 +57,9 @@ Added: <n> pages, <n> sources ingested
 
 ### Thin spots
 <pages that are referenced more than they deserve given their content>
+
+### Self-improvement
+<ideas waiting, experiments active and due, decisions made this period, each linked>
 
 ### Next
 1. <specific action tied to a page>

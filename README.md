@@ -9,13 +9,14 @@ questions.
 
 This repo is the full version of the guide: the concepts, the setup, the vault
 template, the agent skills, the scripts, and the resources. Free, no signup,
-nothing to install beyond Obsidian and an agent.
+nothing to install beyond Obsidian, an agent, git and Python 3 (the template's
+safety hook is a Python script).
 
 **Read it on the web:** [kuuratsanik.github.io/second-brain-os](https://kuuratsanik.github.io/second-brain-os/) — the full guide with search and navigation, plus [every vetted link](https://kuuratsanik.github.io/second-brain-os/resources.html) in one filterable page.
 
 Three things live here — pick your entrance:
 
-- **[The second-brain guide](#the-guide)** — a path you follow once: build a knowledge base an agent maintains for you. 65 pages, a starter vault, 24 skills.
+- **[The second-brain guide](#the-guide)** — a path you follow once: build a knowledge base an agent maintains for you. 65 pages, a starter vault, 29 skills.
 - **[The agents course](#the-agents-course)** — a path you read in order: seven modules from a single prompt to a production agent, with [tools you install in two commands](plugins/README.md).
 - **[The handbooks](#the-handbooks)** — not a path, references: the full menu of techniques, tools and builds for one layer. Open one when that layer starts hurting.
 
@@ -32,6 +33,10 @@ Hand that work to an agent and the system stays alive. That is the whole idea.
 
 One evening. Nine steps, each with a full page behind it.
 
+You need git, Python 3, Obsidian and an agent such as Claude Code. Check that
+`python3 --version` prints a version. On a Mac, `/usr/bin/python3` is one of Apple's developer-tool shims
+([TN2339](https://developer.apple.com/library/archive/technotes/tn2339/_index.html)); if `python3 --version` asks to install the Command Line Tools instead of printing a version, accept, or install Python from [python.org](https://www.python.org/downloads/). The vault's guard hook runs `python3`, and a hook that cannot start blocks nothing.
+
 ```bash
 # copy the starter vault, skills, commands and agents
 git clone https://github.com/kuuratsanik/second-brain-os.git
@@ -41,10 +46,11 @@ mkdir -p ~/brain/.claude
 cp -r second-brain-os/skills   ~/brain/.claude/skills
 cp -r second-brain-os/commands ~/brain/.claude/commands
 cp -r second-brain-os/agents   ~/brain/.claude/agents
-cp -r second-brain-os/scripts  ~/brain/scripts
+mkdir -p ~/brain/scripts
+cp second-brain-os/scripts/{chat_export_to_md,dashboard,graph_export,link_check,vault_mcp,vault_search,vault_stats}.py ~/brain/scripts/
 
 # the folder READMEs are for reading on GitHub, not for the agent
-rm ~/brain/.claude/*/README.md ~/brain/scripts/README.md
+rm ~/brain/.claude/*/README.md
 
 # make the vault its own git repository, once, and commit the template
 cd ~/brain
@@ -52,6 +58,44 @@ git init
 git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw .obsidian \
   .claude/settings.json .claude/hooks .claude/skills .claude/commands .claude/agents scripts
 git commit -m "Initial vault"
+
+# check that the guard hook runs: it should end with "N/N passed"
+python3 .claude/hooks/test_guard.py
+
+claude
+```
+
+Do not trust the safety rails until the last check prints "N/N passed". On
+Windows, see the next section.
+
+### Windows
+
+The block above is bash. Run it in Git Bash (installed with [Git for
+Windows](https://git-scm.com/download/win)) and it works unchanged, except that
+`python3` may be the Microsoft Store stub: use `python` or `py` for the check,
+and change `python3` to `python` or `py` in the three hook entries of
+`.claude/settings.json` as the [template README](vault-template/README.md#what-is-enforced-and-what-is-not)
+describes. In PowerShell, use these equivalents:
+
+```powershell
+git clone https://github.com/kuuratsanik/second-brain-os.git
+Copy-Item -Recurse second-brain-os\vault-template $HOME\brain
+
+New-Item -ItemType Directory -Force $HOME\brain\.claude, $HOME\brain\scripts | Out-Null
+Copy-Item -Recurse second-brain-os\skills   $HOME\brain\.claude\skills
+Copy-Item -Recurse second-brain-os\commands $HOME\brain\.claude\commands
+Copy-Item -Recurse second-brain-os\agents   $HOME\brain\.claude\agents
+foreach ($f in 'chat_export_to_md','dashboard','graph_export','link_check','vault_mcp','vault_search','vault_stats') {
+  Copy-Item "second-brain-os\scripts\$f.py" $HOME\brain\scripts\
+}
+Remove-Item $HOME\brain\.claude\skills\README.md, $HOME\brain\.claude\commands\README.md, $HOME\brain\.claude\agents\README.md
+
+Set-Location $HOME\brain
+git init
+git add .gitignore CLAUDE.md README.md templates wiki projects output journal archive raw .obsidian `
+  .claude/settings.json .claude/hooks .claude/skills .claude/commands .claude/agents scripts
+git commit -m "Initial vault"
+python .claude\hooks\test_guard.py
 
 claude
 ```
@@ -71,15 +115,16 @@ some of the rules in `CLAUDE.md` into enforced ones. They arrive with the
 replacing them. See [what is enforced](vault-template/README.md#what-is-enforced-and-what-is-not). `raw` is included so
 the empty subfolders are tracked; `raw/workspace/` stays ignored.
 
-The `scripts/` copy is what lets `/metrics`, `/health` and `/graph-export` run
-`scripts/vault_stats.py` and friends from inside the vault. On Windows, use
-`python` where this guide says `python3`: the `python3` name usually resolves to
-the Microsoft Store stub and does nothing.
+The `scripts/` copy is only the seven vault scripts, not the site builders
+(`build_*.py`), and it is what lets `/metrics`, `/health` and `/graph-export` run
+`scripts/vault_stats.py` and friends from inside the vault. On Windows, see the
+[Windows](#windows) subsection above.
 
 **Or install the kit as a plugin.** Instead of the `cp -r` lines for `skills/`,
 `commands/` and `agents/`, add this repo as a plugin marketplace. Still copy
-`vault-template` (the rules and the guard live there), and copy `scripts/` so the
-scripts run without a permission prompt:
+`vault-template` (the rules and the guard live there), and copy the seven vault
+scripts (the `scripts/` lines of the block above) so they run without a
+permission prompt:
 
 ```bash
 claude plugin marketplace add kuuratsanik/second-brain-os
@@ -147,17 +192,17 @@ them separate matters more than it sounds.
 | [`docs/course-*/`](docs/course-0-map/README.md) | The agents course: seven modules, prompt to production |
 | [`docs/track-*/`](docs/track-graph/README.md) | Five handbooks on the wider craft: graphs, Jev, harnesses, loops, evals |
 | [`vault-template/`](vault-template/) | An opinionated starter vault, tuned for an agent that works without asking first, for several domains (work, learning, personal, creative, self-improvement, systems) and for notes in more than one language. It ships with no personal facts: the [CLAUDE.md interview](docs/02-setup/claude-md.md) fills in your profile |
-| [`skills/`](skills/README.md) | 24 agent skills, one per workflow in the guide |
-| [`commands/`](commands/README.md) | 72 slash commands, scoped entry points into those skills. The scheduling command is `/maintenance-schedule`, so it does not shadow Claude Code's built-in `/schedule` |
+| [`skills/`](skills/README.md) | 29 agent skills, one per workflow in the guide |
+| [`commands/`](commands/README.md) | 78 slash commands, scoped entry points into those skills. The scheduling command is `/maintenance-schedule`, so it does not shadow Claude Code's built-in `/schedule` |
 | [`agents/`](agents/README.md) | 6 subagents, four of them read-only by design |
 | [`plugins/`](plugins/README.md) | Claude Code plugins — the course's tools, installable in two commands |
-| [`scripts/`](scripts/README.md) | Dependency-free Python for link checking, stats and graph export |
+| [`scripts/`](scripts/README.md) | Dependency-free Python for link checking, stats, graph export, search, a health dashboard and a read-only MCP server |
 | [`resources/`](resources/README.md) | Tools, repos, papers and reading worth your time |
 | [`examples/`](examples/README.md) | A fictional demo vault with link-check and stats output |
 
 ## The guide
 
-Ten sections, 77 pages, written to be followed rather than skimmed. From the
+Ten sections, 65 pages, written to be followed rather than skimmed. From the
 concept through setup, capture, structure, the graph, automation, retrieval,
 publishing, and what to do when each of them breaks.
 
@@ -301,7 +346,7 @@ Outside Obsidian: [Web Clipper](https://obsidian.md/clipper) for capture,
 
 ## Skills and other implementations
 
-This repo ships **24 skills, 72 commands, 6 subagents and 4 scripts**: one skill
+This repo ships **29 skills, 78 commands, 6 subagents and 7 scripts**: one skill
 per workflow in the guide, and a command for every scoped version of it you would
 actually run.
 

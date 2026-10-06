@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """Builds index.html (the guide) and resources.html (the catalog) from site_data.json."""
-import io, json, os, html, sys
+import io
+import json
+import os
+import html
+import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from site_common import (REPO, GHT, FOOTER, head, header, min_css, min_js, dumps,
+from site_common import (RESOURCES_DATE, REPO, GHT, FOOTER, head, header, min_css, min_js, dumps,
                          slim_page, word)
 
 D = json.load(io.open("site_data.json", encoding="utf-8"))
@@ -38,6 +42,8 @@ nav a{color:var(--soft)} nav a.on{color:var(--ink);font-weight:600}
 .hits{position:absolute;right:0;top:40px;width:430px;max-height:62vh;overflow:auto;
   background:var(--card);border:1px solid var(--rule);border-radius:3px;display:none}
 .hits.open{display:block}
+.hit .sn{display:block;font-size:13px;line-height:1.45;color:var(--soft);margin-top:4px}
+.hit mark{background:rgba(255,196,0,.4);color:var(--ink);border-radius:2px;padding:0 1px}
 .hit{display:block;padding:10px 13px;border-bottom:1px solid var(--rule);color:var(--ink)}
 .hit:last-child{border:0}
 .hit:hover{background:var(--accent-bg);text-decoration:none}
@@ -145,6 +151,15 @@ article.page a.wiki::after{content:"]]";color:var(--faint)}
   padding-top:18px;border-top:1px solid var(--rule);font-size:14px}
 .pager a{max-width:46%}
 .pager .lbl{display:block;font:11px ui-monospace,Menlo,monospace;color:var(--faint)}
+.pmeta{font:12.5px ui-monospace,Menlo,monospace;color:var(--faint);margin:-12px 0 22px}
+.pmeta a{color:var(--faint);text-decoration:underline;text-underline-offset:3px}
+.pmeta a:hover{color:var(--accent)}
+.cwrap{display:flex;flex-direction:column;margin-bottom:17px}
+.cwrap pre{margin-bottom:0}
+.copy{align-self:flex-end;font:12px/1 ui-monospace,Menlo,monospace;color:var(--soft);
+  background:var(--card);border:1px solid var(--rule);border-bottom:0;border-radius:3px 3px 0 0;
+  padding:6px 10px;margin-bottom:-1px;cursor:pointer}
+.copy:hover{border-color:var(--accent);color:var(--ink)}
 .src{margin-top:34px;font:12px ui-monospace,Menlo,monospace;color:var(--faint)}
 
 /* resources */
@@ -184,13 +199,21 @@ GUIDE_CSS = """
 .tracklist article{border-top:2px solid var(--accent)}
 .courselist article{border-top:2px solid var(--num)}
 article.page img{max-width:100%;height:auto;display:block;margin:20px auto}
-.entr{max-width:var(--w);display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:34px 0 8px}@media(max-width:760px){.entr{grid-template-columns:1fr}}.ent{display:block;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px 20px 16px;text-decoration:none;transition:border-color .15s}.ent:hover{border-color:var(--accent)}.ent .ek{font:11px/1 ui-monospace,Menlo,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}.ent h2{font:600 20px/1.2 Charter,Georgia,serif;color:var(--ink);margin:9px 0 7px}.ent p{font-size:14px;line-height:1.5;color:var(--soft);margin:0 0 12px}.ent .em{font:12px ui-monospace,Menlo,monospace;color:var(--accent)}.ent.e2{border-top:3px solid var(--num)}.ent.e1{border-top:3px solid var(--accent)}.ent.e3{border-top:3px solid var(--rule)}"""
+.entr{max-width:var(--w);display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:34px 0 8px}@media(max-width:760px){.entr{grid-template-columns:1fr}}.ent{display:block;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px 20px 16px;text-decoration:none;transition:border-color .15s}.ent:hover{border-color:var(--accent)}.ent .ek{font:11px/1 ui-monospace,Menlo,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}.ent h2{font:600 20px/1.2 Charter,Georgia,serif;color:var(--ink);margin:9px 0 7px}.ent p{font-size:14px;line-height:1.5;color:var(--soft);margin:0 0 12px}.ent .em{font:12px ui-monospace,Menlo,monospace;color:var(--accent)}.ent.e2{border-top:3px solid var(--num)}.ent.e1{border-top:3px solid var(--accent)}.ent.e3{border-top:3px solid var(--rule)}
+@media print{
+  aside,.rail,.pager{display:none!important}
+  .wrap,.rwrap{display:block;max-width:none;padding:0}
+  main{padding:0}
+  article.page{max-width:none}
+  article a[href^="http"]::after{content:" (" attr(href) ")";font:.8em ui-monospace,Menlo,monospace;
+    color:#444;word-break:break-all}
+}"""
 
 SEARCHBOX = ('<div class="search"><input id="q" type="search" '
              'placeholder="search the guide" aria-label="Search the guide" '
              'autocomplete="off">'
-             '<div class="hits" id="hits" role="region" aria-label="Search results" '
-             'aria-live="polite"></div></div>')
+             '<div class="hits" id="hits" role="region" aria-label="Search results"></div>'
+             '<div class="sr" id="hitcount" role="status"></div></div>')
 
 def page_header(active):
     extra = ""
@@ -278,13 +301,28 @@ GUIDE = f"""{head("Second Brain OS - the guide", f"A {s['pages']}-page guide to 
   <div class="rail" id="rail" role="complementary" aria-label="On this page"></div>
 </div>
 {FOOTER}
+<span class="sr" id="copy-say" role="status" aria-live="polite"></span>
 <script id="data" type="application/json">{dumps({'pages': [slim_page(p) for p in D['pages']], 'sections': D['sections'], 'order': D['order']})}</script>
 <script>
 const D=JSON.parse(document.getElementById('data').textContent);
 const P={{}}; D.pages.forEach(p=>{{P[p.id]=p; p.section=p.id.split('/')[0]; p.section_title=D.sections[p.section].title; p.path='docs/'+p.id+'.md';}});
 const T={{}};
 const DEC=document.createElement('textarea');
-function plain(p){{if(!T[p.id]){{DEC.innerHTML=p.html.replace(/<[^>]+>/g,' ');T[p.id]=DEC.value.toLowerCase();}}return T[p.id];}}
+const unhtml=h=>{{DEC.innerHTML=h.replace(/<[^>]+>/g,' ');return DEC.value.replace(/\s+/g,' ').trim();}};
+// text, lowercase text and h2 texts of a page, derived once from its html
+function idx(p){{if(!T[p.id]){{const t=unhtml(p.html);
+  T[p.id]={{t,l:t.toLowerCase(),h:[...p.html.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/g)].map(m=>unhtml(m[1]).toLowerCase())}};}}return T[p.id];}}
+const esc=s=>s.replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+// escape text and wrap each occurrence of v (lowercase) in <mark>
+function mark(s,v){{let o='',i=0,l=s.toLowerCase(),k;
+  if(l.length!==s.length)return esc(s);
+  while((k=l.indexOf(v,i))>=0){{o+=esc(s.slice(i,k))+'<mark>'+esc(s.slice(k,k+v.length))+'</mark>';i=k+v.length;}}
+  return o+esc(s.slice(i));}}
+function snippet(x,v){{const k=x.l.length===x.t.length?x.l.indexOf(v):-1;
+  let a=Math.max(0,(k<0?0:k)-45), b=Math.min(x.t.length,(k<0?0:k)+v.length+90);
+  if(a>0){{const j=x.t.indexOf(' ',a);if(j>=0&&j<k)a=j+1;}}
+  if(b<x.t.length){{const j=x.t.lastIndexOf(' ',b);if(j>k+v.length)b=j;}}
+  return (a>0?'\u2026':'')+mark(x.t.slice(a,b),v)+(b<x.t.length?'\u2026':'');}}
 const FLAT=[]; Object.keys(D.order).forEach(s=>D.order[s].forEach(id=>FLAT.push(id)));
 const HERO=document.getElementById('hero').innerHTML;
 
@@ -312,6 +350,29 @@ function side(cur){{
   }});
 }}
 
+// reading time: words in the rendered text at 230 a minute, at least one
+function mins(p){{return Math.max(1,Math.round(idx(p).t.split(' ').length/230));}}
+// copy buttons exist only with JavaScript. The status region sits outside
+// <main>, so it survives page changes and announces "Copied".
+const SAY=document.getElementById('copy-say');
+function viaTextarea(t){{
+  const f=document.activeElement, a=document.createElement('textarea'); a.value=t; a.setAttribute('readonly','');
+  a.style.cssText='position:fixed;top:0;left:0;opacity:0';
+  document.body.appendChild(a); a.select();
+  let ok=false; try{{ok=document.execCommand('copy');}}catch(e){{}}
+  a.remove(); if(f&&f.focus)f.focus({{preventScroll:true}}); return ok;
+}}
+function copy(b,t){{
+  const done=ok=>{{
+    clearTimeout(b._t); b.textContent=ok?'Copied':'Copy failed';
+    SAY.textContent=''; setTimeout(()=>{{SAY.textContent=ok?'Copied':'Copy failed';}},50);
+    b._t=setTimeout(()=>{{b.textContent='Copy';SAY.textContent='';}},2000);
+  }};
+  if(navigator.clipboard&&navigator.clipboard.writeText)
+    navigator.clipboard.writeText(t).then(()=>done(true),()=>done(viaTextarea(t)));
+  else done(viaTextarea(t));
+}}
+
 let first=true, last=location.pathname+location.search;
 function render(){{
   if(location.hash==='#main'){{history.replaceState(null,'',last);if(!first)return;}}
@@ -331,7 +392,8 @@ function render(){{
   const p=P[id], i=FLAT.indexOf(id), prev=FLAT[i-1], next=FLAT[i+1];
   main.innerHTML=`<article class="page">
     <div class="crumb">${{p.section_title}} / page ${{D.order[p.section].indexOf(id)+1}} of ${{D.order[p.section].length}}</div>
-    <h1>${{p.title}}</h1>${{p.html}}
+    <h1>${{p.title}}</h1>
+    <p class="pmeta">${{mins(p)}} min read &middot; <a href="{REPO}/edit/main/${{p.path}}">Edit on GitHub</a></p>${{p.html}}
     <div class="pager">
       ${{prev?`<a href="#${{prev}}"><span class="lbl">previous</span>${{P[prev].title}}</a>`:'<span></span>'}}
       ${{next?`<a href="#${{next}}" style="text-align:right"><span class="lbl">next</span>${{P[next].title}}</a>`:'<span></span>'}}
@@ -363,7 +425,16 @@ function render(){{
     const kind=(path===''||path.endsWith('/')||last.indexOf('.')<0)?'tree':'blob';
     a.setAttribute('href','{REPO}/'+kind+'/main/'+out.join('/')+tail);
   }});
-  main.querySelectorAll('pre').forEach(e=>e.tabIndex=0);
+  const pres=main.querySelectorAll('pre');
+  pres.forEach((pre,n)=>{{
+    pre.tabIndex=0;
+    const w=document.createElement('div'); w.className='cwrap';
+    pre.parentNode.insertBefore(w,pre);
+    const b=document.createElement('button'); b.type='button'; b.className='copy'; b.textContent='Copy';
+    b.setAttribute('aria-label',pres.length>1?'Copy code block '+(n+1)+' of '+pres.length:'Copy code');
+    b.onclick=()=>copy(b,pre.textContent);
+    w.appendChild(b); w.appendChild(pre);
+  }});
   main.querySelectorAll('th').forEach(h=>{{if(!h.textContent.trim())h.innerHTML='<span class="vh">Row label</span>';}});
   const heads=[...main.querySelectorAll('h2')];
   const outs=[...main.querySelectorAll('a.wiki')].slice(0,8);
@@ -376,19 +447,34 @@ function render(){{
 function done(){{ if(first){{first=false;return;}} document.getElementById('main').focus({{preventScroll:true}}); }}
 
 // search
-const q=document.getElementById('q'), hits=document.getElementById('hits');
+const q=document.getElementById('q'), hits=document.getElementById('hits'), hitcount=document.getElementById('hitcount');
 q.addEventListener('input',()=>{{
-  const v=q.value.trim().toLowerCase();
-  if(v.length<2){{hits.classList.remove('open');return;}}
+  const v=q.value.trim().replace(/\s+/g,' ').toLowerCase();
+  if(v.length<2){{hits.classList.remove('open');hitcount.textContent='';return;}}
+  // title 10 (+6 at the start) > an h2 8 > body at most 3
   const r=D.pages.map(p=>{{
-    let sc=0; const t=p.title.toLowerCase();
+    const x=idx(p); let sc=0; const t=p.title.toLowerCase();
     if(t.includes(v)) sc+=10; if(t.startsWith(v)) sc+=6;
-    const n=(plain(p).split(v).length-1); sc+=Math.min(n,6);
-    return {{p,sc}};
+    if(x.h.some(h=>h.includes(v))) sc+=8;
+    sc+=Math.min(x.l.split(v).length-1,3);
+    return {{p,x,sc}};
   }}).filter(x=>x.sc>0).sort((a,b)=>b.sc-a.sc).slice(0,9);
-  hits.innerHTML=r.length?r.map(x=>`<a class="hit" href="#${{x.p.id}}"><b>${{x.p.title}}</b><i>${{x.p.section_title}}</i></a>`).join('')
+  hits.innerHTML=r.length?r.map(x=>`<a class="hit" href="#${{x.p.id}}"><b>${{mark(x.p.title,v)}}</b><i>${{esc(x.p.section_title)}}</i><span class="sn">${{snippet(x.x,v)}}</span></a>`).join('')
     :'<div class="hit"><i>nothing in the guide matches that</i></div>';
   hits.classList.add('open');
+  hitcount.textContent=r.length?r.length+(r.length===1?' result':' results'):'no results';
+}});
+q.addEventListener('keydown',e=>{{
+  const f=hits.querySelector('a.hit');
+  if(e.key==='ArrowDown'&&f&&hits.classList.contains('open')){{e.preventDefault();f.focus();}}
+  if(e.key==='Enter'&&f&&hits.classList.contains('open')){{e.preventDefault();f.click();}}
+}});
+hits.addEventListener('keydown',e=>{{
+  const a=[...hits.querySelectorAll('a.hit')], i=a.indexOf(document.activeElement);
+  if(i<0)return;
+  if(e.key==='Escape'){{e.preventDefault();hits.classList.remove('open');q.focus();}}
+  if(e.key==='ArrowDown'){{e.preventDefault();(a[i+1]||a[i]).focus();}}
+  if(e.key==='ArrowUp'){{e.preventDefault();(i?a[i-1]:q).focus();}}
 }});
 q.addEventListener('keydown',e=>{{if(e.key==='Escape'){{q.value='';hits.classList.remove('open');q.blur();}}}});
 document.addEventListener('click',e=>{{if(!e.target.closest('.search'))hits.classList.remove('open');}});
@@ -428,7 +514,7 @@ RES = f"""{head("Second Brain OS - resources", f"{len(R)} checked links: Obsidia
 {page_header('res')}
 <main class="rwrap" id="main" tabindex="-1">
   <h1>Everything worth opening</h1>
-  <p class="lede">{len(R)} links, each one checked. Plugins are ranked by installs from Obsidian's own community stats rather than by stars, because in this ecosystem the two disagree by an order of magnitude. Figures are from September 2026 and will drift.</p>
+  <p class="lede">{len(R)} links, each one checked. Plugins are ranked by installs from Obsidian's own community stats rather than by stars, because in this ecosystem the two disagree by an order of magnitude. Figures are from {RESOURCES_DATE} and will drift.</p>
   <div class="controls" id="ctl">
     <button class="chip on" data-k="all" aria-pressed="true">All</button>
     {"".join(f'<button class="chip" data-k="{html.escape(k)}" aria-pressed="false">{html.escape(k)}</button>' for k in kinds)}

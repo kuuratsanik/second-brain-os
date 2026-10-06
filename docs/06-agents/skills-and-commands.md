@@ -15,8 +15,8 @@ vault".
 
 ## What this repo ships
 
-Twenty-four skills in [`skills/`](../../skills/README.md), one per workflow in this
-guide. Seventy-two commands in [`commands/`](../../commands/README.md). Most are a
+Twenty-nine skills in [`skills/`](../../skills/README.md), one per workflow in this
+guide. Seventy-eight commands in [`commands/`](../../commands/README.md). Most are a
 few lines pointing at a skill and setting its scope; a few (`/audit`,
 `/dry-run`, `/index` and `/scope`) are self-contained and name no skill. The
 scheduling command is `/maintenance-schedule`, which points at

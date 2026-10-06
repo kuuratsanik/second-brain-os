@@ -12,4 +12,6 @@ The handbook for [module 4](../course-4-harness/README.md) of the agents course:
 6. [Build: the Loop](build-the-loop.md)
 7. [Build: Permissions and Context](build-guardrails.md)
 8. [Build: Know When to Graduate](build-graduate.md)
-9. [Resources](resources.md)
+9. [KV-Cache Tiers on a Local SSD](kv-cache-ssd-tier.md)
+10. [Local Models for Cheap Maintenance](local-models-for-maintenance.md)
+11. [Resources](resources.md)

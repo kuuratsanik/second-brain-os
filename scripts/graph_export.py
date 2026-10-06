@@ -16,6 +16,7 @@ import argparse
 import csv
 import os
 import re
+import sys
 from xml.sax.saxutils import escape
 
 LINK = re.compile(r"\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|[^\]]+)?\]\]")
@@ -172,6 +173,8 @@ def main():
     ap.add_argument("--include", default="", metavar="DIRS",
                     help="comma-separated folders to count anyway, e.g. archive,journal")
     args = ap.parse_args()
+    if not os.path.isdir(args.vault):
+        sys.exit(f"not a directory: {args.vault}")
     SKIP_DIRS.difference_update(x.strip() for x in args.include.split(","))
 
     pages = load(args.vault)
@@ -204,22 +207,26 @@ def main():
             if dest and dest != p:
                 edges.append((node_id[p], node_id[dest]))
 
-    if args.format == "csv":
-        with open(args.out, "w", newline="", encoding="utf-8") as fh:
-            w = csv.writer(fh)
-            w.writerow(["source", "target"])
-            w.writerows(edges)
-    else:
-        with open(args.out, "w", encoding="utf-8") as fh:
-            fh.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-            fh.write('<graphml xmlns="http://graphml.graphdrawing.org/xmlns">\n')
-            fh.write('<key id="t" for="node" attr.name="type" attr.type="string"/>\n')
-            fh.write('<graph edgedefault="directed">\n')
-            for n, t in nodes.items():
-                fh.write(f'<node id="{escape(n)}"><data key="t">{escape(t)}</data></node>\n')
-            for i, (s, t) in enumerate(edges):
-                fh.write(f'<edge id="e{i}" source="{escape(s)}" target="{escape(t)}"/>\n')
-            fh.write("</graph>\n</graphml>\n")
+    try:
+        if args.format == "csv":
+            with open(args.out, "w", newline="", encoding="utf-8") as fh:
+                w = csv.writer(fh)
+                w.writerow(["source", "target"])
+                w.writerows(edges)
+        else:
+            with open(args.out, "w", encoding="utf-8") as fh:
+                fh.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+                fh.write('<graphml xmlns="http://graphml.graphdrawing.org/xmlns">\n')
+                fh.write('<key id="t" for="node" attr.name="type" attr.type="string"/>\n')
+                fh.write('<graph edgedefault="directed">\n')
+                for n, t in nodes.items():
+                    fh.write(f'<node id="{escape(n)}"><data key="t">{escape(t)}</data></node>\n')
+                for i, (s, t) in enumerate(edges):
+                    fh.write(f'<edge id="e{i}" source="{escape(s)}" target="{escape(t)}"/>\n')
+                fh.write("</graph>\n</graphml>\n")
+
+    except OSError as e:
+        sys.exit(f"cannot write {args.out}: {e.strerror or e}")
 
     print(f"{len(nodes)} nodes, {len(edges)} edges -> {args.out}")
 
