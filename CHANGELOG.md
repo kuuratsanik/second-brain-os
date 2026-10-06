@@ -16,6 +16,25 @@ without that file predates 1.0.0.
 
 ### Added
 
+- The kit as a Claude Code plugin, `second-brain` (version taken from
+  `skills/VERSION`, so 1.0.0): `claude plugin marketplace add
+  kuuratsanik/second-brain-os`, then `claude plugin install
+  second-brain@second-brain-os`. It packages the existing `skills/`,
+  `commands/` and `agents/` from the repository root, with no second copy of
+  any file, and is an alternative to the Quickstart's `cp -r`. Commands run as
+  `/second-brain:<name>`, skills as `/second-brain:second-brain-<name>` and
+  agents as `second-brain:<name>`; update with `claude plugin update`. Use one
+  method per vault, not both. The vault template is still copied. See
+  [`plugins/README.md`](plugins/README.md#second-brain).
+- The skills, command and agent that run the vault scripts
+  (`second-brain-metrics`, `-graph`, `-archive`, `-chat-import`,
+  `/graph-export`, `graph-analyst`) now fall back to
+  `${CLAUDE_PLUGIN_ROOT}/scripts/` when the vault has no `scripts/` folder.
+  `second-brain-doctor` recognises a plugin install and warns when a vault has
+  both. A copied vault is unaffected.
+- `vault-template/CLAUDE.md`: the autonomy override also covers the names with
+  the `second-brain:` prefix.
+
 - agents-course plugin 0.4.0: an eval suite for `claude plugin eval`, in
   `plugins/agents-course/evals/`. Twelve cases: a trigger case and a
   must-not-fire case for each of the five skills and the `loop-critic` agent,

@@ -66,7 +66,9 @@ and `/index`). The other commands set `disable-model-invocation: true`, and from
 Claude Code v2.1.196 that also stops a scheduled task from running them
 ([skills documentation](https://code.claude.com/docs/en/skills)). Anything else
 needs a plain-language prompt like the one above, and on an older version none
-of the commands can be relied on.
+of the commands can be relied on. If you installed the kit as the `second-brain`
+plugin, the commands carry the plugin prefix (`/second-brain:ingest`); see
+[plugins](../../plugins/README.md#second-brain).
 The backlog limit of 20 and the rest of the rails come from the [vault
 template](../../vault-template/CLAUDE.md), which applies them to scheduled runs
 too.

@@ -40,6 +40,11 @@ cp -r skills/second-brain-* ~/.claude/skills/
 Or keep them inside the vault at `.claude/skills/` so they travel with it and get
 versioned alongside your notes.
 
+Or install the whole kit as the `second-brain` plugin, which loads the skills,
+commands and agents from `~/.claude/plugins/` and names the skills
+`/second-brain:second-brain-ingest` and so on. Pick one method per vault, not
+both. See [plugins](../plugins/README.md#second-brain).
+
 ## Version and updates
 
 [`VERSION`](VERSION) holds the kit version, one line. It covers the skills,
@@ -50,10 +55,16 @@ at the repository root says what changed in each version. Copying the whole
 `.claude/skills/VERSION`, which is how a vault records what it was installed
 from. A vault without that file predates versioning.
 
-To update a vault, pull the checkout and run `/install` in the vault. It
+To update a plugin install, run `claude plugin update second-brain@second-brain-os`.
+To update a vault that has copies, pull the checkout and run `/install` in the vault. It
 compares the two versions, shows the CHANGELOG entries since yours, and lists
 the copy commands for you to run. It never overwrites the vault's `CLAUDE.md`
 or `.claude/settings.json`.
+
+The plugin's manifest, [`.claude-plugin/plugin.json`](../.claude-plugin/plugin.json),
+carries the same version, and `claude plugin update` finds a new release only when
+it changes. Bump `VERSION` and the manifest's `version` together;
+`tools/check_kit.py` fails when they differ.
 
 Bump `VERSION` in the same change as any user-facing edit to the kit: a major
 version for a change that breaks an existing vault (a rename, a removed

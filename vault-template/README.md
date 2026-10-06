@@ -19,7 +19,10 @@ claude
 
 If you copied the Quickstart's setup, also add `.claude/skills .claude/commands
 .claude/agents scripts` to that first commit, because the agent setup is worth
-versioning. Always include `.claude/settings.json` and `.claude/hooks`: they
+versioning. If you install the kit as the `second-brain` plugin instead, there is nothing of
+it to add here: it lives outside the vault (see
+[plugins](https://github.com/kuuratsanik/second-brain-os/blob/main/plugins/README.md#second-brain)).
+Always include `.claude/settings.json` and `.claude/hooks`: they
 hold the boundaries described below. `raw/workspace/` stays ignored by `.gitignore`.
 
 `.obsidian/` holds a small Obsidian preset, applied when you open the folder as

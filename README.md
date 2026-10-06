@@ -76,6 +76,20 @@ The `scripts/` copy is what lets `/metrics`, `/health` and `/graph-export` run
 `python` where this guide says `python3`: the `python3` name usually resolves to
 the Microsoft Store stub and does nothing.
 
+**Or install the kit as a plugin.** Instead of the `cp -r` lines for `skills/`,
+`commands/` and `agents/`, add this repo as a plugin marketplace. Still copy
+`vault-template` (the rules and the guard live there) and, for the scripts,
+`scripts/`:
+
+```bash
+claude plugin marketplace add kuuratsanik/second-brain-os
+claude plugin install second-brain@second-brain-os
+```
+
+Commands then run as `/second-brain:ingest` instead of `/ingest`, and
+`claude plugin update` replaces `/install` for updates. Use one method per vault,
+never both. [Which to use, and what changes](plugins/README.md#second-brain).
+
 1. [Install Obsidian](docs/02-setup/obsidian-install-and-vault.md) and open
    the `~/brain` folder you just copied with "Open folder as vault"
 2. [Set up Claude Code](docs/02-setup/claude-code-setup.md), in the terminal or

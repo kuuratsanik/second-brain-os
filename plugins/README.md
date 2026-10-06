@@ -1,12 +1,138 @@
 # plugins
 
-Claude Code plugins that ship the course's tools. This repo is a plugin
-marketplace: add it once, install what you need.
+Claude Code plugins from this repo. It is a plugin marketplace: add it once,
+install what you need.
 
 ```bash
 claude plugin marketplace add kuuratsanik/second-brain-os
-claude plugin install agents-course@second-brain-os
+claude plugin install second-brain@second-brain-os     # the vault kit
+claude plugin install agents-course@second-brain-os    # the course tools
 ```
+
+| Plugin | What it is | Source |
+|---|---|---|
+| [`second-brain`](#second-brain) | The vault kit: 24 skills, 72 slash commands, 6 agents and the vault scripts | The repo root: [`skills/`](../skills/README.md), [`commands/`](../commands/README.md), [`agents/`](../agents/README.md), [`scripts/`](../scripts/README.md) |
+| [`agents-course`](#agents-course) | One tool per course module, in your own repo | `plugins/agents-course/` |
+
+## second-brain
+
+The same skills, commands and agents the Quickstart copies into a vault, as a
+plugin. There is one copy of each file in this repo: the plugin manifest
+[`.claude-plugin/plugin.json`](../.claude-plugin/plugin.json) sits at the
+repository root next to `marketplace.json`, and the marketplace entry's source
+is `./`. Claude Code accepts a plugin at the marketplace root
+([marketplace reference](https://code.claude.com/docs/en/plugins/marketplace-reference#plugin-sources):
+a relative source resolves from the marketplace root, and `"."` on its own
+means the root).
+
+What the plugin does not carry: the vault template (`CLAUDE.md`, the permission
+rules and the guard hook). Plugin agents cannot ship hooks or permission modes,
+and those files belong to the vault, so you still copy `vault-template/` as the
+[Quickstart](../README.md#quickstart) says. The plugin replaces only the
+copies of `skills/`, `commands/` and `agents/`.
+
+### Names
+
+Claude Code puts every plugin component under the plugin's name
+([plugins reference](https://code.claude.com/docs/en/plugins-reference): an agent `reviewer` in plugin `deploy-tools` appears as `deploy-tools:reviewer`; plugin skills are `/plugin-name:skill-name` on the [skills page](https://code.claude.com/docs/en/skills)).
+Checked with Claude Code 2.1.290, the plugin exposes:
+
+| Component | Copied into `.claude/` | As the plugin |
+|---|---|---|
+| Command | `/ingest` | `/second-brain:ingest` |
+| Skill | `second-brain-ingest` | `/second-brain:second-brain-ingest` |
+| Agent | `curator` | `second-brain:curator` |
+
+Skills still trigger from their descriptions, so you rarely type the long
+name. Commands are the part you type, and they now carry the prefix. A command
+with `disable-model-invocation: true` keeps it: the field is part of the file,
+not of the name. The sixteen commands that a scheduled task can fire are the
+same sixteen, as `/second-brain:ingest`, `/second-brain:lint` and so on. The
+vault template's autonomy override names commands, skills and agents by their
+short names, and its text says the `second-brain:` prefix is covered too. A
+file under `.claude/commands/` in your vault would still run as `/ingest`; a
+plugin command never does.
+
+### Scripts
+
+Skills and commands run `scripts/vault_stats.py`, `link_check.py`,
+`graph_export.py` and `chat_export_to_md.py` from the vault root. A plugin
+install does not create `scripts/` in the vault, so those skills say to use
+`${CLAUDE_PLUGIN_ROOT}/scripts/` when the vault has none. Claude Code fills in
+that variable in skill, command and agent text for plugin components
+([manifest reference](https://code.claude.com/docs/en/plugins/manifest-reference#where-each-variable-resolves)).
+In a vault that has the folder, the vault's own copy is used.
+
+Copy the four scripts into the vault anyway if you want `/second-brain:metrics`,
+`/second-brain:health` or `/second-brain:graph` to run without a prompt, or
+from a scheduled task:
+
+```bash
+mkdir -p ~/brain/scripts
+cp second-brain-os/scripts/{chat_export_to_md,graph_export,link_check,vault_stats}.py ~/brain/scripts/
+```
+
+The template's allow rules are `python3 scripts/*.py` and its variants. A call
+to the plugin's copy is a different path, which no allow rule matches, so Claude
+Code asks first, and a scheduled run has nobody to ask.
+
+### Which install to use
+
+| | Copy into the vault (Quickstart) | Plugin |
+|---|---|---|
+| Install | `cp -r` of `skills/`, `commands/`, `agents/`, `scripts/` | `claude plugin install second-brain@second-brain-os`, plus the template copy |
+| Names | `/ingest`, `curator` | `/second-brain:ingest`, `second-brain:curator` |
+| Where the files live | In the vault, versioned with your notes | In `~/.claude/plugins/`, outside the vault |
+| Edit a skill for this vault | Edit the file | Not durable: an update replaces the plugin's copy. Copy the skill into `.claude/skills/` under another name, or use the Quickstart |
+| Update | `/install` compares versions and lists the copy commands, which the owner runs because the guard hook blocks the agent from writing `.claude/` | `claude plugin update second-brain@second-brain-os`, then `/reload-plugins` or a new session |
+| Scripts | In the vault | Copy them in (above), or accept a prompt per run |
+| Several vaults | One copy each | One install, shared by every vault |
+
+Use the copy install if you edit the kit, want a vault to be self-contained, or
+run scheduled jobs. Use the plugin if you keep several vaults, want updates
+without copy commands, or do not want the kit files in the vault's git history.
+
+Do not use both in one vault. Both load, because plugin skills are namespaced
+and so never replace a skill of the same name
+([skills page](https://code.claude.com/docs/en/skills)): each skill, command and
+agent appears twice, once under each name. That doubles the skill descriptions
+in every session's context and leaves Claude two near-identical skills to pick
+from.
+The two copies also update on different schedules. To switch, delete the other
+install first (`.claude/skills/second-brain-*`, `.claude/commands/`,
+`.claude/agents/`, or `claude plugin uninstall second-brain@second-brain-os`),
+then install the one you want. The `second-brain-doctor` skill warns when it
+finds both.
+
+The guard hook and permission rules live in the vault's `.claude/settings.json`
+and apply whichever way the kit arrived. They fire on every tool call from any
+skill, command or agent, plugin or not. The plugin carries no hooks of its own,
+so there is nothing to conflict with the template's. Installing the kit as a
+plugin does not bypass the guard. In a test, the guard allowed a call to the
+plugin's copy of `vault_stats.py`, which is a read.
+
+### Versions
+
+`plugin.json` carries the version from [`skills/VERSION`](../skills/VERSION),
+which is the kit version, so plugin 1.0.0 is kit 1.0.0. Claude Code takes a
+manifest `version` over the commit SHA
+([loading reference](https://code.claude.com/docs/en/plugins/loading#how-claude-code-computes-the-version)),
+so `claude plugin update` finds nothing new until the version is bumped. Bump
+`skills/VERSION` and `plugin.json` together; `tools/check_kit.py` fails when
+they differ.
+
+### What the install copies
+
+For a marketplace added from GitHub, Claude Code copies the whole plugin
+directory into its cache, and here that is the entire repository (about 4 MB:
+the guide, the site and the tests as well). Only `skills/`, `commands/` and
+`agents/` are loaded from it. `plugin.json` lists every command and agent file
+because a plugin loads every `.md` file in a listed folder, and `commands/README.md`
+and `agents/README.md` would otherwise load as a `/second-brain:README` command
+and an agent. `tools/check_kit.py` keeps the lists in step with the folders.
+`claude plugin validate .` passes with a warning that `CLAUDE.md` at the plugin
+root is not loaded, and it also reports the two folder READMEs, though the
+manifest lists keep them from loading.
 
 ## agents-course
 

@@ -10,6 +10,11 @@ cp commands/*.md ~/brain/.claude/commands/ && rm ~/brain/.claude/commands/README
 Leave this README out: anything in `.claude/commands/` becomes a slash command,
 and `/README` is not one you want.
 
+This is the copy install. The kit is also a plugin, where the same commands run as
+`/second-brain:<name>` (for example `/second-brain:ingest`) and nothing is copied
+into the vault: see [plugins](../plugins/README.md#second-brain). Use one method
+per vault.
+
 To update a vault that already has the kit, run `/install` rather than copying
 by hand. It compares your `.claude/skills/VERSION` with the checkout's, shows
 the [CHANGELOG](../CHANGELOG.md) entries since yours, and lists the copy
