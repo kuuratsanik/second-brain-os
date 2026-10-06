@@ -69,9 +69,16 @@ Rules the docs give that affect how you write them:
   a card. If an answer needs one (a table), leave that card out.
 - Both sides of `?` must touch it: no blank line between the question, the
   `?` line and the answer.
-- The plugin also reads `==highlight==`, `**bold**` and `{{braces}}` as cloze
-  cards when the owner has enabled them. Do not use those marks in card text
-  except on purpose. Avoid `::` and a bare `?` line inside card text, for
+- `==highlight==` is a cloze by default: the cloze docs say "By default, the
+  cloze delimiter is `==`", and that other patterns (Anki-style `{{...}}`, for
+  example) work only if the owner adds them in settings. The README also lists
+  `**bold**` and `{{braces}}` as cloze forms, and the two pages are not
+  explicit about whether those are on by default, so treat all three as
+  possible clozes: never use `==` in card text, and avoid bold and braces
+  inside cards. Sources: the plugin's
+  [README](https://github.com/st3v3nmw/obsidian-spaced-repetition#readme) and
+  [cloze cards docs](https://github.com/st3v3nmw/obsidian-spaced-repetition/blob/master/docs/docs/en/flashcards/cloze-cards.md),
+  read 2026-10-06. Avoid `::` and a bare `?` line inside card text, for
   example in code.
 - Do not write or edit `<!--SR:...-->` comments. They are the plugin's.
 

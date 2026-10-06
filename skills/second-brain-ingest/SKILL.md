@@ -72,7 +72,8 @@ removed, which is how `scripts/link_check.py --duplicates` compares file names,
   short form people use in text. Include the title as it appears in the source.
   An alias that already belongs to another page is a duplicate, not an alias:
   stop and update or merge instead (`second-brain-merge`).
-- **Two languages.** The owner writes in Estonian and English. Set `lang:` to
+- **Two languages.** If the owner writes in two languages (the template assumes
+  Estonian and English), set `lang:` to
   the language the page is written in (`et` or `en`; the page keeps its
   source's language). When the owner uses both languages for a thing, in the
   source, on another vault page or in what they have told you, add the title in

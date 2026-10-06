@@ -1,16 +1,13 @@
 ---
 name: second-brain-query
 description: >-
-  Answer a question from a second-brain vault by reading its own pages, citing
-  the pages used, and saying plainly when the vault does not contain the
-  answer. Use this skill whenever the user asks what they know about a topic,
-  what they have read on something, what connects two ideas, or
-  asks any question that should be answered from their own notes rather than
-  general knowledge. Do NOT use for ingesting new material, for general
-  questions the vault has nothing to do with, or when the user explicitly wants
-  an answer from the open web. For a specific question that needs a cited,
-  line-level answer, use second-brain-ask, which searches with
-  `scripts/vault_search.py`.
+  Inventory what a second-brain vault holds on a topic: read its pages, follow
+  links, and say what it covers, what it does not and where its sources
+  disagree. Use this skill when the user asks what they know about a topic,
+  what they have read on something or what connects two ideas. Do NOT use for a
+  specific question that needs a cited, line-level answer (second-brain-ask),
+  for ingesting new material, or when the user explicitly wants an answer from
+  the open web.
 ---
 
 # Query the vault

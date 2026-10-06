@@ -46,10 +46,12 @@ I checked this by installing the plugin from a local copy of this repo with Clau
 Skills still trigger from their descriptions, so you rarely type the long
 name. Commands are the part you type, and they now carry the prefix. A command
 with `disable-model-invocation: true` keeps it: the field is part of the file,
-not of the name. The sixteen commands that a scheduled task can fire should be
-the same sixteen, as `/second-brain:ingest`, `/second-brain:lint` and so on.
-That is inferred from the skills documentation, not stated in the scheduled-tasks
-documentation, so check the first run of a task before relying on it. The
+not of the name. The seventeen commands that a scheduled task can fire should be
+the same seventeen, as `/second-brain:ingest`, `/second-brain:lint` and so on.
+The [scheduled-tasks documentation](https://code.claude.com/docs/en/scheduled-tasks)
+says a scheduled fire runs only skills that Claude is allowed to invoke on its
+own; it does not say how a plugin-prefixed name resolves, so check the first run
+of a task before relying on it. The
 vault template's autonomy override names commands, skills and agents by their
 short names, and its text says the `second-brain:` prefix is covered too. A
 file under `.claude/commands/` in your vault would still run as `/ingest`; a
