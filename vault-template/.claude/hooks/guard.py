@@ -305,8 +305,36 @@ def split_commands(cmd):
 
 def inner_strings(cmd):
     """Text inside $( ), backticks and double quotes, so nested commands are checked."""
+    cmd = mask_single_quoted(cmd)
     found = re.findall(r"\$\(([^()]*)\)", cmd) + re.findall(r"`([^`]*)`", cmd)
     return found
+
+
+def mask_single_quoted(cmd):
+    """Blank out text inside single quotes: the shell expands nothing there, so a
+    backtick or $( in it is plain text. Double quotes and backslashes are tracked."""
+    out, quote, i = [], None, 0
+    while i < len(cmd):
+        c = cmd[i]
+        if quote == "'":
+            if c == "'":
+                quote = None
+                out.append(c)
+            else:
+                out.append(" ")
+        elif c == "\\" and i + 1 < len(cmd):
+            out.append(c + cmd[i + 1])
+            i += 1
+        elif quote == '"':
+            if c == '"':
+                quote = None
+            out.append(c)
+        else:
+            if c in "\"'":
+                quote = c
+            out.append(c)
+        i += 1
+    return "".join(out)
 
 
 SHELL_KEYWORDS = {"do", "then", "else", "elif", "if", "while", "until", "!", "coproc"}
@@ -748,7 +776,7 @@ SCRIPT_DELETE = re.compile(
 # A one-liner that runs a shell command: blocked only if the text also deletes.
 SCRIPT_SHELL = re.compile(r"\b(execSync|exec|execFile|spawnSync|spawn|system|popen|"
                           r"child_process)\b|%x[(\[{]|`", re.I)
-SHELL_DELETE = re.compile(r"(?<![A-Za-z0-9_])(rm|rmdir|unlink|shred|del|erase|rimraf|trash)"
+SHELL_DELETE = re.compile(r"(?<![A-Za-z0-9_])(rm|rmdir|unlink|shred|del|erase|rimraf|trash|clean|mv|reset)"
                           r"(?![A-Za-z0-9_])|-delete\b", re.I)
 SCRIPT_WRITE = re.compile(
     r"\b(writeFile(Sync)?|appendFile(Sync)?|createWriteStream|copyFile(Sync)?|"
@@ -924,7 +952,8 @@ def pre_tool_use(data):
         # Redirects, heredocs, tee and PowerShell writers carry content in the text.
         if re.search(r">|<<|\btee\b|set-content|add-content|out-file|\bsc\b|\bac\b|"
                      r"\bcommit\b|\bsed\b.*-[A-Za-z]*i|\bperl\b.*-[A-Za-z]*i|"
-                     r"\bpython3?\b.*-c\b|\bnode(js)?\b.*(-e|--eval)\b",
+                     r"\bpython3?\b.*-c\b|\bnode(js)?\b.*(-e|--eval)\b|"
+                     r"\bruby[0-9.]*\b.*\s-[A-Za-z0-9]*[eE]\b|\bphp[0-9.]*\b.*\s-[A-Za-z]*r\b",
                      cmd, re.I):
             check_secrets([cmd])
 
