@@ -2,7 +2,7 @@
 
 > A guide to building a knowledge base your AI agent maintains, in plain markdown you own, plus an agents course and handbooks.
 
-131 pages in 22 sections: the guide (numbered sections, read once in order), the agents course (modules C0 to C6) and the handbooks (references, dip in anywhere). Every link below is the raw markdown of one page. The same text, concatenated, is in [llms-full.txt](https://kuuratsanik.github.io/second-brain-os/llms-full.txt).
+131 pages in 22 sections: the guide (numbered sections, read once in order), the agents course (modules C0 to C6) and the handbooks (references, dip in anywhere). Every link below is the raw markdown of one page. The same text, concatenated, is in [llms-full.txt](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/llms-full.txt).
 
 ## Guide: Concepts
 
@@ -65,7 +65,7 @@
 - [Subagents and parallel work](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/06-agents/subagents.md): Subagents run in their own context window (Claude Code docs).
 - [Hooks](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/06-agents/hooks.md): Hooks are shell commands that Claude Code runs at set points in its lifecycle (the hooks guide lists the events, such as PreToolUse, PostToolUse and Stop).
 - [Skills and slash commands](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/06-agents/skills-and-commands.md): Two mechanisms that look similar and do different jobs.
-- [Guardrails](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/06-agents/safety-and-guardrails.md): The rule this whole section rests on
+- [Guardrails](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/06-agents/safety-and-guardrails.md): The rule this whole section rests on: Keys, not prompts.
 
 ## Guide: Retrieval
 
@@ -97,7 +97,7 @@
 - [The agent writes garbage](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/10-troubleshooting/agent-writes-garbage.md): Pages that are technically about the right thing and useless to read.
 - [Broken links and orphans](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/10-troubleshooting/broken-links.md): Obsidian updates links when you rename inside the app. An agent renaming a file directly does not, and that is the most common cause of broken links in an agent-maintained vault.
 - [The vault got too big](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/10-troubleshooting/vault-too-big.md): Answers get slower and vaguer. The agent reads twenty pages and returns something general.
-- [FAQ](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/10-troubleshooting/faq.md): Do I need MCP?
+- [FAQ](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/docs/10-troubleshooting/faq.md): Do I need MCP? No. Claude Code started inside the vault folder reads and writes it directly.
 
 ## Course: 0 · The map
 
@@ -205,6 +205,6 @@
 
 - [Resources](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/resources/README.md): vetted links: plugins, tools, repositories, papers, reading
 - [Changelog](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/CHANGELOG.md): user-facing changes to the kit, by version
-- [Changelog feed](https://kuuratsanik.github.io/second-brain-os/feed.xml): the same entries as an Atom feed
+- [Changelog feed](https://raw.githubusercontent.com/kuuratsanik/second-brain-os/main/feed.xml): the same entries as an Atom feed
 - [Site](https://kuuratsanik.github.io/second-brain-os/): the guide, course and handbooks as a searchable page
 
