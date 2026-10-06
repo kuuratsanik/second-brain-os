@@ -8,7 +8,11 @@ Links inside code fences and inline code are ignored, as are URLs.
     python3 tools/doc_links.py            # from anywhere; exit 1 on any failure
     python3 tools/doc_links.py --selftest # check the checker itself
 """
-import glob, io, os, re, sys
+import glob
+import io
+import os
+import re
+import sys
 from urllib.parse import unquote
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

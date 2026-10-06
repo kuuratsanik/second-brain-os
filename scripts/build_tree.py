@@ -7,7 +7,11 @@ themselves (frontmatter, docstrings, page titles), so a rerun stays true.
 
     python3 scripts/build_tree.py
 """
-import io, json, os, re, sys
+import io
+import json
+import os
+import re
+import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)

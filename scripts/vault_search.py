@@ -274,7 +274,7 @@ def embed_texts(url, texts, timeout=60):
         data = sorted(doc["data"], key=lambda d: d["index"])
         vecs = [[float(x) for x in d["embedding"]] for d in data]
     except (urllib.error.URLError, OSError, ValueError, KeyError, TypeError) as e:
-        raise EmbedError(str(getattr(e, "reason", e)) or type(e).__name__)
+        raise EmbedError(str(getattr(e, "reason", e)) or type(e).__name__) from e
     if len(vecs) != len(texts) or not all(vecs) or len({len(v) for v in vecs}) != 1:
         raise EmbedError("unexpected response from the embedding server")
     return str(doc.get("model", "")), vecs
@@ -444,7 +444,7 @@ def search(vault, query, limit=10, include_archive=False, include_restricted=Fal
             for r, (d, _) in enumerate(ranked[:n]):
                 fused[d] = fused.get(d, 0.0) + 1.0 / (RRF_K + r + 1)
             lexical = {d for d, _ in ranked}
-            for r, (d, c, start) in enumerate(sem[:n]):
+            for r, (d, _c, start) in enumerate(sem[:n]):
                 fused[d] = fused.get(d, 0.0) + 1.0 / (RRF_K + r + 1)
                 chunk_line[d] = start
             order = sorted(fused.items(), key=lambda kv: (-kv[1], index.pages[kv[0]].path))

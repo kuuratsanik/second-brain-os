@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Builds index.html (the guide) and resources.html (the catalog) from site_data.json."""
-import io, json, os, html, sys
+import io
+import json
+import os
+import html
+import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from site_common import (RESOURCES_DATE, REPO, GHT, FOOTER, head, header, min_css, min_js, dumps,

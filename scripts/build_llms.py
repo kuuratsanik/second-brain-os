@@ -15,7 +15,11 @@ in docs/. Nothing here reads git or the clock; a rerun is byte-identical.
 
     python3 scripts/build_llms.py
 """
-import io, json, os, re, sys
+import io
+import json
+import os
+import re
+import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools"))

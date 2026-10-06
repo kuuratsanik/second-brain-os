@@ -124,7 +124,7 @@ class Dashboard(VaultCase):
 
     def test_needs_owner_queue(self):
         self.assertIsNone(self.data()["needs_owner_open"])
-        write(self.vault, "wiki/systems/needs-owner.md", f"""---
+        write(self.vault, "wiki/systems/needs-owner.md", """---
 title: Needs owner
 ---
 # Needs owner

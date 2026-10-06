@@ -1,0 +1,88 @@
+name: release
+
+# Pushing a tag vX.Y.Z publishes a GitHub release whose body is that version's
+# section of CHANGELOG.md. Steps for a maintainer are in CONTRIBUTING.md.
+on:
+  push:
+    tags: ["v*"]
+
+# No permissions by default; only the release job gets write access.
+permissions: {}
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+      # The tag name is read from the environment, never interpolated into the script.
+      - name: Check the tag against skills/VERSION and plugin.json
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::tag '$TAG' is not vX.Y.Z"
+            exit 1
+          fi
+          want="${TAG#v}"
+          have="$(tr -d '[:space:]' < skills/VERSION)"
+          plugin="$(python3 -c 'import json; print(json.load(open(".claude-plugin/plugin.json", encoding="utf-8"))["version"])')"
+          if [ "$have" != "$want" ]; then
+            echo "::error::tag is $want but skills/VERSION is $have"
+            exit 1
+          fi
+          if [ "$plugin" != "$want" ]; then
+            echo "::error::tag is $want but .claude-plugin/plugin.json version is $plugin"
+            exit 1
+          fi
+      # A release must come from a commit that went through main.
+      - name: Check the tagged commit is on main
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" FETCH_HEAD; then
+            echo "::error::the tagged commit is not in main"
+            exit 1
+          fi
+      - name: Check the kit and the changelog section
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          python3 tools/release_notes.py --selftest
+          python3 tools/check_kit.py
+          python3 tools/release_notes.py "$TAG" > /dev/null
+
+  release:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+      # `gh` is preinstalled on GitHub-hosted Ubuntu runners (runner-images,
+      # images/ubuntu/Ubuntu2404-Readme.md, "GitHub CLI"). --verify-tag makes it
+      # fail rather than create a tag that does not exist.
+      - name: Create the release
+        env:
+          TAG: ${{ github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          python3 tools/release_notes.py "$TAG" > "$RUNNER_TEMP/notes.md"
+          gh release create "$TAG" --verify-tag --title "$TAG" --notes-file "$RUNNER_TEMP/notes.md"

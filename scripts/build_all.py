@@ -16,7 +16,9 @@ Steps (each reads the output of the one before):
 
 The output is deterministic: running this twice gives identical bytes.
 """
-import os, subprocess, sys
+import os
+import subprocess
+import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STEPS = ["tools/extract_site.py", "tools/build_site.py",

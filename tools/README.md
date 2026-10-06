@@ -96,6 +96,19 @@ anything. Run `python3 tools/check_kit.py` and `python3 tools/check_kit.py
 --selftest`; when the Claude Code docs add a frontmatter field, a settings key
 or a hook event, update the key sets at the top of the script.
 
+`release_notes.py VERSION` prints one version's section of `CHANGELOG.md`; the
+release workflow uses it as the GitHub release body, and `check_kit.py` imports
+it to require a `## [X.Y.Z]` heading for the version in `skills/VERSION`.
+`bench_kv_slots.py` times a long prefix on a running `llama-server` (cold, warm,
+and restored from a saved slot) and prints a markdown table. Both have
+`--selftest`; the benchmark runs against a fake local server. Neither is part
+of the site build.
+
+Lint: `ruff.toml` holds the ruff rules (a conservative set, target py39), and
+`.github/workflows/lint.yml` runs ruff, actionlint and zizmor at pinned
+versions; any finding fails CI. `vault-template/.claude/hooks` is excluded from
+ruff for now.
+
 `tests/` holds `unittest` tests for the six vault scripts, using a fixture vault
 built in a temp dir (CRLF and BOM files, aliases, piped links, skip folders and
 `--include`, CSV and GraphML shape, and ChatGPT and Claude chat exports). Run
