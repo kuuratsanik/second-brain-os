@@ -30,7 +30,7 @@ The figures for layers, KV heads and hidden size come from Meta's repository, no
 
 | Tier | Holds | Notes |
 |---|---|---|
-| GPU memory (HBM or VRAM) | The cache for sequences being served | The only tier attention reads directly |
+| GPU memory (HBM or VRAM) | The cache for sequences being served | On a GPU engine, the memory attention computes from (on CPU inference, RAM plays this role) |
 | CPU RAM | Recently used blocks, pinned for fast copies | vLLM and LMCache both use it as the first offload tier |
 | Local NVMe SSD | Larger, slower, survives restarts | The subject of this page |
 | Remote (object store, shared filesystem, another node) | Shared across machines | Not needed for one person's vault |
@@ -49,7 +49,7 @@ Whether it wins on your machine depends on one comparison: the time to read the 
 
 ### Where it does not help
 
-- Decode. Generating each token needs the sequence's KV in GPU memory. Disk is a place to park and reload blocks, not to serve attention from. The vLLM guide describes hits in the offload tiers as "promoted back to GPU on demand".
+- Decode. Generating each token needs the sequence's KV in the memory the model computes from: GPU memory on a GPU engine, RAM for CPU inference. Disk is a place to park and reload blocks, not to serve attention from. The vLLM guide describes hits in the offload tiers as "promoted back to GPU on demand".
 - Short or constantly changing prompts. If the prefix differs every time, nothing matches. Anything that edits an early token, such as a timestamp in the system prompt, defeats reuse in the same way it defeats API prompt caching.
 - A slow drive. If reading a prefix from disk takes longer than recomputing it, the cache is a loss. Check the drive's sequential read speed against your prefill speed. Whether a given SATA or QLC drive is fast enough is a measurement, not a rule; their datasheet figures could not be fetched here.
 - A small prefix. Below a few thousand tokens, prefill is usually quick enough that the disk round trip is not worth the wear.
@@ -98,7 +98,7 @@ vllm serve <model> --kv-transfer-config '{
   }}'
 ```
 
-Documented keys: `cpu_bytes_to_use` is required and is the total across workers; `offload_prompt_only` defaults to `true`, so decode blocks are not offloaded; the fs tier's `n_read_threads` and `n_write_threads` default to 16 each. Per request, `kv_transfer_params` accepts `max_offload_tokens` (cap how many leading tokens are stored; `0` disables offload for that request) and `max_load_tokens` (cap how many are loaded). Both are marked experimental. The guide's tuning tip for the CPU tier is to size it above the aggregate GPU KV cache, because a smaller one only mirrors the GPU. The connector supports CUDA, ROCm and XPU only, so it does not apply to Apple silicon or CPU-only machines.
+Documented keys: `cpu_bytes_to_use` is required and is the total across workers; `offload_prompt_only` defaults to `true`, so decode blocks are not offloaded; the fs tier's `n_read_threads` and `n_write_threads` default to 16 each. Per request, `kv_transfer_params` accepts `max_offload_tokens` (cap how many leading tokens are stored; `0` disables offload for that request) and `max_load_tokens` (cap how many are loaded). Both are marked experimental. For single-tier (CPU-only offload) setups, the guide's tuning tip is to size the CPU tier above the aggregate GPU KV cache, because a smaller one only mirrors the GPU. With a disk tier the CPU tier is a staging area, since all GPU-to-disk transfers pass through it, and a larger one means fewer trips to disk. The connector supports CUDA, ROCm and XPU only, so it does not apply to Apple silicon or CPU-only machines.
 
 ### SGLang HiCache
 
@@ -110,7 +110,7 @@ python3 -m sglang.launch_server --model-path <model> \
   --hicache-storage-backend file
 ```
 
-That command combines flags the docs list individually; it is not a copy of a documented example, and I did not run it.
+That command combines flags the docs list individually; it is not a copy of a documented example, and it was not run for this page.
 
 ### llama.cpp
 
@@ -134,7 +134,7 @@ The README's example response shows a save of 1,745 tokens writing 14,309,796 by
 
 ### Ollama
 
-Ollama's [FAQ](https://github.com/ollama/ollama/blob/main/docs/faq.mdx) documents `keep_alive` and `OLLAMA_KEEP_ALIVE` (how long a model stays in memory) and `OLLAMA_KV_CACHE_TYPE` (K/V cache quantization, default `f16`, needs Flash Attention). It documents no disk tier for the KV cache. I did not search its source for undocumented behaviour. A smaller cache type reduces the bytes per token in the formula above but does not persist anything.
+Ollama's [FAQ](https://github.com/ollama/ollama/blob/main/docs/faq.mdx) documents `keep_alive` and `OLLAMA_KEEP_ALIVE` (how long a model stays in memory) and `OLLAMA_KV_CACHE_TYPE` (K/V cache quantization, default `f16`, needs Flash Attention). It documents no disk tier for the KV cache. Its source was not searched for undocumented behaviour. A smaller cache type reduces the bytes per token in the formula above but does not persist anything.
 
 ### NVIDIA Dynamo (KVBM)
 
@@ -146,7 +146,7 @@ The [Dynamo README](https://github.com/ai-dynamo/dynamo/blob/main/README.md) des
 
 **Put the stable part first, and only cache that.** Order the prompt as system prompt, tool schemas, vault index, then the per-session material. Cache keys are built from the token prefix, so one changed token early on invalidates everything after it. In vLLM, `max_offload_tokens` stores only the leading tokens of a request, which is the system-prompt use case its docs name.
 
-**Endurance.** Every prompt block that is offloaded is a write. At 128 KiB per token for the 8B example, 1,000,000 newly prefilled tokens a day is 131 GB a day if all are stored. That arithmetic is yours to redo with your model's bytes per token and your real token volume. Compare it with your drive's rated total bytes written (TBW) or drive writes per day, which the drive's datasheet gives. I could not fetch any vendor datasheet, so no endurance figure is stated here. Reduce writes by capping offload to the stable prefix, by setting a disk size limit (`LMCACHE_MAX_LOCAL_DISK_SIZE`) and by not putting the cache on the drive that holds your only copy of the vault.
+**Endurance.** Every prompt block that is offloaded is a write. At 128 KiB per token for the 8B example, 1,000,000 newly prefilled tokens a day is 131 GB a day if all are stored. That arithmetic is yours to redo with your model's bytes per token and your real token volume. Compare it with your drive's rated total bytes written (TBW) or drive writes per day, which the drive's datasheet gives. No vendor datasheet could be fetched, so no endurance figure is stated here. Reduce writes by capping offload to the stable prefix, by setting a disk size limit (`LMCACHE_MAX_LOCAL_DISK_SIZE`) and by not putting the cache on the drive that holds your only copy of the vault.
 
 **NVMe versus SATA, QLC.** Throughput sets how fast a prefix loads. The interface limits for NVMe (PCIe generation and lane count) and SATA (6 Gbit/s link) are in the standards, which could not be fetched; read the datasheet and, better, measure with a tool such as `fio` using large sequential reads. Do not trust the datasheet peak for a QLC drive until you have tested sustained writes, since a long write burst is the case an offload tier produces. This is a testing instruction, not a measured claim.
 
@@ -166,7 +166,7 @@ Time to first token (TTFT) for a long shared prefix, cold versus cached. The pre
    - disk-warm: restart the engine (keep the cache directory, and for LMCache keep `lmcache server` running or its L2 directory), then send it again;
    - baseline: the same restart with the disk tier disabled.
 
-Disk-warm should beat cold by roughly the prefill time minus the read time. If it does not, the drive or the connector is the bottleneck. After a restart the operating system may still hold the files in its page cache, which makes the disk-warm run look faster than a real cold read; use `use_odirect` where available, or drop caches as root on Linux before the run.
+Disk-warm should beat cold by roughly the prefill time minus the read time. If it does not, the drive or the connector is the bottleneck. After a restart the operating system may still hold the files in its page cache, which makes the disk-warm run look faster than a real cold read; use `use_odirect` where available, or, on Linux as root, run `sync; echo 3 > /proc/sys/vm/drop_caches` before the run. The kernel's [vm sysctl documentation](https://github.com/torvalds/linux/blob/master/Documentation/admin-guide/sysctl/vm.rst) describes `drop_caches` as freeing clean page cache and reclaimable slab objects, and says running `sync` first leaves fewer dirty objects. That page was read on 6 October 2026.
 
 ```python
 import json, sys, time, urllib.request
@@ -184,16 +184,19 @@ req = urllib.request.Request("http://localhost:8000/v1/chat/completions",
 t0 = time.perf_counter()
 with urllib.request.urlopen(req) as r:
     for line in r:
-        if line.startswith(b"data: ") and b'"content"' in line:
+        if not line.startswith(b"data: ") or line.strip() == b"data: [DONE]":
+            continue
+        delta = json.loads(line[6:])["choices"][0]["delta"]
+        if delta.get("content"):  # skip the role-only first chunk
             print(f"TTFT {time.perf_counter() - t0:.3f} s")
             break
 ```
 
-This script is a plain timing harness written for this page, not taken from any project's docs; it assumes an OpenAI-compatible server on port 8000 that streams. `llama-server` reports the numbers itself: the `/completion` response has a `timings` object with `cache_n` (prompt tokens reused from cache), `prompt_n` (tokens processed) and `prompt_ms`, so a restore should show a large `cache_n` and a small `prompt_ms`. Run each state several times and keep the median; one run on a cold drive tells you little.
+This script is a plain timing harness written for this page, not taken from any project's docs; it assumes an OpenAI-compatible server on port 8000 that streams, and it stops the timer at the first non-empty content delta. A reasoning model may stream reasoning in a different field first; adjust the check if so. `llama-server` reports the numbers itself: the `/completion` response has a `timings` object with `cache_n` (prompt tokens reused from cache), `prompt_n` (tokens processed) and `prompt_ms`, so a restore should show a large `cache_n` and a small `prompt_ms`. Run each state several times and keep the median; one run on a cold drive tells you little.
 
 ## What was and was not checked
 
-Checked on 6 October 2026 against the primary files named above: the LMCache README and docs source (`quickstart.rst`, `mp/l2_storage/fs.rst`, `local_storage.rst`), vLLM's `disagg_prefill.md` and `kv_offloading_usage.md` on `main`, SGLang's HiCache docs on `main`, the llama.cpp server and completion READMEs on `master`, Ollama's `faq.mdx`, the Dynamo README, and Meta's llama-models repository. The docs describe the branch head, so flags may differ from the release you installed. I ran no server and no benchmark, so no speed result is claimed.
+Checked on 6 October 2026 against the primary files named above: the LMCache README and docs source (`quickstart.rst`, `mp/l2_storage/fs.rst`, `local_storage.rst`), vLLM's `disagg_prefill.md` and `kv_offloading_usage.md` on `main`, SGLang's HiCache docs on `main`, the llama.cpp server and completion READMEs on `master`, Ollama's `faq.mdx`, the Dynamo README, and Meta's llama-models repository. The docs describe the branch head, so flags may differ from the release you installed. No server or benchmark was run for this page, so no speed result is claimed.
 
 Not re-checked on 6 October 2026 because the page could not be fetched:
 
