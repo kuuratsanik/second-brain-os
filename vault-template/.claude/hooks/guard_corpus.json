@@ -68,7 +68,7 @@
 {"tool": "Bash", "input": {"command": "rm wiki/link-to-raw.md"}, "expect": "block", "why": "rm via symlink wiki"},
 {"tool": "Write", "input": {"file_path": "{{ROOT}}/wiki/link-to-raw.md", "content": "x"}, "expect": "block", "why": "write via symlink to raw"},
 {"tool": "Write", "input": {"file_path": "{{ROOT}}/wiki/jl/new.md", "content": "x"}, "expect": "block", "why": "write via symlinked journal dir"},
-{"tool": "Write", "input": {"file_path": "{{ROOT}}/Raw/clippings/a.md", "content": "x"}, "expect": "allow", "why": "write RAW/ uppercase (linux: new path) | undecided in review, pinned to current behaviour"},
+{"tool": "Write", "input": {"file_path": "{{ROOT}}/Raw/clippings/a.md", "content": "x"}, "expect": "allow", "expect_nt": "block", "why": "write RAW/ uppercase (linux: new path; Windows is case-insensitive, so it is raw/ and blocked) | undecided in review, pinned to current behaviour"},
 {"tool": "Write", "input": {"file_path": "{{ROOT}}/JOURNAL/x.md", "content": "x"}, "expect": "block", "why": "write JOURNAL/ uppercase | undecided in review, pinned to current behaviour"},
 {"tool": "Write", "input": {"file_path": "{{ROOT}}/./raw/../raw/clippings/a.md", "content": "x"}, "expect": "block", "why": "write ./raw/../raw/x"},
 {"tool": "Write", "input": {"file_path": "{{ROOT}}/raw/clippings/a.md", "content": "x"}, "expect": "block", "why": "write relative raw path"},

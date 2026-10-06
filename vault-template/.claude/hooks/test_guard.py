@@ -95,7 +95,7 @@ def edit(path, old, new):
 # guard_corpus.json holds the regression corpus: every payload the adversarial
 # reviews ran, plus the payload classes they named, as data. Each case is
 #   {"tool": ..., "input": {...tool_input...}, "expect": "block" | "allow",
-#    "why": "...", "cwd_setup": {"vault": "git" | "nogit" | "restricted", "cwd": "wiki/concepts"}}
+#    "why": "...", "expect_nt": optional override on Windows, "cwd_setup": {"vault": "git" | "nogit" | "restricted", "cwd": "wiki/concepts"}}
 # (cwd_setup is optional). Strings may use {{name}} macros so that no credential
 # or restricted excerpt is stored in the file; MACROS and the rx macro below say
 # what each expands to. "why" starts with PROMPT-ONLY for a documented limit
@@ -403,7 +403,8 @@ def corpus_section(chk):
             vaults[kind] = make_corpus_vault(kind)
         home, root = vaults[kind]
         payload = corpus_payload(case, root, home)
-        want = 2 if case["expect"] == "block" else 0
+        expect = case.get("expect_nt", case["expect"]) if os.name == "nt" else case["expect"]
+        want = 2 if expect == "block" else 0
         try:
             got = run_inproc(mod, root, home, payload)
         except Exception as e:  # a case the harness cannot run is a failure, not a skip
@@ -1079,7 +1080,7 @@ def main():
         (2, "commit --no-verify", bash("git commit --no-verify -m x -- wiki/x.md")),
         (2, "commit -n", bash("git commit -n -m x -- wiki/x.md")),
         # round-3 nits
-        (0, "absolute path after unfollowable cd", bash("cd $X && echo x > %s/wiki/new.md" % root)),
+        (0, "absolute path after unfollowable cd", bash("cd $X && echo x > %s/wiki/new.md" % root.replace(os.sep, "/"))),
         (2, "absolute raw path after unfollowable cd", bash("cd $X && echo x > %s/raw/clippings/a.md" % root)),
         (0, "git config user.name (read)", bash("git config user.name")),
         (0, "git config get", bash("git config get user.name")),
