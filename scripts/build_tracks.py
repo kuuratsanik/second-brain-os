@@ -106,7 +106,7 @@ TRACKS = {
                  "engineering, the landscape — and a working harness in "
                  "an evening, about 150 lines.",
         "order": ["what-a-harness-is", "claude-code-as-harness",
-                  "context-engineering", "tools-and-mcp",
+                  "context-engineering", "kv-cache-ssd-tier", "tools-and-mcp",
                   "harness-landscape",
                   "build-the-loop", "build-guardrails", "build-graduate",
                   "resources"],
